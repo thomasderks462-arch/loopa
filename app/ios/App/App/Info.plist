@@ -74,5 +74,9 @@
 	<string>Loopa gebruikt je foto's voor voortgangsfoto's en het herkennen van eten.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Loopa bewaart je back-up of foto's als je dat vraagt.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Loopa leest je stappen uit Gezondheid om ze bij je dag te tonen.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Loopa schrijft niets naar Gezondheid zonder dat je dat vraagt.</string>
 </dict>
 </plist>

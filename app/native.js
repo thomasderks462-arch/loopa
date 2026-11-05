@@ -41,6 +41,28 @@
     } });
   } catch (e) {}
 
+  /* Stappen uit Health Connect (Android) of Apple Gezondheid (iPhone). */
+  var HE = P("Health"), plat = C.getPlatform ? C.getPlatform() : "android";
+  var dkey = function (d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+  window.LoopaHealth = {
+    platform: plat,
+    connect: function () {
+      return HE.isAvailable().then(function (a) {
+        if (!a.available) { if (plat === "android") HE.openHealthConnectSettings().catch(function () {}); return false; }
+        return HE.requestAuthorization({ read: ["steps"] }).then(function (r) {
+          return !(r && r.readDenied && r.readDenied.indexOf("steps") >= 0);
+        });
+      });
+    },
+    steps: function (days) {
+      var start = new Date(); start.setHours(0, 0, 0, 0); start.setDate(start.getDate() - (days - 1));
+      return HE.queryAggregated({ dataType: "steps", startDate: start.toISOString(), endDate: new Date().toISOString(), bucket: "day", aggregation: "sum" }).then(function (r) {
+        var out = {}; (r.samples || []).forEach(function (s) { out[dkey(new Date(s.startDate))] = Math.round(s.value || 0); }); return out;
+      });
+    },
+    settings: function () { return HE.openHealthConnectSettings().catch(function () {}); }
+  };
+
   /* Meldingen: echte herinneringen die ook komen als de app dicht is. */
   var perm = "default";
   function Noti() {} /* de app plant zelf vooruit, dus losse meldingen zijn niet nodig */

@@ -4,4 +4,5 @@
     <string name="title_activity_main">Loopa</string>
     <string name="package_name">app.loopa.tracker</string>
     <string name="custom_url_scheme">app.loopa.tracker</string>
+    <string name="health_connect_privacy_policy_url">https://thomasderks462-arch.github.io/loopa/privacy.html</string>
 </resources>

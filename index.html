@@ -349,6 +349,19 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 .setline{display:flex;gap:12px;font-size:.88rem;padding:3px 2px}
 .setline span:first-child{color:var(--muted);width:18px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}.spin{animation-duration:3s}.resume .dot{animation:none}}
+/* v19 stappen */
+.stepstop{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+#stepsnum{font-size:2.3rem;font-weight:800;letter-spacing:-1px;line-height:1}
+.stepsweek{display:flex;gap:5px;align-items:flex-end;height:54px}
+.stepsweek .sw{width:18px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px}
+.stepsweek .sw i{display:block;width:100%;border-radius:6px;background:#ffd9c2;transition:height .5s cubic-bezier(.2,.8,.2,1)}
+.stepsweek .sw.ok i{background:linear-gradient(180deg,#ff5a1f,#ffa21a)}
+.stepsweek .sw.cur i{outline:2px solid var(--ink);outline-offset:1px}
+.stepsweek small{font-size:.62rem;color:var(--muted);line-height:1}
+.stepsbarw{height:10px}.stepsbarw i{background:linear-gradient(90deg,#ff5a1f,#ffa21a)}
+.stepsbarw.done i{background:linear-gradient(90deg,#20b26b,#5fd38d)}
+.stepscard input{font:inherit;color:var(--ink);background:var(--surface-2);border:0;border-radius:14px;padding:11px 12px}
+.stephow{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:.92rem;line-height:1.4}
 /* v18 ai */
 .aichip{gap:5px;font-weight:700;color:#fff;background:linear-gradient(135deg,#ff5a1f,#ff9d0a);box-shadow:0 3px 10px rgba(255,106,31,.3)}
 .aichip span{font-size:.95rem}
@@ -790,6 +803,14 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
       <div class="gpsbtns"><button class="gpsbtn" type="button" data-gps="hardlopen"><span aria-hidden="true">🏃</span><b>Hardlopen</b></button><button class="gpsbtn" type="button" data-gps="fietsen"><span aria-hidden="true">🚴</span><b>Fietsen</b></button><button class="gpsbtn" type="button" data-gps="wandelen"><span aria-hidden="true">🚶</span><b>Wandelen</b></button></div>
       <span class="muted small" id="gpsbest"></span>
     </section>
+    <section class="card stepscard" id="stepsbox" aria-labelledby="h-steps">
+      <div class="card-head"><h2 id="h-steps">👟 Stappen</h2><span class="muted small" id="stepsgoal"></span></div>
+      <div class="stepstop"><b class="num" id="stepsnum">–</b><div class="stepsweek" id="stepsweek" aria-hidden="true"></div></div>
+      <div class="bar stepsbarw"><i id="stepsbar"></i></div>
+      <span class="muted small" id="stepsnote"></span>
+      <div class="btnrow" id="stepsact"></div>
+      <input type="number" id="steps" inputmode="numeric" min="0" max="100000" placeholder="Of typ je stappen zelf" aria-label="Aantal stappen">
+    </section>
     <section class="card" aria-labelledby="h-gym">
       <div class="card-head"><h2 id="h-gym">Gym</h2><span class="muted small">sets, kg en herhalingen</span></div>
       <div id="gymcard" class="wrap" style="gap:10px"></div>
@@ -803,10 +824,6 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
       <div class="group-title"><span class="label" id="sporttoday">Trainingen</span></div>
       <div id="sportlist" class="wrap" style="gap:8px"></div>
     </div>
-    <section class="card">
-      <div class="card-head"><h2>Stappen</h2><span class="muted small">doel 8.000</span></div>
-      <input type="number" id="steps" inputmode="numeric" min="0" max="100000" placeholder="Aantal stappen vandaag" aria-label="Aantal stappen">
-    </section>
     <section class="card">
       <div class="card-head"><h2>Minuten per dag</h2><span class="muted small">deze week</span></div>
       <svg class="chart" id="sportchart" viewBox="0 0 340 140" role="img" aria-label="Sportminuten per dag"></svg>
@@ -1332,13 +1349,13 @@ function renderSport(){renderGymCard();renderRecords();renderGpsBest();
     b.querySelector("b").textContent=x.type==="anders"&&x.note?x.note:s[1];
     b.querySelector("small").textContent=`${(INT.find(y=>y[0]===x.int)||INT[1])[1]} · ± ${sportKcal(x)} kcal`;
     b.querySelector(".kc").textContent=x.min+" min";b.onclick=()=>sportForm(x,false);list.appendChild(b)});
-  if(document.activeElement!==$("steps"))$("steps").value=day(cur).steps??"";
+  renderSteps();
   const W=340,H=140,L=24,B=20,T=8,bw=(W-L)/7,mx=Math.max(60,...wk.map(sportMin)),y=v=>T+(H-T-B)*(1-v/mx);
   let s="";[0,Math.round(mx/2),mx].forEach(v=>{s+=`<line x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-5}" y="${y(v)+3}" text-anchor="end">${v}</text>`});
   wk.forEach((k,i)=>{const v=sportMin(k),x=L+i*bw;if(v)s+=`<rect x="${x+bw*.22}" y="${y(v)}" width="${bw*.56}" height="${y(0)-y(v)}" rx="5" fill="${k===cur?'var(--good)':'var(--surface-2)'}" ${k===cur?'':'stroke="var(--good)" stroke-width="1.5"'}/>`;
     s+=`<text x="${x+bw/2}" y="${H-5}" text-anchor="middle">${fromKey(k).toLocaleDateString("nl-NL",{weekday:"short"}).slice(0,2)}</text>`});
   $("sportchart").innerHTML=s}
-$("steps").addEventListener("input",e=>{const v=e.target.value;ensure(cur).steps=v===""?null:Math.max(0,Math.round(+v));saveDay(cur)});
+$("steps").addEventListener("input",e=>{const v=e.target.value,d=ensure(cur);d.steps=v===""?null:Math.max(0,Math.round(+v));delete d.stepsSrc;saveDay(cur);renderSteps()});
 $("addsport").onclick=()=>sportForm({type:"hardlopen",min:30,int:"gemiddeld"},true);
 $("sportgoal").onclick=()=>goalSheet("Weekdoel sporten","minuten per week",goalSport(),30,1000,10,v=>setProfile("sport",v));
 function sportForm(entry,isNew){const x={...entry};
@@ -1693,6 +1710,56 @@ function renderSettings(){renderPinUI();renderSeg();renderRemUI();renderIdeas();
 }
 $("addform").addEventListener("submit",e=>{e.preventDefault();const v=$("newhabit").value.trim();if(!v)return;
   state.habits.push({id:"h"+Date.now().toString(36),name:v,part:newPart});$("newhabit").value="";saveHabits();renderSettings()});
+
+/* ===== v19: stappen koppelen (Health Connect / Apple Gezondheid / Opdracht) ===== */
+const STEPGOAL=()=>(state.profile&&state.profile.stepGoal)||8000;
+function stepsImport(map,src){let n=0,changed=false;Object.entries(map).forEach(([k,v])=>{v=Math.max(0,Math.round(+v||0));if(!/^\d{4}-\d{2}-\d{2}$/.test(k)||!isFinite(v))return;
+    const d=ensure(k);if(d.steps!==v){d.steps=v;d.stepsSrc=src;saveDay(k);changed=true}n++});
+  if(changed){render()}return n}
+function parseStepsText(t){t=String(t||"").trim();if(!t)return null;const out={},today=keyOf(new Date());
+  const pairs=[...t.matchAll(/(\d{4}-\d{2}-\d{2})\s*[=:]\s*([\d.,\s]+?)(?=\s*(?:;|\n|$|\d{4}-))/g)];
+  if(pairs.length){pairs.forEach(m=>{const v=parseInt(m[2].replace(/[^\d]/g,""),10);if(v>=0&&v<200000)out[m[1]]=v});return Object.keys(out).length?out:null}
+  const m=t.replace(/[.\s](?=\d{3}\b)/g,"").match(/\d+(?:[.,]\d+)?/);if(!m)return null;const v=Math.round(parseFloat(m[0].replace(",",".")));
+  if(!(v>=0&&v<200000))return null;out[today]=v;return out}
+async function stepsFromClipboard(){let t="";try{t=await navigator.clipboard.readText()}catch(e){toast("Plakken mocht niet. Typ je stappen of probeer opnieuw.");return false}
+  const m=parseStepsText(t);if(!m){toast("Er staan geen stappen op je klembord. Draai eerst de opdracht.");return false}
+  stepsImport(m,"opdracht");const v=m[keyOf(new Date())];toast(v!=null?`${v.toLocaleString("nl-NL")} stappen binnengehaald 👟`:"Stappen binnengehaald 👟");return true}
+let stepsBusy=false;
+async function stepsSyncNative(interactive){const H=window.LoopaHealth;if(!H||stepsBusy)return false;stepsBusy=true;
+  try{if(interactive){const ok=await H.connect();if(!ok){msgSheet("Geen toegang tot je stappen",H.platform==="android"?"Geef Loopa toegang tot Stappen in Health Connect. Heb je Health Connect nog niet? Installeer het dan uit de Play Store.":"Geef Loopa toegang tot Stappen in de Gezondheid-app: Gezondheid › Profiel › Apps › Loopa.",[...(H.platform==="android"?[["Health Connect openen",()=>{closeSheet();H.settings()}]]:[]),["Sluiten",closeSheet]]);return false}
+      setProfile("stepsAuto",true)}
+    const m=await H.steps(7);const n=stepsImport(m,H.platform==="android"?"healthconnect":"health");
+    if(interactive)toast(n?"Stappen gekoppeld 👟 Ze worden nu vanzelf bijgewerkt.":"Gekoppeld, maar nog geen stappen gevonden.");return true}
+  catch(e){if(interactive)msgSheet("Stappen ophalen lukte niet",String(e&&e.message||e).slice(0,160)||"Probeer het nog eens.");return false}
+  finally{stepsBusy=false}}
+function stepsHelp(){openSheet(s=>{s.appendChild(el(`<h2>Stappen van je iPhone</h2>`));
+  s.appendChild(el(`<p class="muted small" style="margin:0">Een web-app mag niet zelf in Apple Gezondheid kijken. Met een opdracht (Shortcut) haal je je stappen in één tik binnen. Die maak je één keer:</p>`));
+  s.appendChild(el(`<ol class="stephow">
+    <li>Open de app <b>Opdrachten</b> en tik op <b>+</b>.</li>
+    <li>Zoek op <b>gezondheid</b> en kies <b>Zoek naar gezondheidsvoorbeelden</b>. Zet <b>Type</b> op <b>Stappen</b> en voeg het filter <b>Startdatum is vandaag</b> toe.</li>
+    <li>Voeg <b>Bereken statistieken</b> toe en kies <b>Som</b>.</li>
+    <li>Voeg <b>Kopieer naar klembord</b> toe.</li>
+    <li>Noem de opdracht <b>Loopa stappen</b>. Tik bij de eerste keer op <b>Sta toe</b> voor Gezondheid.</li></ol>`));
+  s.appendChild(el(`<p class="muted small" style="margin:0">Daarna: draai de opdracht (vanuit de Opdrachten-app, een widget of "Hé Siri, Loopa stappen"), open Loopa en tik op <b>Plakken</b>. Tip: zet de opdracht als widget op je beginscherm.</p>`));
+  const p=el(`<button class="btn" type="button">Plakken</button>`);p.onclick=async()=>{if(await stepsFromClipboard())closeSheet()};s.appendChild(p);
+  const c=el(`<button class="btn sec" type="button">Sluiten</button>`);c.onclick=closeSheet;s.appendChild(c)})}
+function renderSteps(){const box=$("stepsbox");if(!box)return;const k=cur,d=day(k),v=d.steps,g=STEPGOAL(),wk=weekKeys(k),H=window.LoopaHealth,isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  const linked=H&&state.profile&&state.profile.stepsAuto;
+  $("stepsnum").textContent=v!=null?(+v).toLocaleString("nl-NL"):"–";$("stepsgoal").textContent=`van ${g.toLocaleString("nl-NL")}`;
+  $("stepsbar").style.width=Math.min(100,(v||0)/g*100)+"%";$("stepsbar").parentNode.classList.toggle("done",(v||0)>=g);
+  const srcTxt={healthconnect:"uit Health Connect",health:"uit Apple Gezondheid",opdracht:"via je opdracht"}[d.stepsSrc]||"";
+  $("stepsnote").textContent=v==null?"Nog geen stappen voor deze dag.":(v>=g?"Doel gehaald! ":`Nog ${(g-v).toLocaleString("nl-NL")} te gaan. `)+(srcTxt?`Bijgewerkt ${srcTxt}.`:"");
+  const mx=Math.max(g,...wk.map(x=>day(x).steps||0)),bars=$("stepsweek");bars.innerHTML="";
+  wk.forEach(x=>{const s=day(x).steps||0,b=el(`<div class="sw${x===k?" cur":""}${s>=g?" ok":""}"><i style="height:${Math.max(3,s/mx*100)}%"></i><small>${fromKey(x).toLocaleDateString("nl-NL",{weekday:"short"}).slice(0,2)}</small></div>`);b.title=s?s.toLocaleString("nl-NL")+" stappen":"geen stappen";bars.appendChild(b)});
+  const act=$("stepsact");act.innerHTML="";
+  if(H){const b=el(`<button class="btn" type="button"></button>`);b.textContent=linked?"Stappen bijwerken":(H.platform==="android"?"Koppel met Health Connect":"Koppel met Apple Gezondheid");b.onclick=()=>stepsSyncNative(true);act.appendChild(b)}
+  else{const b=el(`<button class="btn" type="button">Plakken</button>`);b.onclick=async()=>{if(!(await stepsFromClipboard())&&isIOS)stepsHelp()};act.appendChild(b);
+    const h=el(`<button class="btn sec" type="button"></button>`);h.textContent=isIOS?"Uit Gezondheid halen":"Hoe koppel ik?";h.onclick=isIOS?stepsHelp:()=>msgSheet("Stappen koppelen","Met de Loopa-app op Android haal je je stappen vanzelf uit Health Connect. In de web-app vul je ze hieronder zelf in, of plak je een getal.");act.appendChild(h)}
+  if(document.activeElement!==$("steps"))$("steps").value=v??""}
+(function(){const u=new URL(location.href),q=u.searchParams.get("stappen");if(q!=null){const m=parseStepsText(q);if(m){setTimeout(()=>{stepsImport(m,"opdracht");toast("Stappen binnengehaald 👟")},600)}
+    u.searchParams.delete("stappen");try{history.replaceState(null,"",u.pathname+(u.search||"")+u.hash)}catch(e){}}})();
+function stepsAutoSync(){if(window.LoopaHealth&&state.profile&&state.profile.stepsAuto)stepsSyncNative(false)}
+setTimeout(stepsAutoSync,1500);document.addEventListener("visibilitychange",()=>{if(!document.hidden)stepsAutoSync()});
 
 /* ===== v18: AI-coach "Vraag Loopa" ===== */
 const AICHAT="loopa-chat";
