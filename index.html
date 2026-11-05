@@ -349,6 +349,31 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 .setline{display:flex;gap:12px;font-size:.88rem;padding:3px 2px}
 .setline span:first-child{color:var(--muted);width:18px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}.spin{animation-duration:3s}.resume .dot{animation:none}}
+/* v16 gps */
+.gpsbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gpsbtn{border:0;border-radius:18px;padding:14px 6px;background:linear-gradient(135deg,#ff5a1f,#ff9d0a);color:#fff;display:flex;flex-direction:column;align-items:center;gap:4px;box-shadow:0 6px 16px rgba(255,106,31,.3);cursor:pointer}
+.gpsbtn span{font-size:1.7rem}.gpsbtn b{font-size:.85rem}
+.gpsv{position:fixed;inset:0;z-index:28;background:var(--bg);display:flex;flex-direction:column}
+.gpsv .gmap{flex:1;min-height:200px;background:#e8e4df}
+.gmap.small{height:230px;border-radius:18px;overflow:hidden;flex:none}
+.gmap.nomap{display:grid;place-items:center}
+.gmap.nomap>svg{width:100%;height:100%}
+.mapmsg{color:var(--muted);font-weight:600;padding:20px;text-align:center}
+.gpanel{background:var(--surface);border-radius:26px 26px 0 0;margin-top:-22px;position:relative;z-index:500;padding:18px max(18px,env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:12px;box-shadow:0 -8px 30px rgba(27,23,20,.12)}
+.gtop{display:flex;justify-content:space-between;align-items:center;gap:8px}.gtype{font-weight:800}
+.gbig{display:flex;align-items:baseline;justify-content:center;gap:8px}
+.gbig b{font-family:var(--display);font-size:4rem;font-weight:800;letter-spacing:-.04em;line-height:1}
+.gbig span{font-weight:700;color:var(--muted);font-size:1.2rem}
+.gstats,.gsum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.gsum{grid-template-columns:repeat(4,1fr);background:var(--surface-2);border-radius:18px;padding:14px 6px}
+.gstats div,.gsum div{display:flex;flex-direction:column;gap:2px}
+.gstats b{font-family:var(--display);font-size:1.6rem;font-weight:800}.gsum b{font-family:var(--display);font-size:1.15rem;font-weight:800}
+.gstats small,.gsum small{color:var(--muted);font-size:.75rem}
+.gbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gbtns .btn{padding:16px;font-size:1.05rem}
+.g-pause.go{background:var(--good)}
+.gpsv.paused .gbig b{color:var(--muted)}
+.gnote{text-align:center;font-size:.75rem}
 /* v15: frisse food-look */
 .eathero{gap:12px}
 .eh-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
@@ -715,6 +740,11 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
         <span class="muted small num" id="sportsub"></span>
         <button class="linkbtn" id="sportgoal" type="button" style="text-align:left">Doel aanpassen</button>
       </div>
+    </section>
+    <section class="card" aria-labelledby="h-out">
+      <div class="card-head"><h2 id="h-out">Buiten sporten</h2><span class="muted small">met GPS</span></div>
+      <div class="gpsbtns"><button class="gpsbtn" type="button" data-gps="hardlopen"><span aria-hidden="true">🏃</span><b>Hardlopen</b></button><button class="gpsbtn" type="button" data-gps="fietsen"><span aria-hidden="true">🚴</span><b>Fietsen</b></button><button class="gpsbtn" type="button" data-gps="wandelen"><span aria-hidden="true">🚶</span><b>Wandelen</b></button></div>
+      <span class="muted small" id="gpsbest"></span>
     </section>
     <section class="card" aria-labelledby="h-gym">
       <div class="card-head"><h2 id="h-gym">Gym</h2><span class="muted small">sets, kg en herhalingen</span></div>
@@ -1241,7 +1271,7 @@ const SPORTS=[["hardlopen","Hardlopen","🏃",9],["fietsen","Fietsen","🚴",7],
 const INT=[["licht","Licht",.75],["gemiddeld","Gemiddeld",1],["zwaar","Zwaar",1.3]];
 function sportKcal(x){const s=SPORTS.find(y=>y[0]===x.type)||SPORTS[7],i=INT.find(y=>y[0]===x.int)||INT[1];return Math.round(s[3]*i[2]*70*(+x.min||0)/60)}
 function weekKeys(k){const d=fromKey(k),dow=(d.getDay()+6)%7,mon=addDays(k,-dow);return Array.from({length:7},(_,i)=>addDays(mon,i))}
-function renderSport(){renderGymCard();renderRecords();
+function renderSport(){renderGymCard();renderRecords();renderGpsBest();
   const wk=weekKeys(cur),tot=wk.reduce((a,k)=>a+sportMin(k),0),g=goalSport();
   setRing("sportarc",tot/g);$("sportnum").textContent=tot;
   $("sportsub").textContent=tot>=g?`Weekdoel van ${g} min gehaald!`:`nog ${g-tot} min tot je weekdoel van ${g}`;
@@ -1251,6 +1281,9 @@ function renderSport(){renderGymCard();renderRecords();
   items.forEach(x=>{if(x.workout){const vs=volume(x.workout),b=el(`<button class="item"><span class="em">🏋️</span><span class="it"><b></b><small></small></span><span class="kc num"></span></button>`);
       b.querySelector("b").textContent=x.workout.name;b.querySelector("small").textContent=`${x.workout.ex.length} oefeningen · ${vs.n} sets · ${vs.v.toLocaleString("nl-NL")} kg`;
       b.querySelector(".kc").textContent=x.min+" min";b.onclick=()=>workoutDetail(x);list.appendChild(b);return}
+    if(x.gps){const s=SPORTS.find(y=>y[0]===x.type)||SPORTS[7],b=el(`<button class="item"><span class="em">${s[2]}</span><span class="it"><b></b><small></small></span><span class="kc num"></span></button>`);
+      b.querySelector("b").textContent=x.note||s[1];b.querySelector("small").textContent=`${fmtClock(x.gps.sec)} · ${gpsPace(x.type,x.gps.sec,x.gps.dist)} ${gpsPaceUnit(x.type)} · ± ${gpsKcal(x.type,x.gps.sec)} kcal`;
+      b.querySelector(".kc").textContent=fmtKm(x.gps.dist)+" km";b.onclick=()=>gpsDetail(x);list.appendChild(b);return}
     const s=SPORTS.find(y=>y[0]===x.type)||SPORTS[7],b=el(`<button class="item"><span class="em">${s[2]}</span><span class="it"><b></b><small></small></span><span class="kc num"></span></button>`);
     b.querySelector("b").textContent=x.type==="anders"&&x.note?x.note:s[1];
     b.querySelector("small").textContent=`${(INT.find(y=>y[0]===x.int)||INT[1])[1]} · ± ${sportKcal(x)} kcal`;
@@ -1616,6 +1649,96 @@ function renderSettings(){renderPinUI();renderSeg();renderRemUI();renderIdeas();
 }
 $("addform").addEventListener("submit",e=>{e.preventDefault();const v=$("newhabit").value.trim();if(!v)return;
   state.habits.push({id:"h"+Date.now().toString(36),name:v,part:newPart});$("newhabit").value="";saveHabits();renderSettings()});
+
+/* ===== v16: buiten sporten met GPS (hardlopen, fietsen, wandelen) ===== */
+const GPSK="loopa-gps",GTYPES={hardlopen:["Hardlopen","🏃",8],fietsen:["Fietsen","🚴",25],wandelen:["Wandelen","🚶",4]};
+let gps=null,gpsWatch=null,gpsTick=null,gpsLock=null,gpsMap=null,gpsLine=null,gpsDot=null,gpsSaveT=0,gpsFix=null;
+function hav(a,b){const R=6371000,t=x=>x*Math.PI/180,dl=t(b[0]-a[0]),dn=t(b[1]-a[1]),s=Math.sin(dl/2)**2+Math.cos(t(a[0]))*Math.cos(t(b[0]))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(s))}
+const gpsSec=g=>(g.acc||0)+(g.run&&g.since?(Date.now()-g.since)/1000:0);
+const fmtKm=m=>(m/1000).toLocaleString("nl-NL",{minimumFractionDigits:2,maximumFractionDigits:2});
+function gpsPace(type,sec,m){if(m<30||sec<5)return type==="fietsen"?"0,0":"–:–";return type==="fietsen"?(m/1000/(sec/3600)).toLocaleString("nl-NL",{maximumFractionDigits:1,minimumFractionDigits:1}):fmtClock(sec/(m/1000))}
+const gpsPaceUnit=t=>t==="fietsen"?"km/u":"/km";
+function gpsKcal(type,sec){const s=SPORTS.find(y=>y[0]===type)||SPORTS[0],w=(state.profile&&+state.profile.weight)||70;return Math.round(s[3]*w*sec/3600)}
+function gpsSave(force){if(!gps)return;const now=Date.now();if(!force&&now-gpsSaveT<2000)return;gpsSaveT=now;try{localStorage.setItem(GPSK,JSON.stringify(gps))}catch(e){}}
+let leafP=null;
+function loadLeaflet(){if(window.L)return Promise.resolve(window.L);if(leafP)return leafP;
+  const base=window.LOOPA_LOCAL_EX?"leaflet/":"https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/";
+  leafP=new Promise(res=>{const css=document.createElement("link");css.rel="stylesheet";css.href=base+(window.LOOPA_LOCAL_EX?"leaflet.css":"leaflet.min.css");document.head.appendChild(css);
+    const sc=document.createElement("script");sc.src=base+(window.LOOPA_LOCAL_EX?"leaflet.js":"leaflet.min.js");sc.onload=()=>res(window.L||null);sc.onerror=()=>{leafP=null;res(null)};document.head.appendChild(sc);setTimeout(()=>res(window.L||null),8000)});
+  return leafP}
+function makeMap(div,segs,live){return loadLeaflet().then(L=>{if(!L||!div.isConnected){drawRouteSvg(div,segs);return null}
+  const m=L.map(div,{zoomControl:false,attributionControl:true});m.attributionControl.setPrefix(false);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{maxZoom:19,subdomains:"abcd",attribution:"© OpenStreetMap © CARTO"}).addTo(m);
+  const lines=segs.filter(s=>s.length).map(s=>s.map(p=>[p[0],p[1]]));
+  const line=L.polyline(lines.length?lines:[[]],{color:"#ff6a1f",weight:5,opacity:.95,lineJoin:"round"}).addTo(m);
+  const all=lines.flat();if(all.length>1)m.fitBounds(L.latLngBounds(all),{padding:[24,24]});else if(all.length)m.setView(all[0],16);else m.setView([52.2,5.3],7);
+  if(!live&&all.length){L.circleMarker(all[0],{radius:6,color:"#fff",weight:2,fillColor:"#1faa55",fillOpacity:1}).addTo(m);L.circleMarker(all[all.length-1],{radius:6,color:"#fff",weight:2,fillColor:"#1b1714",fillOpacity:1}).addTo(m)}
+  setTimeout(()=>m.invalidateSize(),200);return{m,line,L}})}
+function drawRouteSvg(div,segs){const pts=segs.flat();div.innerHTML="";div.classList.add("nomap");if(pts.length<2){div.appendChild(el(`<div class="mapmsg">${pts.length?"Route wordt getekend zodra je beweegt":"Wachten op GPS…"}</div>`));return}
+  const la=pts.map(p=>p[0]),lo=pts.map(p=>p[1]),k=Math.cos(la[0]*Math.PI/180),x0=Math.min(...lo)*k,x1=Math.max(...lo)*k,y0=Math.min(...la),y1=Math.max(...la),W=340,H=220,sc=Math.min((W-30)/Math.max(1e-9,x1-x0),(H-30)/Math.max(1e-9,y1-y0));
+  const P=p=>[15+(p[1]*k-x0)*sc+((W-30)-(x1-x0)*sc)/2,H-15-(p[0]-y0)*sc-((H-30)-(y1-y0)*sc)/2].map(v=>v.toFixed(1)).join(",");
+  div.innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${segs.filter(s=>s.length>1).map(s=>`<polyline points="${s.map(P).join(" ")}" fill="none" stroke="#ff6a1f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`).join("")}<circle cx="${P(pts[0]).split(",")[0]}" cy="${P(pts[0]).split(",")[1]}" r="6" fill="#1faa55" stroke="#fff" stroke-width="2"/><circle cx="${P(pts[pts.length-1]).split(",")[0]}" cy="${P(pts[pts.length-1]).split(",")[1]}" r="6" fill="#1b1714" stroke="#fff" stroke-width="2"/></svg>`}
+function gpsStart(type){
+  if(inArtifact()){msgSheet("GPS werkt in de web-app","In de Claude-app mag Loopa je locatie niet gebruiken. Open Loopa als web-app op je telefoon (thomasderks462-arch.github.io/loopa) om je route te volgen.");return}
+  if(!navigator.geolocation){msgSheet("Geen GPS","Deze browser kan je locatie niet doorgeven.");return}
+  if(gps){gpsUI();return}
+  if(state.active){msgSheet("Er loopt al een workout","Rond die eerst af.");return}
+  gps={type,segs:[[]],dist:0,acc:0,since:Date.now(),run:true,start:Date.now(),day:keyOf(new Date())};gpsSave(true);gpsUI();gpsWatchOn()}
+function gpsWatchOn(){gpsWatchOff();gpsWatch=navigator.geolocation.watchPosition(gpsPos,gpsErr,{enableHighAccuracy:true,maximumAge:0,timeout:30000});
+  try{navigator.wakeLock&&navigator.wakeLock.request("screen").then(l=>{gpsLock=l}).catch(()=>{})}catch(e){}}
+function gpsWatchOff(){if(gpsWatch!=null)navigator.geolocation.clearWatch(gpsWatch);gpsWatch=null;try{gpsLock&&gpsLock.release()}catch(e){}gpsLock=null}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&gps&&gps.run){try{navigator.wakeLock&&navigator.wakeLock.request("screen").then(l=>{gpsLock=l}).catch(()=>{})}catch(e){}}});
+function gpsErr(e){gpsFix={err:e.code===1?"Geef Loopa toestemming voor je locatie (in de instellingen van je browser).":"Geen GPS-signaal. Ga naar buiten of wacht even."};gpsPaint()}
+function gpsPos(p){const c=p.coords;gpsFix={acc:Math.round(c.accuracy)};if(!gps||!gps.run){gpsPaint();return}
+  if(c.accuracy>40){gpsPaint();return}
+  const pt=[+c.latitude.toFixed(6),+c.longitude.toFixed(6),Date.now()],seg=gps.segs[gps.segs.length-1],last=seg[seg.length-1];
+  if(last){const d=hav(last,pt),dt=Math.max(1,(pt[2]-last[2])/1000);if(d<4){gpsPaint();return}if(d/dt>GTYPES[gps.type][2]*1.6){gpsPaint();return}gps.dist+=d}
+  seg.push(pt);gpsSave();
+  if(gpsMap&&gpsMap.L){const ll=[pt[0],pt[1]];gpsMap.line.setLatLngs(gps.segs.filter(s=>s.length).map(s=>s.map(q=>[q[0],q[1]])));
+    if(!gpsDot)gpsDot=gpsMap.L.circleMarker(ll,{radius:8,color:"#fff",weight:3,fillColor:"#ff6a1f",fillOpacity:1}).addTo(gpsMap.m);else gpsDot.setLatLng(ll);
+    gpsMap.m.setView(ll,Math.max(gpsMap.m.getZoom(),16),{animate:true})}
+  else{const md=document.querySelector(".gpsv .gmap");if(md&&md.classList.contains("nomap"))drawRouteSvg(md,gps.segs)}
+  gpsPaint()}
+function gpsUI(){document.querySelector(".gpsv")?.remove();const t=GTYPES[gps.type];
+  const ov=el(`<div class="gpsv" role="dialog" aria-modal="true" aria-label="${t[0]}"><div class="gmap"></div>
+    <div class="gpanel"><div class="gtop"><span class="gtype">${t[1]} ${t[0]}</span><span class="gfix muted small"></span></div>
+      <div class="gbig num"><b class="g-km">0,00</b><span>km</span></div>
+      <div class="gstats"><div><b class="num g-time">0:00</b><small>tijd</small></div><div><b class="num g-pace">–:–</b><small>${gps.type==="fietsen"?"km/u":"tempo /km"}</small></div><div><b class="num g-kcal">0</b><small>kcal</small></div></div>
+      <div class="gbtns"><button class="btn g-pause" type="button">Pauze</button><button class="btn sec g-stop" type="button">Stop</button></div>
+      <span class="muted small gnote">Houd Loopa open met het scherm aan, dan blijft je route goed meelopen.</span></div></div>`);
+  document.body.appendChild(ov);document.body.style.overflow="hidden";gpsMap=null;gpsDot=null;
+  makeMap(ov.querySelector(".gmap"),gps.segs,true).then(r=>{gpsMap=r});
+  ov.querySelector(".g-pause").onclick=()=>{if(gps.run){gps.acc=gpsSec(gps);gps.run=false;gps.since=null;gpsWatchOff()}else{gps.run=true;gps.since=Date.now();gps.segs.push([]);gpsWatchOn()}gpsSave(true);gpsPaint()};
+  ov.querySelector(".g-stop").onclick=()=>{if(gps.run){gps.acc=gpsSec(gps);gps.run=false;gps.since=null;gpsWatchOff();gpsSave(true)}gpsPaint();gpsDone()};
+  clearInterval(gpsTick);gpsTick=setInterval(gpsPaint,1000);gpsPaint()}
+function gpsPaint(){const ov=document.querySelector(".gpsv");if(!ov||!gps)return;const sec=gpsSec(gps);
+  ov.querySelector(".g-km").textContent=fmtKm(gps.dist);ov.querySelector(".g-time").textContent=fmtClock(sec);ov.querySelector(".g-pace").textContent=gpsPace(gps.type,sec,gps.dist);ov.querySelector(".g-kcal").textContent=gpsKcal(gps.type,sec);
+  const b=ov.querySelector(".g-pause");b.textContent=gps.run?"Pauze":"Doorgaan";b.classList.toggle("go",!gps.run);ov.classList.toggle("paused",!gps.run);
+  ov.querySelector(".gfix").textContent=!gps.run?"Gepauzeerd":gpsFix&&gpsFix.err?gpsFix.err:gpsFix&&gpsFix.acc!=null?(gpsFix.acc<=40?`GPS goed (±${gpsFix.acc} m)`:`GPS zoeken… (±${gpsFix.acc} m)`):"GPS zoeken…"}
+function gpsClose(){clearInterval(gpsTick);gpsWatchOff();document.querySelector(".gpsv")?.remove();document.body.style.overflow="";gpsMap=null;gpsDot=null}
+function gpsDone(){const sec=Math.round(gpsSec(gps)),t=GTYPES[gps.type];
+  openSheet(s=>{s.appendChild(el(`<h2>${t[1]} ${t[0]} klaar!</h2>`));
+    s.appendChild(el(`<div class="gsum"><div><b class="num">${fmtKm(gps.dist)}</b><small>km</small></div><div><b class="num">${fmtClock(sec)}</b><small>tijd</small></div><div><b class="num">${gpsPace(gps.type,sec,gps.dist)}</b><small>${gpsPaceUnit(gps.type)}</small></div><div><b class="num">${gpsKcal(gps.type,sec)}</b><small>kcal</small></div></div>`));
+    const nt=field("Naam",`<input type="text" id="g-note" maxlength="60" placeholder="bv. Rondje park">`);s.appendChild(nt);
+    const ok=el(`<button class="btn" type="button">Opslaan</button>`),back=el(`<button class="btn sec" type="button">Doorgaan met ${t[0].toLowerCase()}</button>`),del=el(`<button class="btn danger" type="button">Niet bewaren</button>`);
+    ok.onclick=()=>{const segs=gps.segs.filter(x=>x.length).map(sg=>{const step=Math.max(1,Math.ceil(gps.segs.flat().length/800));return sg.filter((p,i)=>i%step===0||i===sg.length-1).map(p=>[p[0],p[1]])});
+      const d=ensure(gps.day);d.sport=d.sport||[];const x={id:uid(),type:gps.type,min:Math.max(1,Math.round(sec/60)),int:"gemiddeld",note:$("g-note").value.trim(),gps:{dist:Math.round(gps.dist),sec,segs,start:gps.start}};
+      d.sport.push(x);saveDay(gps.day);gps=null;try{localStorage.removeItem(GPSK)}catch(e){}closeSheet();gpsClose();cur=x&&keyOf(new Date(x.gps.start));show("sport");
+      cheer(x.gps.dist>=5000?`🔥 ${fmtKm(x.gps.dist)} km, sterk gedaan!`:"💪 Goed bezig, opgeslagen!",x.gps.dist>=5000)};
+    back.onclick=()=>{closeSheet();gps.run=true;gps.since=Date.now();gps.segs.push([]);gpsSave(true);gpsWatchOn();gpsPaint()};
+    del.onclick=()=>{if(!del.dataset.c){del.dataset.c=1;del.textContent="Zeker weggooien?";return}gps=null;try{localStorage.removeItem(GPSK)}catch(e){}closeSheet();gpsClose()};
+    s.append(ok,back,del)})}
+function gpsDetail(x){const t=GTYPES[x.type]||["Training","✨"],g=x.gps;
+  openSheet(s=>{s.appendChild(el(`<h2></h2>`)).textContent=`${t[1]} ${x.note||t[0]}`;
+    const mp=el(`<div class="gmap small"></div>`);s.appendChild(mp);
+    s.appendChild(el(`<div class="gsum"><div><b class="num">${fmtKm(g.dist)}</b><small>km</small></div><div><b class="num">${fmtClock(g.sec)}</b><small>tijd</small></div><div><b class="num">${gpsPace(x.type,g.sec,g.dist)}</b><small>${gpsPaceUnit(x.type)}</small></div><div><b class="num">${gpsKcal(x.type,g.sec)}</b><small>kcal</small></div></div>`));
+    s.appendChild(el(`<span class="muted small"></span>`)).textContent="Gestart om "+new Date(g.start).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"});
+    const del=el(`<button class="btn danger" type="button">Verwijder</button>`);del.onclick=()=>{if(!del.dataset.c){del.dataset.c=1;del.textContent="Zeker?";return}const d=ensure(cur);d.sport=(d.sport||[]).filter(y=>y.id!==x.id);saveDay(cur);closeSheet();render()};s.appendChild(del);
+    setTimeout(()=>makeMap(mp,g.segs,false),350)})}
+function renderGpsBest(){const box=$("gpsbest");if(!box)return;let n=0,km=0,best={};Object.values(state.days).forEach(d=>(d.sport||[]).forEach(x=>{if(!x.gps)return;n++;km+=x.gps.dist;if(!best[x.type]||x.gps.dist>best[x.type])best[x.type]=x.gps.dist}));
+  box.textContent=n?`${n} keer gedaan · totaal ${fmtKm(km)} km`+(best.hardlopen?` · langste loop ${fmtKm(best.hardlopen)} km`:""):"Tik op een sport en ga naar buiten. Loopa volgt je route, afstand en tempo."}
+document.querySelectorAll("[data-gps]").forEach(b=>b.onclick=()=>gpsStart(b.dataset.gps));
+setTimeout(()=>{try{const sv=JSON.parse(localStorage.getItem(GPSK)||"null");if(sv&&sv.segs&&!inArtifact()){gps=sv;gpsUI();if(gps.run)gpsWatchOn()}}catch(e){}},300);
 
 /* ===== v13: echte foto's bij eten (hoofdfoto van het Wikipedia-artikel) ===== */
 const FOODWIKI=[[/griekse yoghurt|skyr/,"Strained yogurt"],[/yoghurt/,"Yogurt"],[/kwark/,"Quark (dairy product)"],[/vla/,"Custard"],[/karnemelk/,"Buttermilk"],[/chocolademelk|chocomel/,"Chocolate milk"],
