@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#f6f3ef">
 <meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -350,6 +350,8 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 .setline span:first-child{color:var(--muted);width:18px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}.spin{animation-duration:3s}.resume .dot{animation:none}}
 /* v13 */
+html,body,*{touch-action:manipulation}
+input,select,textarea{font-size:16px}
 .fth img.ph{object-fit:cover;background:transparent;transition:opacity .35s}
 /* v12 */
 #view-eten{padding-bottom:70px}
@@ -1598,18 +1600,20 @@ const FOODWIKI=[[/griekse yoghurt|skyr/,"Strained yogurt"],[/yoghurt/,"Yogurt"],
  [/rijstwafel/,"Rice cake"],[/wrap/,"Wrap (food)"],[/pita/,"Pita"],[/bolletje|broodje/,"Bread roll"],[/wit brood/,"White bread"],[/brood/,"Whole wheat bread"],[/havermout|pap\b/,"Porridge"],[/cruesli|muesli\b/,"Muesli"],
  [/cornflakes/,"Corn flakes"],[/granola/,"Granola"],[/mueslireep|proteinereep|reep/,"Granola bar"],[/pindakaas/,"Peanut butter"],[/hagelslag/,"Hagelslag"],[/appelstroop/,"Apple butter"],[/\bjam\b/,"Fruit preserves"],[/hummus/,"Hummus"],
  [/salami/,"Salami"],[/\bham\b/,"Ham"],[/chocopasta|nutella/,"Chocolate spread"],[/honing/,"Honey"],[/appeltaart/,"Dutch apple pie"],[/appelsap/,"Apple juice"],[/appelmoes/,"Applesauce"],[/appel/,"Apple"],
- [/banaan/,"Banana"],[/peer\b|peren/,"Pear"],[/sinaasappelsap|jus d/,"Orange juice"],[/sinaasappel/,"Orange (fruit)"],[/mandarijn/,"Mandarin orange"],[/kiwi/,"Kiwifruit"],[/aardbei/,"Strawberry"],[/blauwe bes/,"Blueberry"],
- [/druif|druiven/,"Grape"],[/mango/,"Mango"],[/ananas/,"Pineapple"],[/watermeloen|meloen/,"Watermelon"],[/avocado/,"Avocado"],[/rozijn/,"Raisin"],[/broccoli/,"Broccoli"],[/sperzie|boontjes/,"Green bean"],
+ [/banaan/,"Banana"],[/peer\b|peren/,"Pear"],[/sinaasappelsap|jus d/,"Orange juice"],[/sinaasappel/,"Orange (fruit)"],[/mandarijn/,"Clementine"],[/kiwi/,"Kiwifruit"],[/aardbei/,"Strawberry"],[/blauwe bes/,"Blueberry"],
+ [/druif|druiven/,"Grape"],[/mango/,"Mango"],[/ananas/,"Pineapple"],[/watermeloen|meloen/,"Watermelon"],[/avocado/,"Avocado toast"],[/rozijn/,"Raisin"],[/broccoli/,"Broccoli"],[/sperzie|boontjes/,"Green bean"],
  [/spinazie/,"Spinach"],[/wortel/,"Carrot"],[/komkommer/,"Cucumber"],[/tomaat|tomaten/,"Tomato"],[/paprika/,"Bell pepper"],[/salade met kip/,"Chicken salad"],[/\bsla\b|salade/,"Salad"],[/champignon/,"Agaricus bisporus"],
  [/bloemkool/,"Cauliflower"],[/\bui\b|uien/,"Onion"],[/doperwt/,"Pea"],[/rode kool/,"Red cabbage"],[/courgette/,"Zucchini"],[/zilvervliesrijst/,"Brown rice"],[/nasi/,"Nasi goreng"],[/rijst/,"Cooked rice"],
  [/spaghetti bolognese|bolognese/,"Spaghetti alla bolognese"],[/pasta|spaghetti|macaroni|penne/,"Pasta"],[/zoete aardappel/,"Sweet potato"],[/friet|patat/,"French fries"],[/kapsalon/,"Kapsalon"],
- [/stamppot|boerenkool/,"Stamppot"],[/aardappel|krieltje/,"Potato"],[/couscous/,"Couscous"],[/quinoa/,"Quinoa"],[/noedel|mie\b|bami/,"Noodle"],[/kippendij|kipfilet|kip\b/,"Chicken as food"],
+ [/stamppot|boerenkool/,"Stamppot"],[/aardappel|krieltje/,"Potato"],[/couscous/,"Couscous"],[/quinoa/,"Quinoa"],[/noedel|mie\b|bami/,"Instant noodles"],[/kippendij|kipfilet|kip\b/,"Barbecue chicken"],
  [/vegaburger/,"Veggie burger"],[/hamburger|burger/,"Hamburger"],[/gehakt/,"Ground beef"],[/biefstuk|steak/,"Steak"],[/varkenshaas/,"Pork tenderloin"],[/rookworst/,"Rookworst"],[/frikandel/,"Frikandel"],
- [/kroket/,"Kroket"],[/zalm/,"Salmon as food"],[/tonijn/,"Canned tuna"],[/kabeljauw/,"Cod as food"],[/garnaal|garnalen/,"Shrimp"],[/tofu/,"Tofu"],[/tempeh/,"Tempeh"],[/shoarma|kebab|doner/,"Shawarma"],
+ [/kroket/,"Kroket"],[/zalm/,"Salmon as food"],[/tonijn/,"Tuna salad"],[/kabeljauw/,"Cod as food"],[/garnaal|garnalen/,"Shrimp"],[/tofu/,"Tofu"],[/tempeh/,"Tempeh"],[/shoarma|kebab|doner/,"Shawarma"],
  [/kidneybonen/,"Kidney bean"],[/kikkererwt/,"Chickpea"],[/linzen/,"Lentil"],[/amandel/,"Almond"],[/cashew/,"Cashew"],[/walnoot|walnoten/,"Walnut"],[/pinda/,"Peanut"],[/noten/,"Nut (fruit)"],
  [/chiazaad|chia/,"Chia seed"],[/chips/,"Potato chip"],[/pure chocolade/,"Dark chocolate"],[/chocola/,"Milk chocolate"],[/stroopwafel/,"Stroopwafel"],[/ontbijtkoek/,"Ontbijtkoek"],[/koek|biscuit|cookie/,"Biscuit"],
  [/\bijs\b|ijsje/,"Ice cream"],[/popcorn/,"Popcorn"],[/pizza/,"Pizza"],[/poffertje/,"Poffertjes"],[/pannenkoek/,"Pancake"],[/sushi/,"Sushi"],[/soep/,"Vegetable soup"],[/cola/,"Cola"],[/bier/,"Beer"],
  [/wijn/,"Wine"],[/shake/,"Protein shake"],[/smoothie/,"Smoothie"],[/sportdrank/,"Sports drink"],[/olijfolie|olie\b/,"Olive oil"],[/mayo/,"Mayonnaise"],[/ketchup/,"Ketchup"],[/pindasaus|satesaus/,"Peanut sauce"]];
+const FOODIMG={"Strained yogurt":"strained-yogurt.jpg","Yogurt":"yogurt.jpg","Quark (dairy product)":"quark-dairy-product.jpg","Custard":"custard.jpg","Buttermilk":"buttermilk.jpg","Chocolate milk":"chocolate-milk.jpg","Oat milk":"oat-milk.jpg","Soy milk":"soy-milk.jpg","Cappuccino":"cappuccino.jpg","Coffee":"coffee.jpg","Tea":"tea.jpg","Milk":"milk.jpg","Processed cheese":"processed-cheese.jpg","Mozzarella":"mozzarella.jpg","Feta":"feta.jpg","Cottage cheese":"cottage-cheese.jpg","Toast sandwich":"toast-sandwich.jpg","Cheese sandwich":"cheese-sandwich.jpg","Gouda cheese":"gouda-cheese.jpg","Butter":"butter.jpg","Margarine":"margarine.jpg","Omelette":"omelette.jpg","Fried egg":"fried-egg.jpg","Boiled egg":"boiled-egg.jpg","Croissant":"croissant.jpg","Beschuit":"beschuit.jpg","Crispbread":"crispbread.jpg","Rice cake":"rice-cake.jpg","Wrap (food)":"wrap-food.jpg","Pita":"pita.jpg","Bread roll":"bread-roll.jpg","White bread":"white-bread.jpg","Whole wheat bread":"whole-wheat-bread.jpg","Porridge":"porridge.jpg","Muesli":"muesli.jpg","Corn flakes":"corn-flakes.jpg","Granola":"granola.jpg","Granola bar":"granola-bar.jpg","Peanut butter":"peanut-butter.jpg","Hagelslag":"hagelslag.jpg","Apple butter":"apple-butter.jpg","Fruit preserves":"fruit-preserves.jpg","Hummus":"hummus.jpg","Salami":"salami.jpg","Ham":"ham.jpg","Chocolate spread":"chocolate-spread.jpg","Honey":"honey.jpg","Dutch apple pie":"dutch-apple-pie.jpg","Apple juice":"apple-juice.jpg","Applesauce":"applesauce.jpg","Apple":"apple.jpg","Banana":"banana.jpg","Pear":"pear.jpg","Orange juice":"orange-juice.jpg","Orange (fruit)":"orange-fruit.jpg","Kiwifruit":"kiwifruit.jpg","Strawberry":"strawberry.jpg","Blueberry":"blueberry.jpg","Grape":"grape.jpg","Mango":"mango.jpg","Pineapple":"pineapple.jpg","Watermelon":"watermelon.jpg","Raisin":"raisin.jpg","Broccoli":"broccoli.jpg","Green bean":"green-bean.jpg","Carrot":"carrot.jpg","Cucumber":"cucumber.jpg","Tomato":"tomato.jpg","Bell pepper":"bell-pepper.jpg","Chicken salad":"chicken-salad.jpg","Salad":"salad.jpg","Agaricus bisporus":"agaricus-bisporus.jpg","Cauliflower":"cauliflower.jpg","Onion":"onion.jpg","Red cabbage":"red-cabbage.jpg","Zucchini":"zucchini.jpg","Brown rice":"brown-rice.jpg","Nasi goreng":"nasi-goreng.jpg","Cooked rice":"cooked-rice.jpg","Pasta":"pasta.jpg","Sweet potato":"sweet-potato.jpg","French fries":"french-fries.jpg","Kapsalon":"kapsalon.jpg","Stamppot":"stamppot.jpg","Potato":"potato.jpg","Couscous":"couscous.jpg","Quinoa":"quinoa.jpg","Veggie burger":"veggie-burger.jpg","Hamburger":"hamburger.jpg","Ground beef":"ground-beef.jpg","Steak":"steak.jpg","Pork tenderloin":"pork-tenderloin.jpg","Rookworst":"rookworst.jpg","Frikandel":"frikandel.jpg","Kroket":"kroket.jpg","Salmon as food":"salmon-as-food.jpg","Popcorn":"popcorn.jpg","Pizza":"pizza.jpg","Poffertjes":"poffertjes.jpg","Pancake":"pancake.jpg","Sushi":"sushi.jpg","Vegetable soup":"vegetable-soup.jpg","Cola":"cola.jpg","Beer":"beer.jpg","Wine":"wine.jpg","Protein shake":"protein-shake.jpg","Smoothie":"smoothie.jpg","Sports drink":"sports-drink.jpg","Olive oil":"olive-oil.jpg","Mayonnaise":"mayonnaise.jpg","Ketchup":"ketchup.jpg","Peanut sauce":"peanut-sauce.jpg","Clementine":"clementine.jpg","Avocado toast":"avocado-toast.jpg","Instant noodles":"instant-noodles.jpg","Barbecue chicken":"barbecue-chicken.jpg","Tuna salad":"tuna-salad.jpg","Tofu":"tofu.jpg","Tempeh":"tempeh.jpg","Shawarma":"shawarma.jpg","Kidney bean":"kidney-bean.jpg","Lentil":"lentil.jpg","Almond":"almond.jpg","Walnut":"walnut.jpg","Chia seed":"chia-seed.jpg","Potato chip":"potato-chip.jpg","Dark chocolate":"dark-chocolate.jpg","Milk chocolate":"milk-chocolate.jpg","Stroopwafel":"stroopwafel.jpg","Ontbijtkoek":"ontbijtkoek.jpg","Biscuit":"biscuit.jpg","Ice cream":"ice-cream.jpg"};
+const foodImgUrl=f=>(window.LOOPA_LOCAL_EX?"food/":"https://cdn.jsdelivr.net/gh/thomasderks462-arch/loopa@main/food/")+f;
 function foodWiki(name){const n=norm(name);for(const[r,t]of FOODWIKI)if(r.test(n))return t;return null}
 const LSFI="loopa-foodimg";let fiCache=null;const fiWait=new Map();
 function fiGet(){if(!fiCache){try{fiCache=JSON.parse(localStorage.getItem(LSFI)||"{}")}catch(e){fiCache={}}}return fiCache}
@@ -1638,11 +1642,11 @@ const FOODEM=[[/eiwitshake|shake|smoothie/,"🥤"],[/pindakaas|pinda|noten|amand
 const FOODBG=["#fff1e6","#eaf7ee","#fff6d9","#eef0ff","#ffeef0","#eef8f8"];
 function foodEmoji(name){const n=norm(name);for(const[r,e]of FOODEM)if(r.test(n))return e;return "🍽️"}
 function foodThumb(x,big){let wt;const em=foodEmoji(x.name||""),bg=FOODBG[[...em].reduce((a,c)=>a+c.codePointAt(0),0)%FOODBG.length];
-  return `<span class="fth${big?" lg":""}" style="background:${bg}" aria-hidden="true"><i>${em}</i>${x.img&&/^https:\/\//.test(x.img)?`<img alt="" loading="lazy" src="${x.img.replace(/"/g,"")}">`:(wt=foodWiki(x.name||""))?`<img class="ph" alt="" data-wt="${wt}">`:""}</span>`}
+  return `<span class="fth${big?" lg":""}" style="background:${bg}" aria-hidden="true"><i>${em}</i>${x.img&&/^https:\/\//.test(x.img)?`<img alt="" loading="lazy" src="${x.img.replace(/"/g,"")}">`:(wt=foodWiki(x.name||""))&&FOODIMG[wt]?`<img class="ph" alt="" loading="lazy" src="${foodImgUrl(FOODIMG[wt])}">`:""}</span>`}
 function fixFoodImgs(root){root.querySelectorAll(".fth img").forEach(i=>{i.onerror=()=>i.remove();
   if(i.dataset.wt){const t=i.dataset.wt,c=fiGet();i.removeAttribute("data-wt");i.style.opacity=0;i.onload=()=>{i.style.opacity=1};
     if(t in c){if(c[t])i.src=c[t];else i.remove()}else wikiPhoto(t).then(u=>{if(u)i.src=u;else i.remove()});return}
-  if(i.complete&&!i.naturalWidth)i.remove()})}
+})}
 const fmtQty=q=>(q===.5?"½":String(q).replace(".",","))+"×";
 const perPortion=x=>x.base?{...x,...x.base}:x;
 const SHORTMEAL=l=>l==="Avondeten"?"Avond":l==="Tussendoor"?"Snack":l;
@@ -1659,7 +1663,7 @@ function foodPicker(meal){meal=meal||guessMeal();let q="",offT=null;
       const b=el(`<button class="fact" type="button"><span class="ic" style="color:${c}">${icon(ic)}</span><span></span></button>`);b.lastChild.textContent=l;
       b.onclick=()=>{forceMeal=meal;if(m==="hand")foodForm({meal,src:"hand",name:q},{isNew:true});else{closeSheet();pickFile(m)}};acts.appendChild(b)});
     s.appendChild(acts);
-    const list=el(`<div class="flist"></div>`);s.appendChild(list);s.appendChild(el(`<span class="muted small" style="text-align:center;font-size:.72rem">Foto's: Wikipedia (CC) en Open Food Facts</span>`));
+    const list=el(`<div class="flist"></div>`);s.appendChild(list);s.appendChild(el(`<span class="muted small" style="text-align:center;font-size:.72rem">Foto's: Wikimedia Commons (CC) en Open Food Facts</span>`));
     const row=x=>{const r=el(`<div class="frow">${""}<button class="fmain" type="button">${foodThumb(x)}<span class="it"><b></b><small class="num"></small></span></button><button class="fplus" type="button" aria-label="Toevoegen">+</button></div>`);
       r.querySelector("b").textContent=x.name;r.querySelector("small").textContent=[x.amount,x.kcal!=null&&x.kcal!==""?Math.round(x.kcal)+" kcal":null,x.tag&&x.tag!=="Standaard"?x.tag:null].filter(Boolean).join(" · ");
       r.querySelector(".fmain").onclick=()=>{forceMeal=meal;foodForm({...x,meal,src:"hand",tag:undefined},{isNew:true,picked:true})};
