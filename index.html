@@ -349,6 +349,15 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 .setline{display:flex;gap:12px;font-size:.88rem;padding:3px 2px}
 .setline span:first-child{color:var(--muted);width:18px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}.spin{animation-duration:3s}.resume .dot{animation:none}}
+/* v17 */
+.fcopy{display:flex;align-items:center;gap:12px;border:0;background:#fff0e6;border-radius:16px;padding:10px 14px;text-align:left;color:var(--ink);cursor:pointer}
+.fcopy>span:first-child{font-size:1.4rem;color:var(--pink);font-weight:800}
+.fcopy .it{display:flex;flex-direction:column;min-width:0}.fcopy small{color:var(--muted);font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ewstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;background:var(--surface-2);border-radius:16px;padding:12px 6px}
+.ewstats div{display:flex;flex-direction:column;gap:2px}.ewstats b{font-family:var(--display);font-size:1.25rem;font-weight:800}.ewstats small{color:var(--muted);font-size:.72rem}
+.streakwin{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:8px 0}
+.streakwin span{font-size:4rem;animation:pop .6s}.streakwin h2{font-size:1.6rem}.streakwin p{margin:0}
+#streakchip{transition:transform .2s}#streakchip:active{transform:scale(.94)}
 /* v16 gps */
 .gpsbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .gpsbtn{border:0;border-radius:18px;padding:14px 6px;background:linear-gradient(135deg,#ff5a1f,#ff9d0a);color:#fff;display:flex;flex-direction:column;align-items:center;gap:4px;box-shadow:0 6px 16px rgba(255,106,31,.3);cursor:pointer}
@@ -715,6 +724,10 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
       <button class="addbtn" data-add="hand"><span class="ic" style="color:var(--night)"><svg><use href="#i-pen"/></svg></span>Handmatig</button>
     </div>
     <div id="mealtpl" class="wrap" style="gap:8px"></div>
+    <section class="card" aria-labelledby="h-ew">
+      <div class="card-head"><h2 id="h-ew">Deze week</h2><span class="muted small">calorieën per dag</span></div>
+      <div id="eatweek" class="wrap" style="gap:10px"></div>
+    </section>
     <section class="card" aria-labelledby="h-drink">
       <div class="card-head"><h2 id="h-drink">Drinken</h2><span class="muted small num" id="watersub"></span></div>
       <div class="counter">
@@ -991,7 +1004,7 @@ function renderHeader(){
   const d=fromKey(cur),today=keyOf(new Date()),diff=Math.round((fromKey(today)-d)/864e5);
   const dayName=diff===0?"Vandaag":diff===1?"Gisteren":d.toLocaleDateString("nl-NL",{weekday:"long"}).replace(/^./,c=>c.toUpperCase());
   const dateTxt=d.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"});
-  $("streaknum").textContent=dayStreak();
+  $("streaknum").textContent=dayStreak();checkStreak();
   $("week").hidden=!DAYVIEWS.includes(view);
   const T={eten:"Eten & drinken",sport:"Sport",slaap:"Slaap",overzicht:"Overzicht",instellingen:"Gewoontes & doelen"};
   if(view==="dag"){$("title").textContent=dayName;$("datelabel").textContent=dateTxt;
@@ -1078,7 +1091,7 @@ function renderEten(){
     const g=el(`<section class="mealcard"><div class="mchead"><span class="mcem" aria-hidden="true">${MEM[m]}${FOODIMG[MIMG[m]]||FOODIMG.Pasta?`<img alt="" src="${foodImgUrl(FOODIMG[MIMG[m]]||(m==="diner"?FOODIMG.Pasta:""))}" onerror="this.remove()">`:""}</span><div class="it"><b>${l}</b><small class="num">${Math.round(sum)} / ${goal} kcal</small></div>${items.length?`<button class="mini star" type="button" aria-label="${l} bewaren als vaste maaltijd">☆</button>`:""}<button class="plusbtn plus" type="button" aria-label="${l} toevoegen">+</button></div><div class="bar"><i style="width:${Math.min(100,sum/goal*100)}%"></i></div></section>`);
     g.querySelector(".plus").onclick=()=>foodPicker(m);
     const st=g.querySelector(".star");if(st)st.onclick=()=>saveTplSheet(m);
-    if(!items.length){const e=el(`<button class="fempty" type="button"></button>`);e.textContent="+ "+l+" toevoegen";e.onclick=()=>foodPicker(m);g.appendChild(e)}
+    if(!items.length){const e=el(`<button class="fempty" type="button"></button>`);e.textContent="+ "+l+" toevoegen";e.onclick=()=>foodPicker(m);g.appendChild(e);const cb=copyBtn(m);if(cb)g.appendChild(cb)}
     items.forEach(x=>{const b=el(`<button class="fitem${x.id===lastFood?" new":""}" type="button">${foodThumb(x)}<span class="it"><b></b><small class="num"></small></span><span class="kc num"></span></button>`);
       b.querySelector("b").textContent=x.name||"Zonder naam";
       b.querySelector("small").textContent=[x.qty&&x.qty!==1?fmtQty(x.qty):null,x.amount,SRC[x.src]&&x.src!=="hand"?SRC[x.src]:null].filter(Boolean).join(" · ");
@@ -1086,7 +1099,7 @@ function renderEten(){
       b.onclick=()=>foodForm(x,{isNew:false});g.appendChild(b)});
     fixFoodImgs(g);box.appendChild(g)});lastFood=null;
   const w=day(cur).water||0;$("wcount").textContent=w;$("watersub").textContent=`${w} van ${goalWater()} glazen water`;
-  renderTpl();$("w-rem").checked=rem().water;
+  renderTpl();renderEatWeek();$("w-rem").checked=rem().water;
   $("glasses").innerHTML=Array.from({length:Math.max(goalWater(),w)},(_,i)=>'<span class="'+(i<w?"full":"")+'"></span>').join("");
 }
 $("wplus").onclick=()=>{const e=ensure(cur);e.water=(e.water||0)+1;saveDay(cur);render();if(e.water===goalWater())cheer("💧 Waterdoel gehaald, goed zo!",true)};
@@ -1650,6 +1663,49 @@ function renderSettings(){renderPinUI();renderSeg();renderRemUI();renderIdeas();
 $("addform").addEventListener("submit",e=>{e.preventDefault();const v=$("newhabit").value.trim();if(!v)return;
   state.habits.push({id:"h"+Date.now().toString(36),name:v,part:newPart});$("newhabit").value="";saveHabits();renderSettings()});
 
+/* ===== v17: eten kopiëren, weekoverzicht eten, gewicht-voorspelling, streak-beloningen ===== */
+function copyMeal(from,m){const src=food(from).filter(x=>x.meal===m);if(!src.length)return;const d=ensure(cur);d.food=d.food||[];
+  const ids=[];src.forEach(x=>{const y={...JSON.parse(JSON.stringify(x)),id:uid()};d.food.push(y);ids.push(y.id)});lastFood=ids[0];saveDay(cur);render();
+  toast(`${src.length} ${src.length===1?"ding":"dingen"} gekopieerd`,"Ongedaan",()=>{const e=ensure(cur);e.food=(e.food||[]).filter(x=>!ids.includes(x.id));saveDay(cur);render()})}
+function copyBtn(m){const y=addDays(cur,-1),src=food(y).filter(x=>x.meal===m);if(!src.length)return null;const kc=src.reduce((a,x)=>a+(+x.kcal||0),0);
+  const b=el(`<button class="fcopy" type="button"><span aria-hidden="true">↺</span><span class="it"><b>Zelfde als gisteren</b><small class="num"></small></span></button>`);
+  b.querySelector("small").textContent=src.map(x=>x.name).slice(0,3).join(", ")+(src.length>3?" …":"")+` · ${Math.round(kc)} kcal`;b.onclick=()=>copyMeal(y,m);return b}
+function renderEatWeek(){const box=$("eatweek");if(!box)return;const wk=weekKeys(cur),g=goalKcal(),pg=macroGoals().p,today=keyOf(new Date());
+  const vals=wk.map(k=>({k,t:sumFood(k),n:food(k).length}));const W=340,H=150,L=8,B=22,T=14,bw=(W-L*2)/7,mx=Math.max(g*1.25,...vals.map(v=>v.t.kcal)),y=v=>T+(H-T-B)*(1-v/mx);
+  let s=`<line x1="${L}" x2="${W-L}" y1="${y(g)}" y2="${y(g)}" stroke="var(--ink)" stroke-dasharray="4 4" opacity=".35"/><text x="${W-L}" y="${y(g)-4}" text-anchor="end">doel ${g}</text>`;
+  vals.forEach((v,i)=>{const x=L+i*bw,ok=v.n&&Math.abs(v.t.kcal-g)<=g*.1,over=v.t.kcal>g*1.1;
+    if(v.n)s+=`<rect x="${x+bw*.2}" y="${y(v.t.kcal)}" width="${bw*.6}" height="${Math.max(2,y(0)-y(v.t.kcal))}" rx="6" fill="${ok?"url(#ewg)":over?"#ff3b5c":"#ffc59e"}"/>`;
+    s+=`<text x="${x+bw/2}" y="${H-6}" text-anchor="middle" ${v.k===cur?'font-weight="700" fill="var(--ink)"':""}>${fromKey(v.k).toLocaleDateString("nl-NL",{weekday:"short"}).slice(0,2)}</text>`});
+  s=`<defs><linearGradient id="ewg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5a1f"/><stop offset="1" stop-color="#ffa21a"/></linearGradient></defs>`+s;
+  const filled=vals.filter(v=>v.n&&v.k<=today),hit=filled.filter(v=>Math.abs(v.t.kcal-g)<=g*.1).length,av=filled.length?Math.round(filled.reduce((a,v)=>a+v.t.kcal,0)/filled.length):0,ap=filled.length?Math.round(filled.reduce((a,v)=>a+v.t.p,0)/filled.length):0;
+  box.innerHTML="";box.appendChild(el(`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Calorieën per dag deze week">${s}</svg>`));
+  const st=el(`<div class="ewstats"><div><b class="num">${hit}/${filled.length||0}</b><small>dagen op doel</small></div><div><b class="num">${av}</b><small>gem. kcal</small></div><div><b class="num">${ap} g</b><small>gem. eiwit${pg?` (doel ${Math.round(pg)})`:""}</small></div></div>`);box.appendChild(st);
+  box.appendChild(el(`<span class="muted small">Oranje = binnen 10% van je doel, rood = erboven, licht = eronder.</span>`))}
+function weightForecast(){const g=goalKg(),ws=bodySorted().filter(x=>x.kg!=null);if(ws.length<2)return null;const last=ws[ws.length-1],from=addDays(last.date,-42),pts=ws.filter(x=>x.date>=from);
+  if(pts.length<2)return null;const t0=fromKey(pts[0].date).getTime(),xs=pts.map(p=>(fromKey(p.date).getTime()-t0)/864e5),ys=pts.map(p=>+p.kg);if(xs[xs.length-1]<6)return{wait:true};
+  const n=xs.length,mx=xs.reduce((a,b)=>a+b)/n,my=ys.reduce((a,b)=>a+b)/n;let sxy=0,sxx=0;xs.forEach((x,i)=>{sxy+=(x-mx)*(ys[i]-my);sxx+=(x-mx)**2});const slope=sxx?sxy/sxx:0,perWeek=slope*7;
+  if(!g)return{perWeek};const diff=g-last.kg;if(Math.abs(diff)<.3)return{perWeek,reached:true};
+  if(Math.abs(perWeek)<.05||Math.sign(perWeek)!==Math.sign(diff))return{perWeek,wrong:true,diff};
+  const days=diff/slope,date=new Date(fromKey(last.date).getTime()+days*864e5);return{perWeek,date,days}}
+function forecastLine(){const f=weightForecast();if(!f)return null;const pw=`${f.perWeek>0?"+":f.perWeek<0?"−":"±"}${nf1(Math.abs(f.perWeek))} kg per week`;
+  if(f.wait)return"📈 Weeg je over een paar dagen weer, dan voorspelt Loopa wanneer je je doel haalt.";
+  if(f.reached)return"🎉 Je zit op je streefgewicht. Knap gedaan!";
+  if(!goalKg())return`📈 Je gaat nu ${pw}. Stel een streefgewicht in, dan zie je wanneer je het haalt.`;
+  if(f.wrong)return`📈 Je gaat nu ${pw}, de andere kant op dan je doel. Houd vol en kijk naar je eten, het draait vaak binnen een paar weken.`;
+  if(f.days>730)return`📈 Je gaat nu ${pw}. In dit tempo duurt het nog meer dan 2 jaar.`;
+  return`📈 In dit tempo (${pw}) haal je ${nf1(goalKg())} kg rond ${f.date.toLocaleDateString("nl-NL",{day:"numeric",month:"long",year:f.date.getFullYear()!==new Date().getFullYear()?"numeric":undefined})}.`}
+const STREAKB={streak7:{em:"🔥",name:"7 dagen op rij"},streak30:{em:"🏆",name:"30 dagen op rij"},streak100:{em:"💎",name:"100 dagen op rij"}};
+function checkStreak(){const n=dayStreak();state.badges=state.badges||[];let got=null;
+  [7,30,100].forEach(m=>{if(n>=m&&!state.badges.some(b=>b.cid==="streak"+m)){state.badges.push({cid:"streak"+m,date:keyOf(new Date())});got=m}});
+  if(got){saveChal();setTimeout(()=>streakSheet(got),400)}}
+function streakSheet(m){const b=STREAKB["streak"+m];confetti();openSheet(s=>{s.appendChild(el(`<div class="streakwin"><span aria-hidden="true">${b.em}</span><h2>${m} dagen op rij!</h2><p class="muted">Je hebt ${m} dagen achter elkaar minstens één gewoonte gedaan. Je nieuwe badge staat bij Overzicht.</p></div>`));
+  const ok=el(`<button class="btn" type="button">Top!</button>`);ok.onclick=closeSheet;s.appendChild(ok)})}
+function streakInfo(){const n=dayStreak(),next=[7,30,100].find(m=>n<m);openSheet(s=>{s.appendChild(el(`<div class="streakwin"><span aria-hidden="true">🔥</span><h2>${n} ${n===1?"dag":"dagen"} op rij</h2><p class="muted">Elke dag dat je minstens één gewoonte afvinkt, telt mee.</p></div>`));
+  [7,30,100].forEach(m=>{const b=STREAKB["streak"+m],have=(state.badges||[]).some(x=>x.cid==="streak"+m),r=el(`<div class="chalrow"><div class="ch-top"><span class="em" aria-hidden="true">${b.em}</span><span class="it"><b>${b.name}</b><small class="num">${have?"Gehaald!":`nog ${m-n} ${m-n===1?"dag":"dagen"}`}</small></span></div><div class="bar"><i style="width:${Math.min(100,n/m*100)}%"></i></div></div>`);if(have)r.style.opacity=1;s.appendChild(r)});
+  if(next)s.appendChild(el(`<span class="muted small" style="text-align:center">Volgende badge bij ${next} dagen.</span>`));
+  const ok=el(`<button class="btn" type="button">Sluiten</button>`);ok.onclick=closeSheet;s.appendChild(ok)})}
+$("streakchip").onclick=streakInfo;$("streakchip").setAttribute("role","button");$("streakchip").tabIndex=0;$("streakchip").style.cursor="pointer";
+
 /* ===== v16: buiten sporten met GPS (hardlopen, fietsen, wandelen) ===== */
 const GPSK="loopa-gps",GTYPES={hardlopen:["Hardlopen","🏃",8],fietsen:["Fietsen","🚴",25],wandelen:["Wandelen","🚶",4]};
 let gps=null,gpsWatch=null,gpsTick=null,gpsLock=null,gpsMap=null,gpsLine=null,gpsDot=null,gpsSaveT=0,gpsFix=null;
@@ -1961,7 +2017,7 @@ function renderChallenges(){checkChallenges();const box=$("chal");box.innerHTML=
     box.appendChild(r)});
   const add=el(`<button class="btn sec" type="button">Nieuwe uitdaging kiezen</button>`);add.onclick=chalPicker;box.appendChild(add);
   const bd=state.badges||[];if(bd.length){box.appendChild(el(`<span class="label">Je badges</span>`));const row=el(`<div class="badges"></div>`);
-    bd.forEach(b=>{const d=chalDef(b.cid);if(!d)return;const e=el(`<div class="badge"><span aria-hidden="true"></span><small></small></div>`);e.firstChild.textContent=d.em;e.lastChild.textContent=d.name;e.title="Gehaald op "+b.date;row.appendChild(e)});box.appendChild(row)}}
+    bd.forEach(b=>{const d=chalDef(b.cid)||STREAKB[b.cid];if(!d)return;const e=el(`<div class="badge"><span aria-hidden="true"></span><small></small></div>`);e.firstChild.textContent=d.em;e.lastChild.textContent=d.name;e.title="Gehaald op "+b.date;row.appendChild(e)});box.appendChild(row)}}
 function chalPicker(){openSheet(s=>{s.appendChild(el(`<h2>Kies een uitdaging</h2>`));
   s.appendChild(el(`<span class="muted small">Haal je het aantal dagen op rij, dan krijg je een badge. Mis je een dag, dan begin je gewoon opnieuw.</span>`));
   CHALLENGES.forEach(d=>{const active=(state.challenges||[]).some(c=>c.cid===d.id),done=(state.badges||[]).filter(b=>b.cid===d.id).length;
@@ -2389,6 +2445,7 @@ function renderBody(){const box=$("bodybox");box.innerHTML="";const lw=lastWith(
     box.appendChild(row);
     const sub=[lw&&lz?`Buikomtrek ${nf1(lz.waist)} cm`:null,goalKg()?`Streefgewicht ${nf1(goalKg())} kg`:null,lw?`laatst gewogen ${fromKey(lw.date).toLocaleDateString("nl-NL",{day:"numeric",month:"long"})}`:null].filter(Boolean).join(" · ");
     if(sub)box.appendChild(el(`<span class="muted small num"></span>`)).textContent=sub.replace(/^./,c=>c.toUpperCase());
+    {const fl=forecastLine();if(fl)box.appendChild(el(`<div class="insight"></div>`)).textContent=fl}
     if(ws.length>1)box.appendChild(chartEl(lineChart(ws.slice(-40).map(x=>({date:x.date,v:x.kg})),{goal:goalKg()}),"Gewicht over tijd"))}
   const r=el(`<div class="btnrow"><button class="btn" type="button">Meten</button><button class="btn sec" type="button"></button></div>`);
   const[b1,b2]=r.querySelectorAll("button");b2.textContent="Foto's"+(state.photos.length?" ("+state.photos.length+")":"");b1.onclick=bodyForm;b2.onclick=photoSheet;box.appendChild(r)}
