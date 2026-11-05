@@ -1,0 +1,8 @@
+{
+  "appId": "app.loopa.tracker",
+  "appName": "Loopa",
+  "webDir": "www",
+  "backgroundColor": "#f6f3ef",
+  "android": { "allowMixedContent": false },
+  "ios": { "contentInset": "never" }
+}
