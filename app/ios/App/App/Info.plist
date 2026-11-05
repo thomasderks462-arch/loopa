@@ -78,5 +78,7 @@
 	<string>Loopa leest je stappen uit Gezondheid om ze bij je dag te tonen.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Loopa schrijft niets naar Gezondheid zonder dat je dat vraagt.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Loopa gebruikt Face ID om de app te ontgrendelen in plaats van je pincode.</string>
 </dict>
 </plist>

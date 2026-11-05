@@ -63,6 +63,21 @@
     settings: function () { return HE.openHealthConnectSettings().catch(function () {}); }
   };
 
+  /* Face ID / vingerafdruk */
+  var NB = P("NativeBiometric");
+  window.LoopaBio = {
+    available: function () {
+      return NB.isAvailable({ useFallback: false }).then(function (r) {
+        var t = r.biometryType, label = t === 2 ? "Face ID" : t === 1 ? "Touch ID" : t === 4 ? "gezichtsherkenning" : "vingerafdruk";
+        return { ok: !!r.isAvailable, label: label };
+      }).catch(function () { return { ok: false }; });
+    },
+    verify: function (reason) {
+      return NB.verifyIdentity({ reason: reason || "Ontgrendel Loopa", title: "Loopa ontgrendelen", negativeButtonText: "Pincode gebruiken", useFallback: false })
+        .then(function () { return true; }).catch(function () { return false; });
+    }
+  };
+
   /* Meldingen: echte herinneringen die ook komen als de app dicht is. */
   var perm = "default";
   function Noti() {} /* de app plant zelf vooruit, dus losse meldingen zijn niet nodig */

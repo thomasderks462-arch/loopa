@@ -349,6 +349,15 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 .setline{display:flex;gap:12px;font-size:.88rem;padding:3px 2px}
 .setline span:first-child{color:var(--muted);width:18px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}.spin{animation-duration:3s}.resume .dot{animation:none}}
+/* v20 faceid */
+.biorow{display:flex;align-items:center;gap:12px;background:var(--surface-2);border-radius:16px;padding:12px 14px;cursor:pointer}
+.biorow .it{flex:1;display:flex;flex-direction:column;gap:2px}
+.biorow input{appearance:none;-webkit-appearance:none;width:50px;height:30px;border-radius:15px;background:#d9d3cd;position:relative;flex:none;cursor:pointer;transition:background .2s;margin:0}
+.biorow input::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.biorow input:checked{background:linear-gradient(135deg,#ff5a1f,#ff9d0a)}.biorow input:checked::after{transform:translateX(20px)}
+.biobtn{border:0;background:var(--surface);color:var(--ink);font:inherit;font-weight:700;padding:12px 18px;border-radius:999px;box-shadow:0 2px 10px rgba(27,23,20,.08);cursor:pointer;display:flex;gap:8px;align-items:center}
+.biobtn:disabled{opacity:.6}
+.lock.unlocked{opacity:0;transform:scale(1.04);transition:opacity .18s,transform .18s}
 /* v19 stappen */
 .stepstop{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
 #stepsnum{font-size:2.3rem;font-weight:800;letter-spacing:-1px;line-height:1}
@@ -937,6 +946,7 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
       <h2>Privacy</h2>
       <span class="muted small">Met een pincode kan niemand anders zomaar in je Loopa kijken.</span>
       <button class="btn sec" type="button" id="pinbtn">Pincode instellen</button>
+      <label class="biorow" id="biorow" hidden><span class="it"><b>Face ID gebruiken</b><small class="muted small"></small></span><input type="checkbox" aria-label="Face ID gebruiken"></label>
       <button class="btn sec" type="button" id="logoutbtn" style="color:var(--danger)">Uitloggen</button>
     </section>
     <section class="card">
@@ -1704,12 +1714,48 @@ function renderSettings(){renderPinUI();renderSeg();renderRemUI();renderIdeas();
     r.querySelector(".n").textContent=x.name;r.querySelector(".p").textContent=PARTS.find(p=>p[0]===partOf(x))[1];
     const b=r.querySelector("button");b.onclick=()=>{if(b.dataset.c){state.habits.splice(i,1);saveHabits();renderSettings()}else{b.dataset.c=1;b.textContent="Zeker?";setTimeout(()=>{b.textContent="Verwijder";delete b.dataset.c},3000)}};
     l.appendChild(r)});
-  const pr=state.profile;$("goalnote").textContent=pr?`${pr.weight?`${goalKcal()} kcal en ${Math.round(macroGoals().p)} g eiwit per dag (${(EATS.find(x=>x[0]===pr.eat)||EATS[1])[1].toLowerCase()}). `:""}Slaapdoel ${pr.sleepGoal} uur, ${pr.water} glazen water per dag. Focus: ${(pr.goals||[]).map(g=>(GOALS.find(x=>x[0]===g)||[0,g])[1].toLowerCase()).join(", ")||"nog niet gekozen"}.`:"Je hebt de vragenlijst nog niet ingevuld.";
+  const pr=state.profile;$("goalnote").textContent=pr?`${pr.weight?`${goalKcal()} kcal en ${Math.round(macroGoals().p)} g eiwit per dag (${(EATS.find(x=>x[0]===pr.eat)||EATS[1])[1].toLowerCase()}). `:""}Slaapdoel ${goalSleep()} uur, ${goalWater()} glazen water per dag. Focus: ${(pr.goals||[]).map(g=>(GOALS.find(x=>x[0]===g)||[0,g])[1].toLowerCase()).join(", ")||"nog niet gekozen"}.`:"Je hebt de vragenlijst nog niet ingevuld.";
   $("storenote").textContent=col?"Je gegevens staan in je eigen account. Alleen jij kunt ze zien, ook op je telefoon.":"Je gegevens staan alleen op dit apparaat, niet in de cloud. Download af en toe een back-up, dan raak je niets kwijt als je je browsergegevens wist of een nieuwe telefoon neemt.";
   $("apikey").value=getKey()?"••••••••••••":"";$("keynote").textContent=getKey()?"Er is een sleutel ingesteld.":"Nog geen sleutel ingesteld.";
 }
 $("addform").addEventListener("submit",e=>{e.preventDefault();const v=$("newhabit").value.trim();if(!v)return;
   state.habits.push({id:"h"+Date.now().toString(36),name:v,part:newPart});$("newhabit").value="";saveHabits();renderSettings()});
+
+/* ===== v20: Face ID / vingerafdruk bij de pincode ===== */
+function b64u(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+function unb64u(s){return Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((s.length+3)%4)),c=>c.charCodeAt(0))}
+function bioLabelWeb(){const u=navigator.userAgent;return /iPhone|iPad|iPod/.test(u)?"Face ID":/Macintosh/.test(u)?"Touch ID":/Android/.test(u)?"vingerafdruk":/Windows/.test(u)?"Windows Hello":"Face ID of vingerafdruk"}
+var bioInfo=null;
+async function bioAvail(){if(bioInfo)return bioInfo;
+  if(window.LoopaBio){bioInfo=await window.LoopaBio.available();return bioInfo}
+  let ok=false;try{ok=!(window.claude&&claude.use)&&!!window.PublicKeyCredential&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()}catch(e){}
+  bioInfo={ok,label:bioLabelWeb()};return bioInfo}
+function bioOn(){try{return !!localStorage.getItem("loopa-bio")}catch(e){return false}}
+async function bioEnroll(){const info=await bioAvail();if(!info.ok)return false;
+  if(window.LoopaBio){const ok=await window.LoopaBio.verify(`Zet ${info.label} aan voor Loopa`);if(ok)try{localStorage.setItem("loopa-bio","native")}catch(e){}return ok}
+  try{const c=await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:"Loopa"},
+      user:{id:crypto.getRandomValues(new Uint8Array(16)),name:"Loopa",displayName:"Loopa op deze telefoon"},
+      pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],
+      authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"discouraged"},timeout:60000,attestation:"none"}});
+    if(!c)return false;localStorage.setItem("loopa-bio",b64u(c.rawId));return true}catch(e){return false}}
+async function bioVerify(){const v=(()=>{try{return localStorage.getItem("loopa-bio")}catch(e){return null}})();if(!v)return false;
+  if(window.LoopaBio)return window.LoopaBio.verify("Ontgrendel Loopa");
+  try{const a=await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{type:"public-key",id:unb64u(v)}],userVerification:"required",timeout:60000}});return !!a}catch(e){return false}}
+function bioOff(){try{localStorage.removeItem("loopa-bio")}catch(e){}}
+/* vergrendelscherm: knop + meteen proberen */
+function bioLock(){const ov=document.querySelector(".lock");if(!ov||!bioOn()||ov.querySelector(".biobtn"))return;
+  bioAvail().then(info=>{if(!info.ok||!document.body.contains(ov))return;
+    const b=el(`<button class="biobtn" type="button"><span aria-hidden="true">${/Face|gezicht/.test(info.label)?"🙂":"☝️"}</span> Ontgrendel met ${info.label}</button>`);
+    const go=async()=>{b.disabled=true;const ok=await bioVerify();b.disabled=false;if(ok&&document.body.contains(ov)){ov.classList.add("unlocked");setTimeout(()=>ov.remove(),180)}};
+    b.onclick=go;ov.querySelector(".pad").after(b);setTimeout(go,350)})}
+async function renderBioUI(){const row=$("biorow");if(!row)return;const info=await bioAvail();
+  row.hidden=!getPin()||!info.ok;if(row.hidden)return;
+  row.querySelector("b").textContent=`${info.label} gebruiken`;row.querySelector("small").textContent=`Ontgrendel Loopa met ${info.label}. Je pincode blijft werken als reserve.`;
+  row.querySelector("input").checked=bioOn()}
+(function(){const row=$("biorow");if(!row)return;
+  row.querySelector("input").onchange=async e=>{const on=e.target.checked,info=await bioAvail();
+    if(on){const ok=await bioEnroll();e.target.checked=ok;toast(ok?`🔒 ${info.label} staat aan`:`${info.label} aanzetten lukte niet`)}
+    else{bioOff();toast(`${info.label} staat uit`)}};renderBioUI()})();
 
 /* ===== v19: stappen koppelen (Health Connect / Apple Gezondheid / Opdracht) ===== */
 const STEPGOAL=()=>(state.profile&&state.profile.stepGoal)||8000;
@@ -2271,16 +2317,16 @@ function pinPad(title,sub,onDone,cancel){const ov=el(`<div class="lock" role="di
   if(cancel)ov.querySelector(".pcancel").onclick=()=>{ov.remove();cancel()};
   const kd=e=>{if(!document.body.contains(ov)){document.removeEventListener("keydown",kd);return}if(/^\d$/.test(e.key))press(e.key);else if(e.key==="Backspace")press("⌫")};document.addEventListener("keydown",kd);
   document.body.appendChild(ov);return ov}
-function lockApp(){const h=getPin();if(!h||document.querySelector(".lock"))return;pinPad("Loopa is vergrendeld","Vul je pincode in",async p=>(await pinHash(p))===h)}
+function lockApp(){const h=getPin();if(!h||document.querySelector(".lock"))return;pinPad("Loopa is vergrendeld","Vul je pincode in",async p=>(await pinHash(p))===h);bioLock()}
 let hiddenAt=0;document.addEventListener("visibilitychange",()=>{if(document.hidden)hiddenAt=Date.now();else if(hiddenAt&&Date.now()-hiddenAt>120000)lockApp()});
 function pinSettings(){const has=!!getPin();
   if(!has){pinPad("Kies een pincode","4 cijfers",async p=>{setTimeout(()=>pinPad("Nog een keer","Vul dezelfde pincode in",async q=>{if(q!==p)return false;try{localStorage.setItem(LSPIN,await pinHash(p))}catch(e){}renderPinUI();toast("🔒 Pincode staat aan");return true},()=>{}),50);return true},()=>{});return}
   msgSheet("Pincode","Je pincode staat aan. Na 2 minuten weg vraagt Loopa er weer om.",[["Pincode wijzigen",()=>{closeSheet();pinPad("Huidige pincode","Vul je pincode in",async p=>{if((await pinHash(p))!==getPin())return false;try{localStorage.removeItem(LSPIN)}catch(e){}setTimeout(pinSettings,50);return true},()=>{})}],
     ["Pincode uitzetten",()=>{closeSheet();pinPad("Pincode uitzetten","Vul je pincode in",async p=>{if((await pinHash(p))!==getPin())return false;try{localStorage.removeItem(LSPIN)}catch(e){}renderPinUI();toast("Pincode staat uit");return true},()=>{})}],["Sluiten",closeSheet]])}
-function renderPinUI(){$("pinbtn").textContent=getPin()?"Pincode wijzigen of uitzetten":"Pincode instellen";$("logoutbtn").hidden=inArtifact()||!$("backup")}
+function renderPinUI(){if(!getPin())bioOff();renderBioUI();$("pinbtn").textContent=getPin()?"Pincode wijzigen of uitzetten":"Pincode instellen";$("logoutbtn").hidden=inArtifact()||!$("backup")}
 $("pinbtn").onclick=pinSettings;
 $("logoutbtn").onclick=()=>msgSheet("Uitloggen","Je gegevens staan alleen op deze telefoon. Bij uitloggen download je eerst een back-up, daarna wordt de app leeggemaakt. Weer inloggen doe je met Back-up terugzetten, op het eerste scherm.",
-  [["Back-up downloaden en uitloggen",()=>{$("backup").click();setTimeout(()=>{try{[LS,LSP,LSPIN,"loopa-rem-fired","loopa-chat"].forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()},1500)}],["Annuleren",closeSheet]]);
+  [["Back-up downloaden en uitloggen",()=>{$("backup").click();setTimeout(()=>{try{[LS,LSP,LSPIN,"loopa-rem-fired","loopa-chat","loopa-bio"].forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()},1500)}],["Annuleren",closeSheet]]);
 $("addhabit").onclick=ideasSheet;
 
 /* ===== v10: draaiwielen, plaatjes bij oefeningen, aanmoediging, gewoonte-ideeën ===== */
