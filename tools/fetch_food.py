@@ -2,12 +2,19 @@
 import json, os, re, time, urllib.request, urllib.parse
 UA = {"User-Agent": "LoopaFoodPhotos/1.0 (https://github.com/thomasderks462-arch/loopa)"}
 def get(url):
-    req = urllib.request.Request(url, headers=UA)
-    with urllib.request.urlopen(req, timeout=30) as r: return r.read()
+    for k in range(5):
+        try:
+            req = urllib.request.Request(url, headers=UA)
+            with urllib.request.urlopen(req, timeout=30) as r: return r.read()
+        except Exception as e:
+            if k == 4: raise
+            time.sleep(5 * (k + 1))
 titles = json.load(open("tools/foodtitles.json"))
 os.makedirs("food", exist_ok=True)
-out = {}
+out = json.load(open("food/index.json")) if os.path.exists("food/index.json") else {}
+out = {k: v for k, v in out.items() if k in titles}
 for t in titles:
+    if t in out: continue
     slug = re.sub(r"[^a-z0-9]+", "-", t.lower()).strip("-")
     try:
         q = "https://en.wikipedia.org/w/api.php?" + urllib.parse.urlencode({"action":"query","prop":"pageimages","piprop":"original|name","titles":t,"redirects":1,"format":"json"})
@@ -27,5 +34,9 @@ for t in titles:
         print("ok", t, lic)
     except Exception as e:
         print("fout", t, e)
-    time.sleep(0.3)
+    time.sleep(1.5)
 json.dump(out, open("food/index.json", "w"), ensure_ascii=False, indent=0)
+with open("food/CREDITS.md", "w") as f:
+    f.write("# Fotobronnen etensfoto's\n\nAlle foto's komen van Wikimedia Commons, verkleind tot 320 px breed.\n\n| Foto | Maker | Licentie | Bron |\n|---|---|---|---|\n")
+    for t, v in sorted(out.items()):
+        f.write(f"| {v['f']} | {v['by'].replace('|', '/').strip() or 'onbekend'} | {v['lic']} | {v['src']} |\n")
