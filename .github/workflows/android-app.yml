@@ -33,20 +33,39 @@ jobs:
           npm ci --no-audit --no-fund
           node copy-web.js
           npx cap sync android
-      - name: APK bouwen
+      - name: App bouwen
         working-directory: app/android
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          LOOPA_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          LOOPA_VERSION_CODE: ${{ github.run_number }}
+          LOOPA_VERSION_NAME: 1.0.${{ github.run_number }}
         run: |
           chmod +x gradlew
-          for i in 1 2 3 4; do ./gradlew assembleDebug --no-daemon --init-script ../../.github/gradle-mirror.gradle && break; [ $i = 4 ] && exit 1; echo "opnieuw proberen ($i)"; sleep 30; done
-          cp app/build/outputs/apk/debug/app-debug.apk ../../Loopa.apk
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/loopa.jks"
+            export LOOPA_KEYSTORE="$RUNNER_TEMP/loopa.jks"
+            TASKS="assembleRelease bundleRelease"
+          else
+            echo "Geen sleutel ingesteld: alleen testversie"
+            TASKS="assembleDebug"
+          fi
+          for i in 1 2 3 4; do ./gradlew $TASKS --no-daemon --init-script ../../.github/gradle-mirror.gradle && break; [ $i = 4 ] && exit 1; echo "opnieuw proberen ($i)"; sleep 30; done
+          if [ -n "$KS_B64" ]; then
+            cp app/build/outputs/apk/release/app-release.apk ../../Loopa.apk
+            cp app/build/outputs/bundle/release/app-release.aab ../../Loopa-playstore.aab
+          else
+            cp app/build/outputs/apk/debug/app-debug.apk ../../Loopa.apk
+          fi
+          rm -f "$RUNNER_TEMP/loopa.jks"
       - name: Downloadlink bijwerken
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete app-latest -y --cleanup-tag || true
-          gh release create app-latest Loopa.apk \
+          gh release create app-latest Loopa.apk $(ls Loopa-playstore.aab 2>/dev/null) \
             --title "Loopa app (Android)" \
-            --notes "Nieuwste Android-versie van Loopa, gebouwd op $(date -u '+%d-%m-%Y %H:%M') UTC. Open deze pagina op je Android-telefoon, tik op Loopa.apk en installeer." \
+            --notes "Nieuwste Android-versie van Loopa, gebouwd op $(date -u '+%d-%m-%Y %H:%M') UTC. Op je telefoon: tik op Loopa.apk en installeer. Voor de Play Store: upload Loopa-playstore.aab in de Play Console." \
             --target "${GITHUB_SHA}"
 
   ios-check:
