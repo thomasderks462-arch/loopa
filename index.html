@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#000000">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#f6f3ef">
+<meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Loopa">
 <meta name="description" content="Loopa: gewoontes, eten, sport, gym en slaap bijhouden.">
 <link rel="manifest" href="manifest.webmanifest">
@@ -16,13 +16,13 @@
 <title>Loopa</title>
 <style>html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <style>
-/* Layout: donkere iOS-achtige app, één kolom met afgeronde kaarten; weekbalk + voortgangsring bovenaan, tabbalk met iconen onderin. Bewust alleen donker. */
+/* Layout: lichte iOS-achtige app in de kleuren van het logo (oranje, wit, een tintje zwart); één kolom met afgeronde kaarten, weekbalk en voortgangsring bovenaan, tabbalk onderin. */
 :root{
-  --bg:#000000; --surface:#141416; --surface-2:#1e1e21; --ink:#ffffff; --muted:#8d8d93; --line:#2b2b30;
-  --pink:#ff4f8b; --good:#32d26a; --flame:#ff9f0a; --night:#8e9bff;
+  --bg:#f6f3ef; --surface:#ffffff; --surface-2:#f1ece6; --ink:#1b1714; --muted:#776f68; --line:#e6dfd7;
+  --pink:#ff6a1f; --good:#1faa55; --flame:#ff9d0a; --night:#5866f0; --danger:#e0403f;
   --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif;
   --display:-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, system-ui, sans-serif;
-  color-scheme:dark;
+  color-scheme:light;
 }
 [hidden]{display:none!important}
 *{box-sizing:border-box}
@@ -349,6 +349,35 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 .setline{display:flex;gap:12px;font-size:.88rem;padding:3px 2px}
 .setline span:first-child{color:var(--muted);width:18px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}.spin{animation-duration:3s}.resume .dot{animation:none}}
+/* v9 thema */
+.card,.tile,.stat,.habit,.item,.opt,.chip,.tpl,.banner,.addbtn,.routine,.resume,.excard,.mealgroup .item,.stepper{box-shadow:0 1px 3px rgba(27,23,20,.06),0 0 0 1px rgba(27,23,20,.03)}
+.sheet .item,.sheet .stat,.sheet .excard,.rstat{box-shadow:none}
+.btn{background:var(--pink);color:#fff}
+.btn.sec{background:var(--surface-2);color:var(--ink)}
+.btn.danger{color:var(--danger)}
+.btn-del[data-c]{color:var(--danger)}
+nav.tabs{background:rgba(255,255,255,.94)!important}
+nav.tabs button[aria-selected="true"]{color:var(--pink)}
+.scale button[aria-pressed="true"]{background:#fff0e6;box-shadow:0 0 0 2px var(--pink)}
+.habit .check svg{color:#fff}
+.sheet-bg{background:rgba(27,23,20,.35)}
+.chipbtn.on{background:var(--ink);color:#fff}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(27,23,20,.12)}
+.seg.seg3{grid-template-columns:repeat(3,1fr)}
+#view-dag .hero{background:linear-gradient(135deg,#ff5a1f,#ff9d0a);color:#fff;box-shadow:0 8px 24px rgba(255,106,31,.28)}
+#view-dag .hero .muted{color:rgba(255,255,255,.88)}
+#view-dag .hero circle:first-child{stroke:rgba(255,255,255,.3)}
+#view-dag .hero #bigarc{stroke:#fff}
+.photos span{background:rgba(27,23,20,.6)}
+.sugg{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:-6px;box-shadow:0 6px 18px rgba(27,23,20,.1)}
+.sugg .sg{border:0;background:none;text-align:left;padding:10px 12px;display:flex;flex-direction:column;gap:1px;color:var(--ink);border-top:1px solid var(--line)}
+.sugg .sg:first-child{border-top:0}
+.sugg .sg:active{background:var(--surface-2)}
+.sugg .sg b{font-weight:600}
+.sugg .sg small{color:var(--muted);font-size:.78rem}
+.stepper input.bignum{font:inherit;font-size:inherit;font-weight:inherit;color:inherit;background:none;border:0;width:4.2ch;text-align:center;padding:0;-moz-appearance:textfield;appearance:textfield}
+.stepper input.bignum::-webkit-outer-spin-button,.stepper input.bignum::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.mealhead .goal{color:var(--muted)}
 /* v8 */
 .banner{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:18px;padding:12px 14px;color:var(--ink)}
 .banner .em{font-size:1.4rem}
@@ -389,7 +418,7 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 <body>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff4f8b"/><stop offset="1" stop-color="#ff9f0a"/></linearGradient></defs>
+  <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5a1f"/><stop offset="1" stop-color="#ffa21a"/></linearGradient></defs>
   <symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="18" fill="url(#lg)"/>
     <circle cx="32" cy="32" r="17" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="6"/>
     <path d="M32 15a17 17 0 1 1-16.2 22.2" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
@@ -455,6 +484,7 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 
   <!-- ETEN -->
   <div id="view-eten" class="wrap" hidden>
+    <div id="eatnudge" hidden></div>
     <section class="card" aria-label="Calorieën vandaag">
       <div style="display:flex;align-items:center;gap:18px">
         <div class="bigring">
@@ -608,6 +638,7 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
     <section class="card">
       <h2>Je doelen</h2>
       <span class="muted small" id="goalnote"></span>
+      <button class="btn" type="button" id="bodyprof">Lichaam en eetdoel</button>
       <button class="btn" type="button" id="redo" style="background:var(--surface-2);color:var(--ink)">Vragenlijst opnieuw doen</button>
     </section>
     <section class="card">
@@ -799,12 +830,15 @@ function renderEten(){
   setRing("kcalarc",f,f>1.05?"var(--pink)":"var(--flame)");
   $("kcalnum").textContent=Math.round(t.kcal);
   $("kcalsub").textContent=t.kcal>g?`${Math.round(t.kcal-g)} kcal boven je doel van ${g}`:`nog ${Math.round(g-t.kcal)} kcal tot je doel van ${g}`;
-  $("macros").innerHTML=[["Eiwit",t.p,g*.2/4,"var(--pink)"],["Koolhydraten",t.c,g*.5/4,"var(--flame)"],["Vet",t.f,g*.3/9,"var(--night)"]]
+  const mg=macroGoals();
+  const pr=state.profile||{},nb=$("eatnudge");nb.innerHTML="";nb.hidden=!!(pr.weight&&pr.height&&pr.age);
+  if(!nb.hidden){const b=el(`<div class="banner"><span class="em" aria-hidden="true">🎯</span><button class="it" type="button"><b>Maak je eetschema persoonlijk</b><small>Vul je lengte, gewicht en doel in, dan rekent Loopa uit hoeveel je per maaltijd nodig hebt.</small></button></div>`);b.querySelector(".it").onclick=bodyProfileSheet;nb.appendChild(b)}
+  $("macros").innerHTML=[["Eiwit",t.p,mg.p,"var(--pink)"],["Koolhydraten",t.c,mg.c,"var(--flame)"],["Vet",t.f,mg.f,"var(--night)"]]
     .map(([l,v,gl,c])=>`<div class="macro"><div class="mrow"><span>${l}</span><span class="num muted">${Math.round(v)} / ${Math.round(gl)} g</span></div><div class="bar"><i style="width:${Math.min(100,v/gl*100)}%;background:${c}"></i></div></div>`).join("");
   const box=$("foodlists");box.innerHTML="";
   MEALS.forEach(([m,l])=>{const items=food(cur).filter(x=>x.meal===m),sum=items.reduce((a,x)=>a+(+x.kcal||0),0);
     const g=document.createElement("div");g.className="mealgroup";
-    g.innerHTML=`<div class="mealhead"><span class="label">${l}</span><span class="muted small num">${sum?Math.round(sum)+" kcal":""}</span>${items.length?`<button class="mini star" aria-label="${l} bewaren als vaste maaltijd">☆</button>`:""}<button class="mini plus" aria-label="${l} toevoegen">+</button></div>`;
+    g.innerHTML=`<div class="mealhead"><span class="label">${l}</span><span class="muted small num">${Math.round(sum)} <span class="goal">/ ${Math.round(goalKcal()*MEALSPLIT[m]/10)*10} kcal</span></span>${items.length?`<button class="mini star" aria-label="${l} bewaren als vaste maaltijd">☆</button>`:""}<button class="mini plus" aria-label="${l} toevoegen">+</button></div>`;
     g.querySelector(".plus").onclick=()=>foodForm({meal:m,src:"hand"},{isNew:true});
     const st=g.querySelector(".star");if(st)st.onclick=()=>saveTplSheet(m);
     if(!items.length){const e=document.createElement("div");e.className="emptyline";e.textContent="Nog niets";g.appendChild(e)}
@@ -886,6 +920,7 @@ function foodForm(entry,opts){
     fill(e);
     if(gramsInp){gramsInp.oninput=()=>{const g=+gramsInp.value||0;$("f-kcal").value=pc.kcal==null?"":Math.round(pc.kcal*g/100);
       ["p","c","f"].forEach(k=>$("f-"+k).value=pc[k]==null?"":Math.round(pc[k]*g/10)/10);$("f-amount").value=g+" g"};gramsInp.oninput()}
+    if(opts.isNew&&!opts.gtin)attachSuggest(fill,read);
     const row=el(`<div class="btnrow"></div>`);
     if(!opts.isNew){const del=el(`<button class="btn danger" type="button">Verwijder</button>`);
       del.onclick=()=>{if(!del.dataset.c){del.dataset.c=1;del.textContent="Zeker?";return}const d=ensure(cur);d.food=(d.food||[]).filter(x=>x.id!==e.id);saveDay(cur);closeSheet();render()};row.appendChild(del)}
@@ -1206,6 +1241,17 @@ function workoutDetail(w){const wo=w.workout;
     row.append(del,again);s.appendChild(row)})}
 
 
+/* online zoeken in Open Food Facts bij handmatig invoeren */
+const offCache=new Map();
+async function offSearch(q){const key=q.toLowerCase();if(offCache.has(key))return offCache.get(key);
+  const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),6000);
+  try{const r=await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=8&lc=nl&cc=nl&fields=product_name,product_name_nl,brands,nutriments,code`,{signal:ctl.signal});
+    const j=await r.json(),num=v=>v==null||v===""||isNaN(+v)?null:+v,out=[];
+    (j.products||[]).forEach(P=>{const n=P.nutriments||{};let kcal=num(n["energy-kcal_100g"]);if(kcal==null&&num(n["energy_100g"])!=null)kcal=num(n["energy_100g"])/4.184;
+      const nm=(P.product_name_nl||P.product_name||"").trim();if(!nm||kcal==null)return;const br=(P.brands||"").split(",")[0].trim();
+      out.push({name:br&&!nm.toLowerCase().includes(br.toLowerCase())?nm+" · "+br:nm,amount:"100 g",g:100,unit:"g",kcal:Math.round(kcal),p:num(n.proteins_100g),c:num(n.carbohydrates_100g),f:num(n.fat_100g),tag:"Online"})});
+    const res=out.slice(0,4);offCache.set(key,res);return res}catch(e){return[]}finally{clearTimeout(t)}}
+
 /* ---- live scannen met de camera ---- */
 let camStream=null,camReader=null,camLoop=null,camMode=null,camDone=false;
 async function scanLive(mode){camMode=mode;camDone=false;
@@ -1351,12 +1397,244 @@ function renderSettings(){renderSeg();renderRemUI();const l=$("editlist");l.inne
     r.querySelector(".n").textContent=x.name;r.querySelector(".p").textContent=PARTS.find(p=>p[0]===partOf(x))[1];
     const b=r.querySelector("button");b.onclick=()=>{if(b.dataset.c){state.habits.splice(i,1);saveHabits();renderSettings()}else{b.dataset.c=1;b.textContent="Zeker?";setTimeout(()=>{b.textContent="Verwijder";delete b.dataset.c},3000)}};
     l.appendChild(r)});
-  const pr=state.profile;$("goalnote").textContent=pr?`Slaapdoel ${pr.sleepGoal} uur, ${pr.water} glazen water per dag. Focus: ${(pr.goals||[]).map(g=>(GOALS.find(x=>x[0]===g)||[0,g])[1].toLowerCase()).join(", ")||"nog niet gekozen"}.`:"Je hebt de vragenlijst nog niet ingevuld.";
+  const pr=state.profile;$("goalnote").textContent=pr?`${pr.weight?`${goalKcal()} kcal en ${Math.round(macroGoals().p)} g eiwit per dag (${(EATS.find(x=>x[0]===pr.eat)||EATS[1])[1].toLowerCase()}). `:""}Slaapdoel ${pr.sleepGoal} uur, ${pr.water} glazen water per dag. Focus: ${(pr.goals||[]).map(g=>(GOALS.find(x=>x[0]===g)||[0,g])[1].toLowerCase()).join(", ")||"nog niet gekozen"}.`:"Je hebt de vragenlijst nog niet ingevuld.";
   $("storenote").textContent=col?"Je gegevens staan in je eigen account. Alleen jij kunt ze zien, ook op je telefoon.":"Je gegevens staan alleen op dit apparaat, niet in de cloud. Download af en toe een back-up, dan raak je niets kwijt als je je browsergegevens wist of een nieuwe telefoon neemt.";
   $("apikey").value=getKey()?"••••••••••••":"";$("keynote").textContent=getKey()?"Er is een sleutel ingesteld.":"Nog geen sleutel ingesteld.";
 }
 $("addform").addEventListener("submit",e=>{e.preventDefault();const v=$("newhabit").value.trim();if(!v)return;
   state.habits.push({id:"h"+Date.now().toString(36),name:v,part:newPart});$("newhabit").value="";saveHabits();renderSettings()});
+
+/* ===== v9: lichaamsgegevens, eetdoel en suggesties bij typen ===== */
+const ACTS=[["zit","Vooral zittend","🪑","Kantoorwerk, weinig beweging",1.2],["licht","Licht actief","🚶","Veel lopen, of 1 à 2 keer per week sporten",1.375],
+  ["actief","Actief","🏃","3 à 4 keer per week sporten",1.55],["heel","Heel actief","🔥","Bijna elke dag sporten of zwaar werk",1.725]];
+const EATS=[["af","Afvallen","📉","Rustig, ongeveer een halve kilo per week"],["gezond","Gezonder eten","🥗","Op gewicht blijven"],
+  ["spier","Spieren opbouwen","💪","Iets meer eten, met veel eiwit"],["aan","Aankomen","📈","Rustig zwaarder worden"]];
+const MEALSPLIT={ontbijt:.25,lunch:.3,diner:.35,snack:.1};
+function nutrition(p){if(!p||!p.weight||!p.height||!p.age)return null;
+  const s=p.sex==="man"?5:p.sex==="vrouw"?-161:-78,bmr=10*p.weight+6.25*p.height-5*p.age+s,act=(ACTS.find(x=>x[0]===p.act)||ACTS[1])[4],tdee=bmr*act,eat=p.eat||"gezond";
+  let kcal=tdee+{af:-500,gezond:0,spier:250,aan:400}[eat];
+  if(eat==="af")kcal=Math.max(kcal,Math.min(Math.max(p.sex==="man"?1500:1200,bmr),tdee-200));
+  kcal=Math.round(kcal/50)*50;
+  const basis=eat==="af"&&p.goalKg?Math.min(p.weight,(p.weight+p.goalKg)/2):p.weight;
+  return{bmr:Math.round(bmr),tdee:Math.round(tdee/10)*10,kcal,protein:Math.round(basis*{af:1.8,gezond:1.4,spier:2,aan:1.6}[eat]),bmi:p.weight/Math.pow(p.height/100,2)}}
+function macroGoals(){const g=goalKcal(),pr=state.profile||{},p=Math.min(pr.protein||g*.2/4,g*.4/4),f=g*.3/9;return{p,c:Math.max(0,(g-p*4-f*9)/4),f}}
+function applyNutrition(p){const n=nutrition(p);state.profile=state.profile||{};const pr=state.profile;
+  Object.assign(pr,{sex:p.sex||null,age:p.age||null,height:p.height||null,weight:p.weight||null,act:p.act||"licht",eat:p.eat||"gezond"});
+  if((p.eat==="af"||p.eat==="aan")&&p.goalKg)pr.goalKg=p.goalKg;
+  if(n){pr.kcal=n.kcal;pr.protein=n.protein;pr.tdee=n.tdee}
+  if(p.weight){const t=keyOf(new Date()),ex=state.body.find(x=>x.date===t),lw=lastWith("kg");
+    if(ex)ex.kg=p.weight;else if(!lw||lw.kg!==p.weight)state.body.push({id:uid(),date:t,kg:p.weight,waist:null});saveBody()}
+  saveHabits()}
+function nutritionText(n,p){if(!n)return"";let t=`Je lichaam verbruikt ongeveer ${n.tdee} kcal per dag.`;
+  if(p.eat==="af"){t+=` Om rustig af te vallen eet je ongeveer ${n.tdee-n.kcal} kcal minder.`;if(p.goalKg&&p.goalKg<p.weight)t+=` Zo haal je ${nf1(p.goalKg)} kg in ongeveer ${Math.max(1,Math.round((p.weight-p.goalKg)/0.5))} weken.`}
+  else if(p.eat==="spier")t+=" Je eet iets meer, met veel eiwit, zodat je spieren kunnen groeien.";
+  else if(p.eat==="aan")t+=` Je eet ongeveer ${n.kcal-n.tdee} kcal meer om rustig aan te komen.`;
+  return t}
+function bodyProfileSheet(){const p={...(state.profile||{})};if(!p.weight){const lw=lastWith("kg");if(lw)p.weight=lw.kg}
+  openSheet(s=>{s.appendChild(el(`<h2>Lichaam en eetdoel</h2>`));
+    s.appendChild(el(`<span class="muted small">Hiermee berekent Loopa hoeveel calorieën en eiwit je per dag nodig hebt, verdeeld over je maaltijden.</span>`));
+    s.appendChild(el(`<span class="label">Geslacht</span>`));s.appendChild(segment([["man","Man"],["vrouw","Vrouw"],["x","Anders"]],p.sex,v=>{p.sex=v;upd()},"seg3"));
+    const r=el(`<div class="grid3"></div>`);r.append(field("Leeftijd",`<input type="number" id="bp-age" inputmode="numeric" min="14" max="99">`),
+      field("Lengte (cm)",`<input type="number" id="bp-h" inputmode="numeric" min="120" max="230">`),field("Gewicht (kg)",`<input type="number" id="bp-w" inputmode="decimal" step="0.1" min="30" max="300">`));s.appendChild(r);
+    s.appendChild(el(`<span class="label">Hoe actief ben je?</span>`));s.appendChild(segment([["zit","Zittend"],["licht","Licht"],["actief","Actief"],["heel","Heel actief"]],p.act||"licht",v=>{p.act=v;upd()}));
+    s.appendChild(el(`<span class="label">Je doel</span>`));s.appendChild(segment([["af","Afvallen"],["gezond","Gezond"],["spier","Spieren"],["aan","Aankomen"]],p.eat||"gezond",v=>{p.eat=v;upd()}));
+    const gk=field("Streefgewicht (kg)",`<input type="number" id="bp-g" inputmode="decimal" step="0.5" min="30" max="300">`);s.appendChild(gk);
+    const out=el(`<div class="notebox"></div>`);s.appendChild(out);
+    const ok=el(`<button class="btn" type="button">Opslaan</button>`);s.appendChild(ok);
+    $("bp-age").value=p.age||"";$("bp-h").value=p.height||"";$("bp-w").value=p.weight||"";$("bp-g").value=p.goalKg||"";
+    const num=id=>{const v=parseFloat(String($(id).value).replace(",","."));return isNaN(v)?null:v};
+    function read(){p.age=num("bp-age");p.height=num("bp-h");p.weight=num("bp-w");p.goalKg=num("bp-g")}
+    function upd(){read();gk.hidden=!(p.eat==="af"||p.eat==="aan");const n=nutrition(p);
+      out.innerHTML="";if(n){out.appendChild(el(`<b class="num">${n.kcal} kcal en ${n.protein} g eiwit per dag</b>`));out.appendChild(document.createTextNode(" "+nutritionText(n,p)))}
+      else out.textContent="Vul je leeftijd, lengte en gewicht in, dan rekent Loopa je doel uit.";ok.disabled=!n;ok.style.opacity=n?1:.4}
+    s.querySelectorAll("input").forEach(i=>i.oninput=upd);upd();
+    ok.onclick=()=>{read();if(!nutrition(p))return;applyNutrition(p);closeSheet();render();toast("Je eetdoel is bijgewerkt")}})}
+
+/* ---- suggesties bij handmatig invoeren ---- */
+const FOODRAW=`Halfvolle yoghurt|1 schaaltje|150|47|3.9|4.6|1.5
+Volle yoghurt|1 schaaltje|150|62|3.8|4.4|3.2
+Griekse yoghurt|1 schaaltje|150|121|5.6|3.5|9.5
+Griekse yoghurt 0%|1 schaaltje|150|57|10|3.6|0.2
+Skyr naturel|1 schaaltje|150|63|11|4|0.2
+Magere kwark|1 schaaltje|150|56|9|4|0.2
+Vanillevla|1 schaaltje|150|102|3.1|16|2.6
+Halfvolle melk|1 glas|250|46|3.5|4.7|1.5
+Volle melk|1 glas|250|61|3.3|4.6|3.4
+Karnemelk|1 glas|250|37|3.3|4|0.5
+Chocolademelk|1 glas|250|75|3.3|10.7|1.9
+Havermelk|1 glas|250|45|1|6.5|1.5
+Sojamelk|1 glas|250|39|3.3|2|1.8
+Kaas jong belegen 48+|1 plak|20|356|23|0|29
+Kaas 30+|1 plak|20|268|31|0|16
+Smeerkaas|1 portie|20|210|10|4|17
+Mozzarella|1 bol|125|240|18|1|18
+Feta|1 portie|30|264|14|4|21
+Hüttenkäse|1 schaaltje|100|98|11|3.4|4.3
+Roomboter|1 lik|5|740|0.6|0.6|82
+Halvarine|1 lik|5|360|0|0|40
+Ei gekookt|1 ei|55|143|12.6|0.7|9.5
+Gebakken ei|1 ei|50|196|13.6|0.9|15
+Omelet van 2 eieren|1 omelet|120|155|11|1|12
+Volkorenbrood|1 snee|35|220|10|37|3
+Bruin brood|1 snee|35|230|9|40|2.5
+Wit brood|1 snee|35|250|8.5|46|2.7
+Krentenbol|1 bol|60|275|8|50|4.5
+Croissant|1 stuk|45|415|8|45|22
+Beschuit|1 stuk|10|400|11|74|5
+Knäckebröd|1 stuk|10|340|10|58|1.7
+Rijstwafel|1 stuk|8|380|8|80|3
+Wrap|1 stuk|60|300|8|50|7
+Pitabroodje|1 stuk|70|275|9|55|1.2
+Wit bolletje|1 stuk|50|270|9|50|3
+Havermout|1 portie|40|370|13|60|7
+Muesli|1 portie|50|370|10|60|8
+Cruesli|1 portie|45|440|8|65|15
+Cornflakes|1 kom|30|380|7|84|0.9
+Granola|1 portie|45|450|10|60|18
+Pindakaas|1 portie|15|620|25|14|50
+Hagelslag|1 portie|15|480|5|65|22
+Jam|1 portie|15|230|0.4|56|0.1
+Hummus|1 portie|30|250|7|12|18
+Kipfilet (beleg)|1 plak|15|105|20|1|2
+Ham|1 plak|15|120|19|1|4
+Salami|1 plak|10|440|20|1|40
+Appelstroop|1 portie|15|280|1|65|0
+Chocopasta|1 portie|15|540|6|58|31
+Honing|1 theelepel|10|330|0.4|82|0
+Appel|1 stuk|150|52|0.3|12|0.2
+Banaan|1 stuk|120|90|1.1|20|0.3
+Peer|1 stuk|150|55|0.4|12|0.1
+Sinaasappel|1 stuk|150|47|0.9|10|0.1
+Mandarijn|1 stuk|70|45|0.8|10|0.2
+Kiwi|1 stuk|75|60|1|12|0.5
+Aardbeien|1 bakje|150|32|0.7|6|0.3
+Blauwe bessen|1 bakje|125|57|0.7|12|0.3
+Druiven|1 tros|100|70|0.6|16|0.2
+Mango|1 portie|150|60|0.8|13|0.4
+Ananas|1 portie|150|50|0.5|11|0.1
+Watermeloen|1 plak|200|30|0.6|7|0.2
+Avocado|½ avocado|70|160|2|1.8|15
+Rozijnen|1 doosje|15|300|3|70|0.5
+Broccoli|1 portie|150|35|3|3|0.4
+Sperziebonen|1 portie|150|30|2|4|0.2
+Spinazie|1 portie|150|23|3|1|0.4
+Wortel|1 portie|150|35|0.8|7|0.2
+Komkommer|½ komkommer|150|12|0.6|2|0.1
+Tomaat|1 stuk|100|20|0.9|3|0.2
+Paprika|1 stuk|150|30|1|5|0.3
+Sla|1 portie|50|15|1.3|1.5|0.2
+Champignons|1 portie|100|22|3|0.5|0.3
+Bloemkool|1 portie|150|25|2|3|0.3
+Ui|1 stuk|80|35|1.2|7|0.1
+Doperwten|1 portie|150|75|5|10|0.4
+Rode kool|1 portie|150|30|1.4|5|0.2
+Courgette|1 portie|150|20|1.3|2.5|0.3
+Rijst gekookt|1 portie|180|130|2.7|28|0.3
+Zilvervliesrijst gekookt|1 portie|180|125|2.6|26|1
+Pasta gekookt|1 portie|200|150|5|30|0.9
+Volkoren pasta gekookt|1 portie|200|140|5.5|27|1
+Aardappelen gekookt|3 stuks|200|80|2|17|0.1
+Zoete aardappel|1 portie|200|86|1.6|20|0.1
+Friet|1 portie|150|290|3.3|36|15
+Couscous gekookt|1 portie|180|112|3.8|23|0.2
+Quinoa gekookt|1 portie|180|120|4.4|21|1.9
+Noedels gekookt|1 portie|200|140|5|26|2
+Kipfilet|1 stuk|125|110|23|0|1.5
+Kippendij|1 stuk|125|180|18|0|12
+Rundergehakt|1 portie|100|250|20|0|19
+Mager rundergehakt|1 portie|100|170|21|0|10
+Biefstuk|1 stuk|125|150|26|0|5
+Varkenshaas|1 portie|125|120|22|0|3.5
+Hamburger|1 stuk|100|240|17|3|18
+Rookworst|½ worst|90|300|12|2|27
+Frikandel|1 stuk|70|240|10|10|17
+Kroket|1 stuk|70|240|7|20|15
+Zalm|1 moot|125|200|20|0|13
+Tonijn uit blik (water)|1 blikje|120|110|25|0|1
+Kabeljauw|1 stuk|125|80|18|0|0.7
+Garnalen|1 portie|100|90|20|0|1
+Tofu|1 portie|100|125|13|2|7
+Tempeh|1 portie|100|190|19|9|11
+Vegaburger|1 stuk|100|220|15|10|13
+Shoarma|1 portie|150|200|20|2|13
+Kidneybonen|1 portie|100|110|7.5|15|0.5
+Kikkererwten|1 portie|100|120|7|15|2.5
+Linzen gekookt|1 portie|150|115|9|17|0.4
+Ongezouten noten|1 handje|25|620|20|10|54
+Amandelen|1 handje|25|600|21|7|52
+Cashewnoten|1 handje|25|590|18|25|46
+Walnoten|1 handje|25|680|15|4|65
+Pinda's|1 handje|25|590|26|10|49
+Chiazaad|1 eetlepel|10|490|17|8|31
+Chips|1 zakje|40|540|6|50|34
+Pure chocolade|2 blokjes|20|580|8|35|42
+Melkchocolade|2 blokjes|20|540|7|56|31
+Koekje|1 stuk|8|470|6|68|19
+Stroopwafel|1 stuk|30|460|4|65|20
+Ontbijtkoek|1 plak|25|330|4|75|1.4
+Mueslireep|1 reep|25|420|6|65|14
+Proteïnereep|1 reep|55|370|36|30|11
+IJs vanille|2 bolletjes|100|200|3.5|24|10
+Popcorn|1 bakje|30|480|10|60|22
+Appeltaart|1 punt|100|300|3|40|14
+Pizza|½ pizza|180|250|10|30|10
+Pannenkoek|1 stuk|90|200|6|27|7
+Poffertjes|1 portie|150|230|6|33|8
+Tosti ham-kaas|1 stuk|120|280|15|25|13
+Broodje kaas|1 stuk|90|300|13|35|12
+Sushi|8 stuks|240|145|6|25|2.5
+Spaghetti bolognese|1 bord|400|130|7|16|4.5
+Nasi|1 bord|400|150|6|20|5
+Boerenkoolstamppot|1 bord|400|100|4|10|5
+Salade met kip|1 bord|300|110|10|5|6
+Groentesoep|1 kom|250|35|1.5|5|1
+Kapsalon|1 bakje|600|200|10|15|12
+Sinaasappelsap|1 glas|200|45|0.7|10|0.1
+Appelsap|1 glas|200|45|0.1|11|0.1
+Cola|1 glas|250|42|0|10.6|0
+Cola zero|1 glas|250|0.3|0|0|0
+Koffie zwart|1 kop|125|2|0.1|0|0
+Cappuccino|1 kop|150|38|2|3|2
+Thee|1 kop|200|1|0|0.2|0
+Bier|1 glas|250|43|0.5|3.5|0
+Wijn|1 glas|125|80|0.1|2.5|0
+Proteïneshake met water|1 shake|330|36|7.3|0.9|0.5
+Smoothie|1 glas|250|55|0.6|12|0.2
+Sportdrank|1 flesje|500|25|0|6|0
+Olijfolie|1 eetlepel|10|900|0|0|100
+Mayonaise|1 eetlepel|15|680|1|2|75
+Ketchup|1 eetlepel|15|110|1.3|25|0.2
+Pindasaus|1 portie|50|280|7|15|21`;
+const FOODS=FOODRAW.split("\n").map(l=>{const[n,por,g,k,p,c,f]=l.split("|"),m=+g/100,ml=/glas|kop|flesje|shake/.test(por);
+  return{name:n,amount:`${por} (${g} ${ml?"ml":"g"})`,g:+g,unit:ml?"ml":"g",kcal:Math.round(+k*m),p:Math.round(+p*m*10)/10,c:Math.round(+c*m*10)/10,f:Math.round(+f*m*10)/10,tag:"Standaard"}});
+const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").trim();
+function lev(a,b){const d=Array.from({length:a.length+1},(_,i)=>[i]);for(let j=1;j<=b.length;j++)d[0][j]=j;
+  for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[a.length][b.length]}
+function matchScore(n,q){if(n.startsWith(q))return 4;const ws=n.split(/[\s\-(),/]+/).filter(Boolean);if(ws.some(w=>w.startsWith(q)))return 3;if(n.includes(q))return 2;
+  const qw=q.split(/\s+/).pop();if(qw.length>=4&&ws.some(w=>w.length>=3&&lev(w.slice(0,qw.length),qw)<=(qw.length>=6?2:1)))return 1;return 0}
+function foodSearch(q){const nq=norm(q),seen=new Set(),cands=[];if(!nq)return[];
+  Object.keys(state.days).sort().reverse().forEach(k=>food(k).forEach(x=>{const nn=norm(x.name);if(x.name&&!seen.has(nn)){seen.add(nn);cands.push({name:x.name,amount:x.amount,kcal:x.kcal,p:x.p,c:x.c,f:x.f,tag:"Eerder gegeten"})}}));
+  Object.values(state.products||{}).forEach(p=>{const nn=norm(p.name);if(!p.name||seen.has(nn))return;seen.add(nn);const pc=p.per100,g=p.serving||100,sc=v=>v==null?null:Math.round(v*g/10)/10;
+    cands.push(pc?{name:p.name,amount:g+" g",g,unit:"g",kcal:pc.kcal==null?null:Math.round(pc.kcal*g/100),p:sc(pc.p),c:sc(pc.c),f:sc(pc.f),tag:"Gescand"}:{name:p.name,amount:p.amount,kcal:p.kcal,p:p.p,c:p.c,f:p.f,tag:"Gescand"})});
+  FOODS.forEach(x=>{if(!seen.has(norm(x.name)))cands.push(x)});
+  return cands.map((x,i)=>({x,i,s:matchScore(norm(x.name),nq)+(x.tag==="Standaard"?0:.5)})).filter(o=>o.s>=1).sort((a,b)=>b.s-a.s||a.i-b.i).map(o=>o.x)}
+function attachSuggest(fill,read){const inp=$("f-name");if(!inp)return;inp.setAttribute("autocomplete","off");
+  const box=el(`<div class="sugg" role="listbox" aria-label="Suggesties" hidden></div>`),por=el(`<div class="chips" hidden></div>`);
+  inp.closest(".field").after(box);$("f-amount").closest(".field").after(por);
+  let base=null,t=null;
+  const draw=list=>{box.innerHTML="";list.slice(0,7).forEach(x=>{const b=el(`<button type="button" class="sg" role="option"><b></b><small class="num"></small></button>`);
+      b.querySelector("b").textContent=x.name;b.querySelector("small").textContent=[x.tag,x.amount,x.kcal!=null&&x.kcal!==""?Math.round(x.kcal)+" kcal":null].filter(Boolean).join(" · ");
+      b.onpointerdown=ev=>ev.preventDefault();b.onclick=()=>{const keep=read();base={...x};fill({...x,meal:keep.meal});box.hidden=true;drawPor(1)};box.appendChild(b)});
+    box.hidden=!list.length};
+  const drawPor=cur=>{por.innerHTML="";if(!base)return;
+    [[.5,"½ portie"],[1,"1 portie"],[1.5,"1½ portie"],[2,"2 porties"]].forEach(([m,l])=>{const b=el(`<button class="chipbtn${m===cur?" on":""}" type="button"></button>`);b.textContent=l;
+      b.onclick=()=>{const keep=read(),k=v=>v==null||v===""?null:Math.round(v*m*10)/10;
+        fill({name:keep.name,amount:m===1?base.amount:base.g?`${Math.round(base.g*m)} ${base.unit||"g"}`:`${l} (${base.amount||"portie"})`,kcal:k(base.kcal),p:k(base.p),c:k(base.c),f:k(base.f),meal:keep.meal});drawPor(m)};por.appendChild(b)});
+    por.hidden=false};
+  inp.addEventListener("input",()=>{base=null;por.hidden=true;const q=inp.value.trim();clearTimeout(t);if(!q){box.hidden=true;return}draw(foodSearch(q));
+    if(typeof offSearch==="function"&&q.length>=3)t=setTimeout(async()=>{let r=[];try{r=await offSearch(q)}catch(e){}if(inp.value.trim()!==q||!r.length||document.activeElement!==inp)return;draw(foodSearch(q).slice(0,4).concat(r))},600)});
+  inp.addEventListener("blur",()=>setTimeout(()=>{box.hidden=true},150));
+  inp.addEventListener("focus",()=>{const q=inp.value.trim();if(q&&!base)draw(foodSearch(q))})}
 
 /* ===== v8: lichaam, vaste maaltijden, records, stemming, weekrapport, herinneringen ===== */
 const nf1=v=>v==null||isNaN(v)?"–":(Math.round(v*10)/10).toLocaleString("nl-NL");
@@ -1526,7 +1804,7 @@ function insights(){const today=keyOf(new Date()),ks=Array.from({length:60},(_,i
     [k=>sportMin(k)>0||(day(k).steps||0)>=8000,"Op dagen dat je sport of veel loopt","op andere dagen","🏃"],
     [k=>day(k).water==null?null:(day(k).water||0)>=gw,`Als je ${gw} glazen water drinkt`,"als je minder drinkt","💧"],
     [k=>state.habits.length?doneCount(k)/state.habits.length>=.75:null,"Op dagen dat je je gewoontes doet","op andere dagen","✅"],
-    [k=>food(k).some(x=>x.kcal)?sumFood(k).p>=goalKcal()*.2/4*.8:null,"Op dagen met genoeg eiwit","op dagen met weinig eiwit","🥚"]];
+    [k=>food(k).some(x=>x.kcal)?sumFood(k).p>=macroGoals().p*.8:null,"Op dagen met genoeg eiwit","op dagen met weinig eiwit","🥚"]];
   F.forEach(([test,yes,no,em])=>{const a=[],b=[];ks.forEach(k=>{const t=test(k);if(t==null)return;(t?a:b).push(feel(day(k)))});
     if(a.length<3||b.length<3)return;const ma=avgOf(a),mb=avgOf(b),d=ma-mb;if(Math.abs(d)<.3)return;
     out.push({em,d,text:`${yes} voel je je gemiddeld ${nf1(ma)} uit 5, ${no} ${nf1(mb)}.`})});
@@ -1669,7 +1947,7 @@ const CATALOG={
   scherm:[["Telefoon weg tijdens het eten","dag"],["Eerste uur geen telefoon","ochtend"]],
   rust:[["5 min ademhalen","ochtend"],["3 dingen opschrijven waar je blij mee bent","avond"]],
   focus:[["Dagplanning maken","ochtend"],["15 min lezen","avond"]]};
-const onb={step:0,a:{name:"",goals:[],block:null,sleepNow:null,sleepGoal:8,water:8,energy:null,picked:null},timer:null};
+const onb={step:0,a:{name:"",goals:[],block:null,sex:null,age:null,height:null,weight:null,act:null,eat:null,goalKg:null,sleepNow:null,sleepGoal:8,water:8,energy:null,picked:null},timer:null};
 function suggestions(){const out=[],seen=new Set(),gs=onb.a.goals.length?onb.a.goals:["energie","slaap","bewegen"];
   gs.forEach(g=>(CATALOG[g]||[]).forEach(([n,p],i)=>{if(!seen.has(n)){seen.add(n);out.push({name:n,part:(g==="bewegen"&&i===0&&onb.a.energy)?onb.a.energy:p,goal:g})}}));return out}
 function defaultPicks(){const per=onb.a.block==="start"?1:2,picks=[],cnt={};
@@ -1681,6 +1959,13 @@ const STEPS=[
   {id:"block",title:"Wat maakt het nu lastig?",lead:"Zo stemmen we je plan op je af.",single:"block",opts:[
     ["vergeten","Ik vergeet het gewoon","🤷","Een vaste plek op je dag helpt"],["tijd","Ik heb er geen tijd voor","⏱️","We houden het klein en kort"],
     ["motivatie","Na een paar dagen zakt mijn motivatie in","📉","Reeksen en punten houden je scherp"],["start","Ik weet niet waar ik moet beginnen","🧭","We starten met een paar makkelijke"]]},
+  {id:"sex",title:"Wat is je geslacht?",lead:"Daarmee berekenen we hoeveel energie je lichaam per dag nodig heeft.",single:"sex",opts:[["man","Man","👨"],["vrouw","Vrouw","👩"],["x","Anders, of zeg ik liever niet","🙂"]]},
+  {id:"age",title:"Hoe oud ben je?",lead:"Je verbruik verandert met je leeftijd.",num:"age",min:14,max:99,step:1,unit:"jaar",def:()=>25},
+  {id:"height",title:"Hoe lang ben je?",lead:"Tik op het getal om het te typen.",num:"height",min:120,max:230,step:1,unit:"centimeter",def:a=>a.sex==="vrouw"?168:a.sex==="man"?182:175},
+  {id:"weight",title:"Wat weeg je nu?",lead:"Je kunt je gewicht later bijhouden bij Overzicht.",num:"weight",min:30,max:300,step:0.5,unit:"kilo",def:a=>a.sex==="vrouw"?68:a.sex==="man"?82:75},
+  {id:"act",title:"Hoe actief ben je op een gewone dag?",lead:"Reken je sport mee.",single:"act",opts:ACTS.map(x=>[x[0],x[1],x[2],x[3]])},
+  {id:"eat",title:"Wat is je doel met eten?",lead:"Hierop stemmen we je calorieën en eiwit af.",single:"eat",opts:EATS},
+  {id:"goalKg",title:"Wat is je streefgewicht?",lead:"Een realistisch doel houd je makkelijker vol.",num:"goalKg",min:30,max:300,step:0.5,unit:"kilo",def:a=>Math.round((a.weight||75)*(a.eat==="af"?.92:1.06)),when:a=>a.eat==="af"||a.eat==="aan"},
   {id:"sleepNow",title:"Hoeveel slaap je meestal?",lead:"Een gewone doordeweekse nacht.",single:"sleepNow",opts:[
     ["<6","Minder dan 6 uur","🥱"],["6-7","6 tot 7 uur","😐"],["7-8","7 tot 8 uur","🙂"],[">8","Meer dan 8 uur","😌"]]},
   {id:"sleepGoal",title:"Wat is je slaapdoel?",lead:"Volwassenen hebben meestal 7 tot 9 uur nodig.",stepper:"sleepGoal",min:5,max:11,unit:"uur per nacht"},
@@ -1691,7 +1976,8 @@ const STEPS=[
   {id:"analyse"},
   {id:"plan"}];
 function openOnb(){onb.step=0;onbDir=1;prevFrac=0;onbBusy=false;$("onb").hidden=false;$("onbfoot").hidden=false;document.body.style.overflow="hidden";
-  if(state.profile)Object.assign(onb.a,{name:state.profile.name||"",goals:(state.profile.goals||[]).slice(),sleepGoal:goalSleep(),water:goalWater()});
+  if(state.profile){Object.assign(onb.a,{name:state.profile.name||"",goals:(state.profile.goals||[]).slice(),sleepGoal:goalSleep(),water:goalWater()});
+    ["sex","age","height","weight","act","eat","goalKg"].forEach(k=>{if(state.profile[k]!=null)onb.a[k]=state.profile[k]})}
   renderOnb()}
 function closeOnb(){$("onb").hidden=true;$("onbfoot").hidden=true;document.body.style.overflow="";clearTimeout(onb.timer)}
 function optBtn(val,label,em,sub,on,single){const b=document.createElement("button");b.type="button";b.className="opt"+(single?" single":"");
@@ -1709,7 +1995,7 @@ function renderOnbInner(){
   if(st.id!=="welcome"&&st.id!=="analyse"){
     const top=document.createElement("div");top.className="onb-top";
     top.innerHTML=`<button class="round" type="button" aria-label="Terug">‹</button><div class="onb-bar"><i style="width:${onb.step/(STEPS.length-1)*100}%"></i></div>`+(st.skip?'<button class="skip" type="button">Overslaan</button>':"");
-    top.querySelector("button").onclick=()=>transition(()=>{onb.step=Math.max(0,onb.step-1);renderOnb()},-1);
+    top.querySelector("button").onclick=()=>transition(()=>{let i=onb.step-1;while(i>0&&STEPS[i].when&&!STEPS[i].when(a))i--;onb.step=Math.max(0,i);renderOnb()},-1);
     if(st.skip)top.querySelector(".skip").onclick=()=>{a.name="";go()};
     box.appendChild(top)}
   if(st.title){const h=document.createElement("h1");h.textContent=st.title;box.appendChild(h);
@@ -1733,6 +2019,14 @@ function renderOnbInner(){
     w.innerHTML=`<button class="round" type="button" aria-label="Minder">−</button><div class="val num"><span></span><span class="unit"></span></div><button class="round" type="button" aria-label="Meer">+</button>`;
     const show=()=>{w.querySelector(".val span").textContent=a[k]};w.querySelector(".unit").textContent=st.unit;show();
     const[mi,pl]=w.querySelectorAll("button");mi.onclick=()=>{a[k]=Math.max(st.min,a[k]-1);show()};pl.onclick=()=>{a[k]=Math.min(st.max,a[k]+1);show()};box.appendChild(w)}
+  if(st.num){const k=st.num,sp=st.step||1;if(a[k]==null)a[k]=st.def(a);const w=document.createElement("div");w.className="stepper";
+    w.innerHTML=`<button class="round" type="button" aria-label="Minder">−</button><div class="val num"><input type="number" class="bignum"><span class="unit"></span></div><button class="round" type="button" aria-label="Meer">+</button>`;
+    const inp=w.querySelector("input");inp.min=st.min;inp.max=st.max;inp.step=sp;inp.inputMode=sp<1?"decimal":"numeric";inp.value=a[k];inp.setAttribute("aria-label",st.title);w.querySelector(".unit").textContent=st.unit;
+    const clamp=v=>Math.min(st.max,Math.max(st.min,Math.round(v/sp)*sp));
+    inp.oninput=()=>{const v=parseFloat(String(inp.value).replace(",","."));if(!isNaN(v))a[k]=v;next.disabled=isNaN(v)||v<st.min||v>st.max};
+    inp.onchange=()=>{a[k]=clamp(+a[k]||st.def(a));inp.value=a[k];next.disabled=false};inp.onkeydown=e=>{if(e.key==="Enter"){inp.blur();go()}};
+    const[mi,pl]=w.querySelectorAll("button");mi.onclick=()=>{a[k]=clamp((+a[k]||0)-sp);inp.value=a[k];next.disabled=false};pl.onclick=()=>{a[k]=clamp((+a[k]||0)+sp);inp.value=a[k];next.disabled=false};
+    box.appendChild(w)}
   if(st.id==="habits"){if(!a.picked)a.picked=defaultPicks();const o=document.createElement("div");o.className="opts";
     suggestions().forEach(s=>{const pl=PARTS.find(p=>p[0]===s.part)[1],b=optBtn(s.name,s.name,"",pl,a.picked.includes(s.name));
       b.querySelector(".em").innerHTML=icon(PARTS.find(p=>p[0]===s.part)[2],"width:20px;height:20px;color:var(--muted)");
@@ -1741,7 +2035,7 @@ function renderOnbInner(){
     box.appendChild(o);upd()}
   if(st.id==="analyse"){box.className="onb-in analyse";$("onbfoot").hidden=true;
     box.innerHTML=`<div class="bigring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface-2)" stroke-width="9"/><circle id="anarc" cx="50" cy="50" r="42" fill="none" stroke="var(--pink)" stroke-width="9" stroke-linecap="round" stroke-dasharray="0 264"/></svg><div class="pct num" id="anpct">0%</div></div>
-      <h1>Je plan wordt gemaakt</h1><div class="checks">${["Je doelen bekijken","Je slaapdoel instellen","Gewoontes over je dag verdelen","Je eerste dag klaarzetten"].map(t=>`<div>${icon("i-today")}<span>${t}</span></div>`).join("")}</div>`;
+      <h1>Je plan wordt gemaakt</h1><div class="checks">${["Je doelen bekijken","Je calorieën en eiwit berekenen","Je slaapdoel instellen","Gewoontes over je dag verdelen","Je eerste dag klaarzetten"].map(t=>`<div>${icon("i-today")}<span>${t}</span></div>`).join("")}</div>`;
     const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches,dur=reduce?600:2600,t0=performance.now(),rows=box.querySelectorAll(".checks div");
     const tick=()=>{const f=Math.min(1,(performance.now()-t0)/dur);$("anarc").setAttribute("stroke-dasharray",(264*f)+" 264");$("anpct").textContent=Math.round(f*100)+"%";
       rows.forEach((r,i)=>r.classList.toggle("on",f>=(i+1)/rows.length-0.01));
@@ -1749,21 +2043,28 @@ function renderOnbInner(){
   if(st.id==="plan"){const n=a.picked.length;
     box.querySelector("h1")||box.insertAdjacentHTML("beforeend",`<h1>Je plan staat klaar${a.name?", ":""}<span id="pn"></span></h1><p class="lead">Je kunt alles later aanpassen onder Gewoontes.</p>`);
     if(a.name)$("pn").textContent=a.name;
-    box.insertAdjacentHTML("beforeend",`<div class="plan"><div class="stat"><span class="label">Slaapdoel</span><span class="v num">${a.sleepGoal} uur</span></div><div class="stat"><span class="label">Water</span><span class="v num">${a.water} glazen</span></div></div><div class="planlist"></div>`);
+    const nu=nutrition(a);
+    box.insertAdjacentHTML("beforeend",`<div class="plan">${nu?`<div class="stat"><span class="label">Calorieën</span><span class="v num">${nu.kcal} kcal</span></div><div class="stat"><span class="label">Eiwit</span><span class="v num">${nu.protein} g</span></div>`:""}<div class="stat"><span class="label">Slaapdoel</span><span class="v num">${a.sleepGoal} uur</span></div><div class="stat"><span class="label">Water</span><span class="v num">${a.water} glazen</span></div></div>${nu?'<p class="lead" id="nutxt" style="margin:0;font-size:.92rem"></p>':""}<div class="planlist"></div>`);
+    if(nu)$("nutxt").textContent=nutritionText(nu,a)+" Per maaltijd zie je bij Eten hoeveel je ongeveer kunt eten.";
     const pl=box.querySelector(".planlist");suggestions().filter(s=>a.picked.includes(s.name)).forEach(s=>{const d=document.createElement("div");
       d.innerHTML=`${icon("i-check","width:18px;height:18px;color:var(--good)")}<b style="font-weight:600"></b><span></span>`;d.querySelector("b").textContent=s.name;d.querySelector("span").textContent=PARTS.find(p=>p[0]===s.part)[1];pl.appendChild(d)});
     next.textContent="Start mijn eerste dag"}
 }
-function go(){const st=STEPS[onb.step];if(st.id==="plan"){finishOnb();return}transition(()=>{onb.step++;renderOnb()},1)}
+function go(){const st=STEPS[onb.step],a=onb.a;if(st.id==="plan"){finishOnb();return}
+  if(st.num){const v=parseFloat(a[st.num]);a[st.num]=isNaN(v)?st.def(a):Math.min(st.max,Math.max(st.min,v))}
+  if((st.id==="weight"||st.id==="eat")&&a.goalKg!=null&&a.weight&&((a.eat==="af"&&a.goalKg>=a.weight)||(a.eat==="aan"&&a.goalKg<=a.weight)))a.goalKg=null;
+  transition(()=>{let i=onb.step+1;while(i<STEPS.length-1&&STEPS[i].when&&!STEPS[i].when(a))i++;onb.step=i;renderOnb()},1)}
 $("onbnext").onclick=go;
 function finishOnb(){const a=onb.a,sug=suggestions().filter(s=>a.picked.includes(s.name));
   // bestaande gewoontes met dezelfde naam houden hun vinkjes
   const keep=new Map(state.habits.map(h=>[h.name,h]));
   const order={ochtend:0,middag:1,avond:2,dag:3};
   state.habits=sug.map((s,i)=>{const old=keep.get(s.name);return{id:old?old.id:"h"+Date.now().toString(36)+i,name:s.name,part:s.part}}).sort((x,y)=>order[x.part]-order[y.part]);
-  state.profile={name:a.name,goals:a.goals.slice(),block:a.block,sleepNow:a.sleepNow,sleepGoal:a.sleepGoal,water:a.water,energy:a.energy,done:keyOf(new Date())};
+  state.profile={...(state.profile||{}),name:a.name,goals:a.goals.slice(),block:a.block,sleepNow:a.sleepNow,sleepGoal:a.sleepGoal,water:a.water,energy:a.energy,done:keyOf(new Date())};
+  if(a.weight&&a.height&&a.age)applyNutrition({sex:a.sex,age:a.age,height:a.height,weight:a.weight,act:a.act,eat:a.eat,goalKg:a.goalKg});
   saveHabits();closeOnb();show("dag")}
 $("redo").onclick=()=>openOnb();
+$("bodyprof").onclick=bodyProfileSheet;
 
 loadLocal();render();setSync("Opgeslagen op dit apparaat.");startRem();
 if(!state.profile)openOnb();
