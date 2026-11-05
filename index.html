@@ -349,6 +349,36 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 .setline{display:flex;gap:12px;font-size:.88rem;padding:3px 2px}
 .setline span:first-child{color:var(--muted);width:18px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}.spin{animation-duration:3s}.resume .dot{animation:none}}
+/* v15: frisse food-look */
+.eathero{gap:12px}
+.eh-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.eh-l{display:flex;flex-direction:column;gap:2px}
+.eh-big{display:flex;align-items:baseline;gap:8px}
+.eh-big b{font-family:var(--display);font-size:2.6rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+.eh-big span{color:var(--muted);font-weight:600}
+.eh-bar{height:10px;border-radius:6px;background:#fff0e6;overflow:hidden}
+.eh-bar i{display:block;height:100%;width:0;border-radius:6px;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.ringrow{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:4px}
+.mring{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+.mring .mr{position:relative;width:100%;max-width:74px;aspect-ratio:1}
+.mring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.mring svg circle+circle{transition:stroke-dasharray .7s cubic-bezier(.2,.8,.2,1)}
+.mring .mr b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:1rem}
+.mring .mr b small{font-size:.65rem;font-weight:600;color:var(--muted);margin-left:1px}
+.mring>span{font-weight:700;font-size:.82rem;margin-top:4px}
+.mring>small{color:var(--muted);font-size:.7rem}
+.mcem{position:relative;overflow:hidden;width:48px;height:48px;border-radius:14px}
+.mcem img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.plusbtn{background:linear-gradient(135deg,#ff5a1f,#ff9d0a)!important;box-shadow:0 4px 14px rgba(255,106,31,.35)!important;width:38px;height:38px;font-size:1.5rem}
+.mealcard .bar i{background:linear-gradient(90deg,#ff6a1f,#ffa21a)!important}
+
+.fplus{color:#ff6a1f;background:#fff0e6}
+.fplus.ok{background:#ff6a1f;color:#fff}
+.qchip.on{background:#ff6a1f;box-shadow:0 4px 12px rgba(255,106,31,.3)}
+.qtytot{color:#e2500f}
+.fitem{background:#fff;box-shadow:0 0 0 1px var(--line)}
+.fth{border-radius:12px}
+.fempty:hover{border-color:#ff6a1f;color:#e2500f}
 /* v13 */
 html,body,*{touch-action:manipulation}
 input,select,textarea{font-size:16px}
@@ -643,20 +673,14 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
   <!-- ETEN -->
   <div id="view-eten" class="wrap" hidden>
     <div id="eatnudge" hidden></div>
-    <section class="card" aria-label="Calorieën vandaag">
-      <div style="display:flex;align-items:center;gap:18px">
-        <div class="bigring">
-          <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface-2)" stroke-width="11"/>
-            <circle id="kcalarc" cx="50" cy="50" r="42" fill="none" stroke="var(--flame)" stroke-width="11" stroke-linecap="round" stroke-dasharray="0 264" style="transition:stroke-dasharray .4s"/></svg>
-          <div class="pct num" id="kcalnum" style="font-size:1.3rem">0</div>
-        </div>
-        <div class="hero-text">
-          <h2 id="kcaltitle">kcal gegeten</h2>
-          <span class="muted small num" id="kcalsub"></span>
-          <button class="linkbtn" id="kcalgoal" type="button" style="text-align:left">Doel aanpassen</button>
-        </div>
+    <section class="card eathero" aria-label="Calorieën vandaag">
+      <div class="eh-top"><div class="eh-l"><span class="label">Vandaag</span><div class="eh-big num"><b id="kcalleft">0</b><span id="kcallbl">kcal over</span></div></div><button class="linkbtn" id="kcalgoal" type="button">Doel aanpassen</button></div>
+      <div class="eh-bar"><i id="kcalbar"></i></div>
+      <span class="muted small num" id="kcalsub"></span>
+      <div class="ringrow">
+        <div class="mring"><div class="mr"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#fff0e6" stroke-width="11"/><circle id="kcalarc" cx="50" cy="50" r="42" fill="none" stroke="#ff6a1f" stroke-width="11" stroke-linecap="round" stroke-dasharray="0 264" style="transition:stroke-dasharray .6s cubic-bezier(.2,.8,.2,1)"/></svg><b class="num" id="kcalnum">0</b></div><span>kcal</span><small class="num" id="kcalgoalv"></small></div>
+        <div id="macros" style="display:contents"></div>
       </div>
-      <div class="macros" id="macros"></div>
     </section>
     <div id="foodlists" class="wrap" style="gap:12px"></div>
     <div class="addrow">
@@ -1010,17 +1034,18 @@ const r0=v=>v==null||v===""?"":Math.round(+v);
 /* ---- Eten ---- */
 function renderEten(){
   const t=sumFood(cur),g=goalKcal(),f=t.kcal/g;
-  setRing("kcalarc",f,f>1.05?"var(--pink)":"var(--flame)");
+  setRing("kcalarc",f,f>1.05?"#ff3b5c":"#ff6a1f");{const left=Math.round(g-t.kcal);countTo($("kcalleft"),Math.abs(left),"");$("kcallbl").textContent=left>=0?"kcal over":"kcal te veel";
+    $("kcalbar").style.width=Math.min(100,f*100)+"%";$("kcalbar").style.background=f>1.05?"#ff3b5c":"linear-gradient(90deg,#ff6a1f,#ffa21a)";$("kcalgoalv").textContent="van "+g}
   countTo($("kcalnum"),Math.round(t.kcal),"");
-  $("kcalsub").textContent=t.kcal>g?`${Math.round(t.kcal-g)} kcal boven je doel van ${g}`:`nog ${Math.round(g-t.kcal)} kcal tot je doel van ${g}`;
+  $("kcalsub").textContent=`${Math.round(t.kcal)} gegeten · doel ${g} kcal`;
   const mg=macroGoals();
   const pr=state.profile||{},nb=$("eatnudge");nb.innerHTML="";nb.hidden=!!(pr.weight&&pr.height&&pr.age);
   if(!nb.hidden){const b=el(`<div class="banner"><span class="em" aria-hidden="true">🎯</span><button class="it" type="button"><b>Maak je eetschema persoonlijk</b><small>Vul je lengte, gewicht en doel in, dan rekent Loopa uit hoeveel je per maaltijd nodig hebt.</small></button></div>`);b.querySelector(".it").onclick=bodyProfileSheet;nb.appendChild(b)}
-  $("macros").innerHTML=[["Eiwit",t.p,mg.p,"var(--pink)"],["Koolhydraten",t.c,mg.c,"var(--flame)"],["Vet",t.f,mg.f,"var(--night)"]]
-    .map(([l,v,gl,c])=>`<div class="macro"><div class="mrow"><span>${l}</span><span class="num muted">${Math.round(v)} / ${Math.round(gl)} g</span></div><div class="bar"><i style="width:${Math.min(100,v/gl*100)}%;background:${c}"></i></div></div>`).join("");
-  const box=$("foodlists");box.innerHTML="";const MEM={ontbijt:"🌅",lunch:"🥪",diner:"🍽️",snack:"🍎"};
+  $("macros").innerHTML=[["Eiwit",t.p,mg.p,"#ff3b5c","#ffe8ec"],["Koolh.",t.c,mg.c,"#ffa21a","#fff4e0"],["Vet",t.f,mg.f,"#1b1714","#ece8e4"]]
+    .map(([l,v,gl,c,bg])=>`<div class="mring"><div class="mr"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="${bg}" stroke-width="11"/><circle cx="50" cy="50" r="42" fill="none" stroke="${c}" stroke-width="11" stroke-linecap="round" stroke-dasharray="${264*Math.min(1,v/gl)} 264"${v>0?"":` opacity="0"`}/></svg><b class="num">${Math.round(v)}<small>g</small></b></div><span>${l}</span><small class="num">van ${Math.round(gl)} g</small></div>`).join("");
+  const box=$("foodlists");box.innerHTML="";const MEM={ontbijt:"🌅",lunch:"🥪",diner:"🍽️",snack:"🍎"},MIMG={ontbijt:"Muesli",lunch:"Cheese sandwich",diner:"Spaghetti alla bolognese",snack:"Apple"};
   MEALS.forEach(([m,l])=>{const items=food(cur).filter(x=>x.meal===m),sum=items.reduce((a,x)=>a+(+x.kcal||0),0),goal=Math.round(goalKcal()*MEALSPLIT[m]/10)*10;
-    const g=el(`<section class="mealcard"><div class="mchead"><span class="mcem" aria-hidden="true">${MEM[m]}</span><div class="it"><b>${l}</b><small class="num">${Math.round(sum)} / ${goal} kcal</small></div>${items.length?`<button class="mini star" type="button" aria-label="${l} bewaren als vaste maaltijd">☆</button>`:""}<button class="plusbtn plus" type="button" aria-label="${l} toevoegen">+</button></div><div class="bar"><i style="width:${Math.min(100,sum/goal*100)}%"></i></div></section>`);
+    const g=el(`<section class="mealcard"><div class="mchead"><span class="mcem" aria-hidden="true">${MEM[m]}${FOODIMG[MIMG[m]]||FOODIMG.Pasta?`<img alt="" src="${foodImgUrl(FOODIMG[MIMG[m]]||(m==="diner"?FOODIMG.Pasta:""))}" onerror="this.remove()">`:""}</span><div class="it"><b>${l}</b><small class="num">${Math.round(sum)} / ${goal} kcal</small></div>${items.length?`<button class="mini star" type="button" aria-label="${l} bewaren als vaste maaltijd">☆</button>`:""}<button class="plusbtn plus" type="button" aria-label="${l} toevoegen">+</button></div><div class="bar"><i style="width:${Math.min(100,sum/goal*100)}%"></i></div></section>`);
     g.querySelector(".plus").onclick=()=>foodPicker(m);
     const st=g.querySelector(".star");if(st)st.onclick=()=>saveTplSheet(m);
     if(!items.length){const e=el(`<button class="fempty" type="button"></button>`);e.textContent="+ "+l+" toevoegen";e.onclick=()=>foodPicker(m);g.appendChild(e)}
