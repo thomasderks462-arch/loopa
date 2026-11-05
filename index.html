@@ -1,0 +1,1799 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Loopa">
+<meta name="description" content="Loopa: gewoontes, eten, sport, gym en slaap bijhouden.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>Loopa</title>
+<style>html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>
+/* Layout: donkere iOS-achtige app, één kolom met afgeronde kaarten; weekbalk + voortgangsring bovenaan, tabbalk met iconen onderin. Bewust alleen donker. */
+:root{
+  --bg:#000000; --surface:#141416; --surface-2:#1e1e21; --ink:#ffffff; --muted:#8d8d93; --line:#2b2b30;
+  --pink:#ff4f8b; --good:#32d26a; --flame:#ff9f0a; --night:#8e9bff;
+  --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif;
+  --display:-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, system-ui, sans-serif;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.4;-webkit-font-smoothing:antialiased;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 110px}
+.wrap{max-width:520px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-size:1.9rem;font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.1rem;font-weight:700;letter-spacing:-.01em}
+.muted{color:var(--muted)}
+.small{font-size:.82rem}
+.num{font-variant-numeric:tabular-nums}
+.label{font-size:.75rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+.card{background:var(--surface);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+
+/* kop */
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding-top:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border-radius:999px;padding:7px 12px;font-weight:700;font-size:.9rem;white-space:nowrap}
+.chip svg{width:16px;height:16px}
+button.chip{border:0;color:var(--ink)}
+
+/* weekbalk */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.wday{border:0;background:transparent;border-radius:16px;padding:8px 0 10px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.wday .dn{font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase}
+.wday .ring{position:relative;width:34px;height:34px;display:grid;place-items:center}
+.wday .ring svg{position:absolute;inset:0}
+.wday .ring b{font-size:.85rem;font-weight:700;position:relative}
+.wday[aria-current="date"]{background:var(--ink);color:var(--bg)}
+.wday[aria-current="date"] .dn{color:var(--bg);opacity:.6}
+.wday:disabled{opacity:.3;cursor:default}
+
+/* voortgang */
+.hero{flex-direction:row;align-items:center;gap:18px}
+.bigring{position:relative;width:96px;height:96px;flex:none}
+.bigring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.bigring .pct{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.5rem}
+.hero-text{display:flex;flex-direction:column;gap:4px;min-width:0}
+.hero-text h2{font-size:1.25rem}
+
+/* gewoontes */
+.group{display:flex;flex-direction:column;gap:8px}
+.group-title{display:flex;align-items:center;gap:8px;padding:4px 4px 0}
+.group-title svg{width:16px;height:16px;color:var(--muted)}
+.habit{display:flex;align-items:center;gap:12px;padding:14px 14px 14px 16px;border-radius:18px;border:0;background:var(--surface);text-align:left;width:100%;transition:background .2s}
+.habit .name{flex:1;min-width:0;font-weight:600}
+.habit .streak{display:flex;align-items:center;gap:3px;font-size:.8rem;color:var(--flame);font-weight:700}
+.habit .streak svg{width:13px;height:13px}
+.habit .check{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);flex:none;display:grid;place-items:center;transition:all .2s}
+.habit .check svg{width:15px;height:15px;opacity:0;color:var(--bg)}
+.habit[aria-pressed="true"] .name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--muted)}
+.habit[aria-pressed="true"] .check{background:var(--good);border-color:var(--good)}
+.habit[aria-pressed="true"] .check svg{opacity:1}
+
+/* invoer */
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+input[type=time],input[type=text],textarea{font:inherit;color:var(--ink);background:var(--surface-2);border:1px solid transparent;border-radius:14px;padding:11px 12px;width:100%;min-width:0}
+input::placeholder,textarea::placeholder{color:var(--muted)}
+textarea{resize:vertical;min-height:70px}
+.sleep-total{display:flex;align-items:baseline;gap:8px}
+.sleep-total .big{font-family:var(--display);font-size:2.2rem;font-weight:800;color:var(--night)}
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.scale button{padding:10px 0;border-radius:14px;border:0;background:var(--surface-2);font-size:1.25rem}
+.scale button[aria-pressed="true"]{background:var(--ink);box-shadow:0 0 0 2px var(--pink)}
+.counter{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.round{width:42px;height:42px;border-radius:50%;border:0;background:var(--surface-2);font-size:1.3rem;font-weight:600;display:grid;place-items:center}
+.glasses{display:flex;gap:4px;flex-wrap:wrap}
+.glasses span{width:11px;height:20px;border-radius:3px 3px 5px 5px;background:var(--surface-2)}
+.glasses span.full{background:var(--night)}
+.meals{display:flex;flex-direction:column;gap:8px}
+.meal{display:grid;grid-template-columns:90px 1fr;align-items:center;gap:8px}
+.meal span{font-weight:600;font-size:.9rem;color:var(--muted)}
+
+/* tabbalk */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(10,10,12,.92);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-top:1px solid var(--line);
+  display:flex;justify-content:center;padding:8px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+nav.tabs button{flex:1;max-width:120px;min-width:0;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;color:var(--muted);font-size:.72rem;font-weight:600}
+nav.tabs svg{width:24px;height:24px}
+nav.tabs button[aria-selected="true"]{color:var(--ink)}
+
+/* overzicht */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--surface);border-radius:18px;padding:14px 12px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.stat .v{font-family:var(--display);font-size:1.5rem;font-weight:800}
+.stat .label{letter-spacing:.03em;font-size:.68rem}
+.chart{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font-family:var(--font);font-size:10px}
+.grid-wrap{overflow-x:auto}
+table.hgrid{border-collapse:separate;border-spacing:4px;font-size:.8rem}
+table.hgrid th{font-weight:500;color:var(--muted);text-align:left;padding-right:6px;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis}
+table.hgrid td{width:20px;min-width:20px;height:20px;border-radius:6px;background:var(--surface-2)}
+table.hgrid td.on{background:var(--good)}
+table.hgrid thead th{text-align:center;font-size:.68rem;padding:0}
+.bar{height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--pink);border-radius:4px}
+.rank{display:flex;justify-content:space-between;align-items:baseline}
+
+/* instellingen */
+.edit-list{display:flex;flex-direction:column;gap:8px}
+.edit-item{display:flex;gap:10px;align-items:center;background:var(--surface-2);border-radius:14px;padding:6px 6px 6px 14px}
+.edit-item .n{flex:1;min-width:0;font-weight:600}
+.edit-item .p{font-size:.75rem;color:var(--muted)}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:var(--surface-2);border-radius:12px;padding:4px}
+.seg button{border:0;background:transparent;border-radius:9px;padding:8px 0;font-size:.82rem;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.btn{border:0;border-radius:999px;padding:13px 18px;background:var(--ink);color:var(--bg);font-weight:700;width:100%}
+.btn-del{border:0;border-radius:10px;padding:8px 12px;background:transparent;color:var(--muted);font-size:.85rem;font-weight:600}
+.btn-del[data-c]{color:var(--pink)}
+.empty{color:var(--muted);font-size:.9rem;padding:4px}
+.brand{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.brand svg{width:26px;height:26px}
+.brand b{font-family:var(--display);font-weight:800;letter-spacing:-.01em}
+
+/* vragenlijst */
+.onb{position:fixed;inset:0;z-index:20;background:var(--bg);overflow-y:auto;
+  padding:calc(14px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(110px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.onb-in{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+.onb-top{display:flex;align-items:center;gap:12px;min-height:42px}
+.onb-top .round{flex:none}
+.onb-bar{flex:1;height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.onb-bar i{display:block;height:100%;background:var(--ink);border-radius:3px;transition:width .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes inF{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+@keyframes inB{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:none}}
+@keyframes outF{to{opacity:0;transform:translateX(-40px)}}
+@keyframes outB{to{opacity:0;transform:translateX(40px)}}
+.onb-in.in-f{animation:inF .34s cubic-bezier(.2,.8,.2,1) both}
+.onb-in.in-b{animation:inB .34s cubic-bezier(.2,.8,.2,1) both}
+.onb-in.out-f{animation:outF .18s ease-in both}
+.onb-in.out-b{animation:outB .18s ease-in both}
+.opt{transition:transform .15s,border-color .15s,background .15s}
+.opt:active{transform:scale(.97)}
+.opt[aria-pressed="true"] .tick{animation:pop .3s}
+@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+.habit .check.pop{animation:pop .35s}
+@media (prefers-reduced-motion: reduce){.onb-in.in-f,.onb-in.in-b,.onb-in.out-f,.onb-in.out-b,.habit .check.pop,.opt[aria-pressed="true"] .tick{animation:none}}
+.onb h1{font-size:1.75rem;line-height:1.2}
+.onb .lead{color:var(--muted);margin:-10px 0 0}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:2px solid transparent;background:var(--surface);border-radius:18px;padding:16px;font-weight:600}
+.opt .em{font-size:1.4rem;width:28px;text-align:center;flex:none}
+.opt .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.opt .t small{font-weight:400;color:var(--muted);font-size:.82rem}
+.opt .tick{width:24px;height:24px;border-radius:7px;border:2px solid var(--line);flex:none;display:grid;place-items:center}
+.opt .tick svg{width:14px;height:14px;opacity:0;color:var(--ink)}
+.opt.single .tick{border-radius:50%}
+.opt[aria-pressed="true"]{border-color:var(--pink);background:var(--surface-2)}
+.opt[aria-pressed="true"] .tick{background:var(--pink);border-color:var(--pink)}
+.opt[aria-pressed="true"] .tick svg{opacity:1}
+.stepper{display:flex;align-items:center;justify-content:center;gap:28px;padding:26px 0;background:var(--surface);border-radius:22px}
+.stepper .val{font-family:var(--display);font-size:3.4rem;font-weight:800;min-width:3ch;text-align:center}
+.stepper .unit{display:block;font-size:.9rem;color:var(--muted);font-weight:600;font-family:var(--font)}
+.stepper .round{width:52px;height:52px;font-size:1.6rem}
+.onb-foot{position:fixed;left:0;right:0;bottom:0;z-index:21;background:linear-gradient(to top,var(--bg) 70%,transparent);
+  padding:20px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.onb-foot .btn{max-width:520px;margin:0 auto;display:block;font-size:1.05rem;padding:16px}
+.onb-foot .btn:disabled{opacity:.35;cursor:default}
+.skip{border:0;background:transparent;color:var(--muted);font-weight:600;padding:8px}
+.welcome{align-items:center;text-align:center;padding-top:8vh}
+.welcome .logo-big{width:112px;height:112px;filter:drop-shadow(0 10px 40px rgba(255,79,139,.35))}
+.welcome h1{font-size:2.3rem}
+.analyse{align-items:center;text-align:center;padding-top:10vh}
+.analyse .bigring{width:150px;height:150px}
+.analyse .bigring .pct{font-size:2.1rem}
+.checks{display:flex;flex-direction:column;gap:12px;text-align:left;width:100%;max-width:320px}
+.checks div{display:flex;align-items:center;gap:10px;color:var(--muted);transition:color .3s}
+.checks div svg{width:20px;height:20px;color:var(--line);transition:color .3s}
+.checks div.on{color:var(--ink)}
+.checks div.on svg{color:var(--good)}
+.plan{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.plan .stat .v{font-size:1.35rem}
+.planlist{display:flex;flex-direction:column;gap:8px}
+.planlist div{display:flex;gap:10px;align-items:center;background:var(--surface);border-radius:14px;padding:12px 14px;font-weight:600}
+.planlist div span{color:var(--muted);font-weight:500;font-size:.8rem;margin-left:auto}
+
+/* tegels op Vandaag */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{border:0;background:var(--surface);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:6px;text-align:left;min-width:0}
+.tile .th{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.tile .th svg{width:16px;height:16px}
+.tile .tv{font-family:var(--display);font-size:1.35rem;font-weight:800}
+.tile .tv small{font-size:.8rem;color:var(--muted);font-weight:600;font-family:var(--font)}
+.bar i{transition:width .4s}
+/* eten */
+.macros{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.macro{display:flex;flex-direction:column;gap:6px;min-width:0}
+.macro .mrow{display:flex;flex-direction:column;gap:1px;font-size:.85rem;font-weight:600}
+.macro .mrow .num{font-size:.75rem;font-weight:500}
+.addrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.addbtn{border:0;background:var(--surface);border-radius:18px;padding:14px 4px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:.78rem;font-weight:600;transition:transform .15s}
+.addbtn:active{transform:scale(.95)}
+.addbtn .ic{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:var(--surface-2)}
+.addbtn .ic svg{width:22px;height:22px}
+.mealgroup{display:flex;flex-direction:column;gap:6px}
+.mealhead{display:flex;align-items:center;gap:8px;padding:2px 4px}
+.mealhead .label{flex:1}
+.mini{width:30px;height:30px;border-radius:50%;border:0;background:var(--surface);display:grid;place-items:center;font-size:1.1rem;font-weight:700}
+.item{display:flex;align-items:center;gap:12px;border:0;background:var(--surface);border-radius:16px;padding:12px 14px;text-align:left;width:100%}
+.item .it{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.item .it b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .it small{color:var(--muted);font-size:.78rem}
+.item .kc{font-weight:700;white-space:nowrap}
+.item .em{font-size:1.3rem;width:28px;text-align:center}
+.emptyline{color:var(--muted);font-size:.85rem;padding:10px 14px;border:1.5px dashed var(--line);border-radius:16px}
+.linkbtn{border:0;background:transparent;color:var(--pink);font-weight:600;padding:0;font-size:.85rem}
+input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);border:1px solid transparent;border-radius:14px;padding:11px 12px;width:100%;min-width:0}
+/* sheet */
+.sheet-bg{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.6);opacity:0;transition:opacity .25s}
+.sheet-bg.open{opacity:1}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:31;background:var(--surface);border-radius:26px 26px 0 0;max-height:90vh;overflow-y:auto;
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.sheet.open{transform:none}
+.sheet-in{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 4px}
+.sheet h2{font-size:1.3rem}
+.sheet input[type=text],.sheet input[type=number]{background:var(--surface-2)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg.s3{grid-template-columns:repeat(3,1fr)}
+.btnrow{display:flex;gap:8px}
+.btn.sec{background:var(--surface-2);color:var(--ink)}
+.btn.danger{background:transparent;color:var(--pink);border:1.5px solid var(--line)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chipbtn{border:0;background:var(--surface-2);border-radius:999px;padding:7px 12px;font-size:.85rem;font-weight:600;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.notebox{background:var(--surface-2);border-radius:14px;padding:12px 14px;font-size:.88rem;color:var(--muted)}
+.notebox b{color:var(--ink)}
+.spin{width:44px;height:44px;border-radius:50%;border:4px solid var(--surface-2);border-top-color:var(--pink);animation:spin 1s linear infinite;margin:10px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.typegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.typebtn{border:2px solid transparent;background:var(--surface-2);border-radius:16px;padding:10px 2px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.75rem;font-weight:600}
+.typebtn span{font-size:1.4rem}
+.typebtn[aria-pressed="true"]{border-color:var(--pink)}
+.check-row{display:flex;align-items:center;gap:10px;font-size:.9rem}
+.check-row input{width:20px;height:20px;accent-color:var(--pink)}
+/* scanner */
+.cam{position:fixed;inset:0;z-index:40;background:#000}
+.cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cam-frame{position:absolute;left:50%;top:45%;width:min(80vw,340px);height:min(40vw,170px);transform:translate(-50%,-50%);border-radius:18px;box-shadow:0 0 0 200vmax rgba(0,0,0,.55);border:3px solid #fff;overflow:hidden}
+.cam.qr .cam-frame{height:min(70vw,280px);width:min(70vw,280px)}
+.cam-frame i{position:absolute;left:6%;right:6%;height:2px;background:var(--pink);box-shadow:0 0 12px var(--pink);animation:scanline 1.8s ease-in-out infinite alternate}
+@keyframes scanline{from{top:10%}to{top:88%}}
+.cam-top{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:12px;color:#fff;font-weight:700;
+  padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px))}
+.cam-top span{flex:1;text-align:center}
+.cam-top .round{background:rgba(255,255,255,.18);color:#fff}
+.cam-bot{position:absolute;left:0;right:0;bottom:0;display:flex;gap:10px;padding:16px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.cam-bot .btn{background:rgba(255,255,255,.16);color:#fff}
+.prodcard{display:flex;gap:12px;align-items:center;background:var(--surface-2);border-radius:16px;padding:12px}
+.prodcard img{width:56px;height:56px;object-fit:contain;border-radius:10px;background:#fff;flex:none}
+.prodcard .it{display:flex;flex-direction:column;gap:2px;min-width:0}
+.prodcard small{color:var(--muted);font-size:.8rem}
+.prodcard .src{font-size:.72rem}
+@media (prefers-reduced-motion: reduce){.cam-frame i{animation:none;top:50%}}
+/* gym */
+.wk{position:fixed;inset:0;z-index:25;background:var(--bg);overflow-y:auto;
+  padding:env(safe-area-inset-top,0px) max(16px,env(safe-area-inset-right,0px)) calc(120px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.wk-top{position:sticky;top:0;z-index:2;background:var(--bg);display:flex;align-items:center;gap:10px;padding:10px 0;max-width:520px;margin:0 auto}
+.wk-timer{flex:1;text-align:center;font-weight:800;font-size:1.15rem}
+.btn.wkdone{width:auto;padding:10px 20px;background:var(--good);color:#04130a}
+.wk-in{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.wk .wk-name{font-family:var(--display);font-size:1.6rem;font-weight:800;background:transparent;border:0;padding:0;color:var(--ink);width:100%}
+.wk-stats{display:flex;gap:28px}
+.wk-stats span{display:flex;flex-direction:column;gap:2px}
+.wk-stats b{font-size:1.1rem}
+.excard{background:var(--surface);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:4px}
+.exhead{display:flex;align-items:center;gap:10px;padding:2px 2px 6px}
+.exhead .it{flex:1;min-width:0;display:flex;flex-direction:column}
+.exhead b{color:var(--pink);font-weight:700}
+.exhead small{color:var(--muted);font-size:.78rem}
+.setgrid{display:grid;grid-template-columns:30px minmax(0,1fr) 64px 58px 38px;gap:6px;align-items:center}
+.sethdr span{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;text-align:center}
+.sethdr span:nth-child(2){text-align:left}
+.setrow{padding:3px 0;border-radius:10px;transition:background .2s}
+.setrow .sn{text-align:center;font-weight:700}
+.setrow .pv{color:var(--muted);font-size:.85rem;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.setrow input{padding:7px 2px;text-align:center;border-radius:9px;font-weight:700}
+.setrow .tick{width:34px;height:32px;border:0;border-radius:9px;background:var(--surface-2);display:grid;place-items:center;margin:auto}
+.setrow .tick svg{width:15px;height:15px;color:var(--muted)}
+.setrow.done{background:color-mix(in srgb,var(--good) 18%,transparent)}
+.setrow.done .tick{background:var(--good)}
+.setrow.done .tick svg{color:#04130a}
+.setrow.done input{background:transparent}
+.addset{border:0;background:var(--surface-2);border-radius:10px;padding:8px;font-weight:600;font-size:.85rem;margin-top:4px}
+.rest{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:26;background:var(--surface-2);border-radius:999px;padding:8px 8px 8px 16px;display:flex;align-items:center;gap:8px;box-shadow:0 8px 30px rgba(0,0,0,.6);overflow:hidden;max-width:calc(100% - 32px);white-space:nowrap}
+.rest-bar{position:absolute;left:0;bottom:0;height:3px;width:100%}
+.rest-bar i{display:block;height:100%;background:var(--pink)}
+.rest b{font-size:1.05rem;min-width:3.2ch}
+.rest button{border:0;background:var(--surface);border-radius:999px;padding:7px 10px;font-size:.8rem;font-weight:700}
+.resume{display:flex;align-items:center;gap:12px;border:0;background:color-mix(in srgb,var(--good) 15%,var(--surface));border-radius:16px;padding:14px;text-align:left;width:100%}
+.resume .dot{width:10px;height:10px;border-radius:50%;background:var(--good);animation:pulse 1.4s infinite;flex:none}
+.resume .it{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.resume small{color:var(--muted);font-size:.8rem}
+.resume .kc{color:var(--good);font-weight:700}
+@keyframes pulse{50%{opacity:.3}}
+.routines{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.routine{background:var(--surface-2);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.routine b{font-weight:700}
+.routine small{color:var(--muted);font-size:.78rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.routine .btnrow{margin-top:auto}
+.routine .btn{padding:8px 6px;font-size:.82rem}
+.routine .btn.sec{background:var(--surface)}
+.scrollx{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.scrollx::-webkit-scrollbar{display:none}
+.chipbtn{flex:none}
+.chipbtn.on{background:var(--ink);color:var(--bg)}
+.exlist{display:flex;flex-direction:column;gap:4px}
+.exrow{display:flex;align-items:center;gap:10px;border:0;background:var(--surface-2);border-radius:12px;padding:10px 12px;text-align:left;width:100%}
+.exrow .it{flex:1;min-width:0;display:flex;flex-direction:column}
+.exrow b{font-weight:600}
+.exrow small{color:var(--muted);font-size:.78rem}
+.exrow .mini{background:var(--surface);width:28px;height:28px;flex:none}
+.tick2{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;flex:none}
+.tick2 svg{width:13px;height:13px;opacity:0;color:#fff}
+.exrow[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--pink)}
+.exrow[aria-pressed="true"] .tick2{background:var(--pink);border-color:var(--pink)}
+.exrow[aria-pressed="true"] .tick2 svg{opacity:1}
+.stickybtn{position:sticky;bottom:0;box-shadow:0 -12px 18px var(--surface)}
+.setstep{display:flex;align-items:center;gap:6px;font-size:.8rem;white-space:nowrap}
+.setline{display:flex;gap:12px;font-size:.88rem;padding:3px 2px}
+.setline span:first-child{color:var(--muted);width:18px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}.spin{animation-duration:3s}.resume .dot{animation:none}}
+/* v8 */
+.banner{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:18px;padding:12px 14px;color:var(--ink)}
+.banner .em{font-size:1.4rem}
+.banner .it{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0;border:0;background:none;text-align:left;padding:0;color:inherit;font:inherit}
+.banner small{color:var(--muted);font-size:.8rem}
+.banner .x{border:0;background:none;color:var(--muted);font-size:1.3rem;padding:4px 6px}
+.toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;transition:.25s;background:var(--ink);color:var(--bg);border-radius:14px;padding:11px 14px;display:flex;gap:14px;align-items:center;font-weight:600;font-size:.9rem;z-index:60;width:max-content;max-width:calc(100% - 32px);pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{border:0;background:none;color:var(--pink);font-weight:700;padding:0;font:inherit}
+.tplrow{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.tplrow::-webkit-scrollbar{display:none}
+.tpl{flex:none;border:0;background:var(--surface);border-radius:16px;padding:10px 14px;text-align:left;display:flex;flex-direction:column;gap:2px;max-width:230px;color:var(--ink)}
+.tpl b{font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tpl small{color:var(--muted);font-size:.78rem;white-space:nowrap}
+.bigval{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.bigval b{font-family:var(--display);font-size:2rem;font-weight:800}
+.delta{font-size:.78rem;font-weight:700;border-radius:999px;padding:3px 9px;background:var(--surface-2);color:var(--muted)}
+.delta.up{color:var(--good)}.delta.down{color:var(--pink)}
+.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.photos button{border:0;padding:0;background:var(--surface-2);border-radius:12px;overflow:hidden;aspect-ratio:3/4;position:relative}
+.photos img{width:100%;height:100%;object-fit:cover;display:block}
+.photos span{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.6);color:#fff;font-size:.7rem;border-radius:6px;padding:1px 5px}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.compare figure{margin:0;display:flex;flex-direction:column;gap:4px}
+.compare img,.photobig{width:100%;border-radius:14px;display:block}
+.insight{display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border-radius:14px;padding:12px 14px;font-size:.9rem;line-height:1.4}
+.legend{display:flex;gap:12px;font-size:.75rem;color:var(--muted)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px}
+.rstat{background:var(--surface-2)!important}
+.rstat .d{font-size:.72rem;font-weight:700;color:var(--muted)}
+.remrow{display:flex;align-items:center;gap:10px;min-height:44px}
+.remrow .check-row{flex:1}
+.remrow input[type=time]{width:auto;flex:none}
+.setline.wide span:first-child{width:64px}
+.mini.star{color:var(--flame)}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff4f8b"/><stop offset="1" stop-color="#ff9f0a"/></linearGradient></defs>
+  <symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="18" fill="url(#lg)"/>
+    <circle cx="32" cy="32" r="17" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="6"/>
+    <path d="M32 15a17 17 0 1 1-16.2 22.2" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="32" cy="32" r="5" fill="#fff"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2c1 3.5-1.6 5.2-2.8 7.3C8 11.4 7 13 7 15a5 5 0 0 0 10 0c0-2.6-1.5-4.4-2.4-5.6-.3 1.4-.9 2.3-1.9 2.8.6-3.4-.2-7.5-.7-10.2Z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></symbol>
+  <symbol id="i-half" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17h18M7 17a5 5 0 0 1 10 0M12 6v3M5.6 9.6l1.5 1.5M18.4 9.6l-1.5 1.5"/></g></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-loop" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M17 2l3 3-3 3M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3M20 13v2a4 4 0 0 1-4 4H4"/></symbol>
+  <symbol id="i-today" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/></g></symbol>
+  <symbol id="i-stats" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V12M12 20V5M19 20v-6"/></g></symbol>
+  <symbol id="i-food" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8M4 3v5a3 3 0 0 0 6 0V3M7 11v10M17 21V3c-2.5 1.5-3.5 4-3.5 8h3.5"/></g></symbol>
+  <symbol id="i-run" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></g></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 3s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11Z"/></symbol>
+  <symbol id="i-barcode" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6v12M7.5 6v12M11 6v12M13.5 6v12M17 6v12M20 6v12"/></g></symbol>
+  <symbol id="i-qr" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1"/><path d="M14 14h3v3h-3zM18 18h2.5v2.5H18z" fill="currentColor"/></g></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 8h3l1.5-2.5h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></g></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></g></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></g></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/></g></symbol>
+</svg>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="brand"><svg role="img" aria-label="Loopa logo"><use href="#logo"/></svg><b>Loopa</b></div>
+      <div class="muted small" id="datelabel"></div>
+      <h1 id="title">Vandaag</h1>
+    </div>
+    <div style="display:flex;gap:8px">
+      <span class="chip num" id="streakchip" title="Dagen op rij met minstens één gewoonte"><svg style="color:var(--flame)"><use href="#i-flame"/></svg><span id="streaknum">0</span></span>
+      <button class="chip" id="gear" aria-label="Gewoontes en doelen"><svg><use href="#i-gear"/></svg></button>
+    </div>
+  </header>
+  <div class="week" id="week" role="group" aria-label="Kies een dag"></div>
+
+  <!-- DAG -->
+  <div id="view-dag" class="wrap">
+    <div id="banners" class="wrap" style="gap:8px" hidden></div>
+    <section class="card hero" aria-label="Voortgang">
+      <div class="bigring">
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface-2)" stroke-width="11"/>
+          <circle id="bigarc" cx="50" cy="50" r="42" fill="none" stroke="var(--pink)" stroke-width="11" stroke-linecap="round" stroke-dasharray="0 264" style="transition:stroke-dasharray .4s"/></svg>
+        <div class="pct num" id="pct">0%</div>
+      </div>
+      <div class="hero-text">
+        <h2 id="herotitle">Aan de slag</h2>
+        <span class="muted small num" id="herosub"></span>
+      </div>
+    </section>
+    <div class="tiles" id="tiles"></div>
+    <div id="habits" class="wrap" style="gap:16px"></div>
+    <section class="card" aria-labelledby="h-gevoel">
+      <div class="card-head"><h2 id="h-gevoel">Hoe voel je je?</h2></div>
+      <span class="label">Stemming</span>
+      <div class="scale" id="mood" role="group" aria-label="Stemming"></div>
+      <span class="label">Energie</span>
+      <div class="scale" id="energy" role="group" aria-label="Energie"></div>
+      <textarea id="notes" aria-label="Notitie" placeholder="Iets dat je wilt onthouden over vandaag"></textarea>
+    </section>
+  </div>
+
+  <!-- ETEN -->
+  <div id="view-eten" class="wrap" hidden>
+    <section class="card" aria-label="Calorieën vandaag">
+      <div style="display:flex;align-items:center;gap:18px">
+        <div class="bigring">
+          <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface-2)" stroke-width="11"/>
+            <circle id="kcalarc" cx="50" cy="50" r="42" fill="none" stroke="var(--flame)" stroke-width="11" stroke-linecap="round" stroke-dasharray="0 264" style="transition:stroke-dasharray .4s"/></svg>
+          <div class="pct num" id="kcalnum" style="font-size:1.3rem">0</div>
+        </div>
+        <div class="hero-text">
+          <h2 id="kcaltitle">kcal gegeten</h2>
+          <span class="muted small num" id="kcalsub"></span>
+          <button class="linkbtn" id="kcalgoal" type="button" style="text-align:left">Doel aanpassen</button>
+        </div>
+      </div>
+      <div class="macros" id="macros"></div>
+    </section>
+    <div class="addrow">
+      <button class="addbtn" data-add="scan"><span class="ic" style="color:var(--pink)"><svg><use href="#i-barcode"/></svg></span>Barcode</button>
+      <button class="addbtn" data-add="qr"><span class="ic" style="color:var(--flame)"><svg><use href="#i-qr"/></svg></span>QR-code</button>
+      <button class="addbtn" data-add="foto"><span class="ic" style="color:var(--good)"><svg><use href="#i-camera"/></svg></span>Foto</button>
+      <button class="addbtn" data-add="hand"><span class="ic" style="color:var(--night)"><svg><use href="#i-pen"/></svg></span>Handmatig</button>
+    </div>
+    <div id="mealtpl" class="wrap" style="gap:8px"></div>
+    <div id="foodlists" class="wrap" style="gap:16px"></div>
+    <section class="card" aria-labelledby="h-drink">
+      <div class="card-head"><h2 id="h-drink">Drinken</h2><span class="muted small num" id="watersub"></span></div>
+      <div class="counter">
+        <button class="round" id="wminus" aria-label="Glas minder">−</button>
+        <span class="num" id="wcount" style="min-width:2ch;text-align:center;font-size:1.3rem;font-weight:700">0</span>
+        <button class="round" id="wplus" aria-label="Glas erbij">+</button>
+        <div class="glasses" id="glasses"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- SPORT -->
+  <div id="view-sport" class="wrap" hidden>
+    <section class="card hero" aria-label="Sport deze week">
+      <div class="bigring">
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface-2)" stroke-width="11"/>
+          <circle id="sportarc" cx="50" cy="50" r="42" fill="none" stroke="var(--good)" stroke-width="11" stroke-linecap="round" stroke-dasharray="0 264" style="transition:stroke-dasharray .4s"/></svg>
+        <div class="pct num" id="sportnum" style="font-size:1.3rem">0</div>
+      </div>
+      <div class="hero-text">
+        <h2>minuten deze week</h2>
+        <span class="muted small num" id="sportsub"></span>
+        <button class="linkbtn" id="sportgoal" type="button" style="text-align:left">Doel aanpassen</button>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-gym">
+      <div class="card-head"><h2 id="h-gym">Gym</h2><span class="muted small">sets, kg en herhalingen</span></div>
+      <div id="gymcard" class="wrap" style="gap:10px"></div>
+    </section>
+    <section class="card" aria-labelledby="h-pr">
+      <div class="card-head"><h2 id="h-pr">Records</h2><span class="muted small">je beste sets</span></div>
+      <div id="prlist" class="wrap" style="gap:8px"></div>
+    </section>
+    <button class="btn sec" id="addsport" type="button">Andere training toevoegen</button>
+    <div class="wrap" style="gap:8px">
+      <div class="group-title"><span class="label" id="sporttoday">Trainingen</span></div>
+      <div id="sportlist" class="wrap" style="gap:8px"></div>
+    </div>
+    <section class="card">
+      <div class="card-head"><h2>Stappen</h2><span class="muted small">doel 8.000</span></div>
+      <input type="number" id="steps" inputmode="numeric" min="0" max="100000" placeholder="Aantal stappen vandaag" aria-label="Aantal stappen">
+    </section>
+    <section class="card">
+      <div class="card-head"><h2>Minuten per dag</h2><span class="muted small">deze week</span></div>
+      <svg class="chart" id="sportchart" viewBox="0 0 340 140" role="img" aria-label="Sportminuten per dag"></svg>
+    </section>
+  </div>
+
+  <!-- SLAAP -->
+  <div id="view-slaap" class="wrap" hidden>
+    <section class="card" aria-labelledby="h-slaap">
+      <div class="card-head"><h2 id="h-slaap">Afgelopen nacht</h2></div>
+      <div class="row">
+        <label class="field"><span class="label">Naar bed</span><input type="time" id="bed"></label>
+        <label class="field"><span class="label">Opgestaan</span><input type="time" id="wake"></label>
+      </div>
+      <div class="sleep-total"><span class="big num" id="sleephrs">–</span><span class="muted small" id="sleepnote">vul je tijden in</span></div>
+      <div class="field"><span class="label">Hoe uitgerust voel je je?</span>
+        <div class="scale" id="sleepq" role="group" aria-label="Slaapkwaliteit"></div></div>
+    </section>
+    <section class="card">
+      <div class="card-head"><h2>Uren slaap</h2><span class="muted small" id="sleepgoal">14 dagen · doel 8 u</span></div>
+      <svg class="chart" id="sleepchart" viewBox="0 0 340 150" role="img" aria-label="Slaapuren per nacht"></svg>
+    </section>
+  </div>
+
+  <!-- OVERZICHT -->
+  <div id="view-overzicht" class="wrap" hidden>
+    <div class="stats">
+      <div class="stat"><span class="label">Gem. slaap</span><span class="v num" id="s-sleep">–</span></div>
+      <div class="stat"><span class="label">Gewoontes</span><span class="v num" id="s-habit">–</span></div>
+      <div class="stat"><span class="label">Water/dag</span><span class="v num" id="s-water">–</span></div>
+      <div class="stat"><span class="label">Gem. kcal</span><span class="v num" id="s-kcal">–</span></div>
+      <div class="stat"><span class="label">Sport</span><span class="v num" id="s-sport">–</span></div>
+      <div class="stat"><span class="label">Stappen</span><span class="v num" id="s-steps">–</span></div>
+    </div>
+    <span class="muted small" style="padding:0 4px">Gemiddelden over de afgelopen 7 dagen. Sport is het totaal van die week.</span>
+    <section class="card" aria-labelledby="h-rap">
+      <div class="card-head"><h2 id="h-rap">Weekrapport</h2><span class="muted small num" id="rapsub"></span></div>
+      <span class="muted small">Elke zondag een samenvatting van je week, met wat goed ging en tips voor volgende week.</span>
+      <button class="btn" type="button" id="openrap">Bekijk weekrapport</button>
+    </section>
+    <section class="card" aria-labelledby="h-body">
+      <div class="card-head"><h2 id="h-body">Lichaam</h2><span class="muted small">gewicht en buikomtrek</span></div>
+      <div id="bodybox" class="wrap" style="gap:10px"></div>
+    </section>
+    <section class="card" aria-labelledby="h-feel">
+      <div class="card-head"><h2 id="h-feel">Stemming en energie</h2><span class="legend"><span><i style="background:var(--pink)"></i>stemming</span><span><i style="background:var(--flame)"></i>energie</span></span></div>
+      <svg class="chart" id="feelchart" viewBox="0 0 340 130" role="img" aria-label="Stemming en energie per dag, 14 dagen"></svg>
+      <span class="label">Wat helpt jou</span>
+      <div id="insights" class="wrap" style="gap:8px"></div>
+    </section>
+    <section class="card">
+      <div class="card-head"><h2>Niveau</h2><span class="muted small num" id="lvl-xp"></span></div>
+      <div class="rank"><span style="font-family:var(--display);font-size:1.4rem;font-weight:800" id="lvl-name"></span><span class="muted small" id="lvl-next"></span></div>
+      <div class="bar"><i id="lvl-bar" style="width:0"></i></div>
+      <span class="muted small">Elke afgevinkte gewoonte is 10 punten, elke training 15.</span>
+    </section>
+    <section class="card">
+      <div class="card-head"><h2>Gewoontes per dag</h2><span class="muted small">14 dagen</span></div>
+      <div class="grid-wrap" id="hgrid"></div>
+    </section>
+  </div>
+
+  <!-- GEWOONTES -->
+  <div id="view-instellingen" class="wrap" hidden>
+    <section class="card">
+      <h2>Nieuwe gewoonte</h2>
+      <form id="addform" class="wrap" style="gap:10px">
+        <input type="text" id="newhabit" placeholder="bv. 10 min mediteren" maxlength="60" aria-label="Naam van de gewoonte">
+        <div class="seg" id="partseg" role="group" aria-label="Moment van de dag"></div>
+        <button class="btn" type="submit">Toevoegen</button>
+      </form>
+    </section>
+    <section class="card">
+      <h2>Mijn gewoontes</h2>
+      <div class="edit-list" id="editlist"></div>
+      <span class="muted small">Een gewoonte verwijderen laat je eerdere vinkjes staan in het overzicht.</span>
+    </section>
+    <section class="card">
+      <h2>Herinneringen</h2>
+      <div class="remrow"><label class="check-row"><input type="checkbox" id="rem-water">Water drinken</label><span class="muted small">als je achterloopt</span></div>
+      <div class="remrow"><label class="check-row"><input type="checkbox" id="rem-habits">Gewoontes afvinken</label><input type="time" id="rem-habits-at" aria-label="Tijd voor gewoontes"></div>
+      <div class="remrow"><label class="check-row"><input type="checkbox" id="rem-bed">Bedtijd</label><input type="time" id="rem-bed-at" aria-label="Bedtijd"></div>
+      <span class="muted small" id="remnote"></span>
+      <div class="btnrow" id="rembtns"><button class="btn sec" type="button" id="rem-notif">Meldingen aanzetten</button><button class="btn sec" type="button" id="rem-ics">In mijn agenda zetten</button></div>
+    </section>
+    <section class="card">
+      <h2>Je doelen</h2>
+      <span class="muted small" id="goalnote"></span>
+      <button class="btn" type="button" id="redo" style="background:var(--surface-2);color:var(--ink)">Vragenlijst opnieuw doen</button>
+    </section>
+    <section class="card">
+      <h2>Foto's herkennen</h2>
+      <span class="muted small">Om foto's van je eten en van etiketten te laten herkennen, gebruikt Loopa Claude. Daarvoor heb je een eigen API-sleutel nodig, die je aanmaakt op console.anthropic.com. De sleutel blijft alleen op dit apparaat. Per foto betaal je een klein bedrag aan Anthropic, meestal een paar cent.</span>
+      <input type="password" id="apikey" placeholder="sk-ant-..." autocomplete="off" aria-label="Claude API-sleutel" style="font:inherit;color:var(--ink);background:var(--surface-2);border:0;border-radius:14px;padding:11px 12px">
+      <span class="muted small" id="keynote"></span>
+      <div class="btnrow"><button class="btn danger" type="button" id="delkey">Wissen</button><button class="btn" type="button" id="savekey">Opslaan</button></div>
+    </section>
+    <section class="card">
+      <h2>Je gegevens</h2>
+      <span class="muted small" id="storenote"></span>
+      <div class="btnrow"><button class="btn sec" type="button" id="backup">Back-up downloaden</button><button class="btn sec" type="button" id="restore">Back-up terugzetten</button></div>
+      <input type="file" id="restorefile" accept="application/json,.json" hidden>
+      <span class="muted small" id="sync">Gegevens laden…</span>
+    </section>
+  </div>
+</div>
+
+<div class="onb" id="onb" hidden role="dialog" aria-modal="true" aria-label="Vragenlijst">
+  <div class="onb-in" id="onbin"></div>
+</div>
+<div class="onb-foot" id="onbfoot" hidden><button class="btn" id="onbnext">Verder</button></div>
+
+<div class="wk" id="wk" hidden role="dialog" aria-modal="true" aria-label="Workout">
+  <div class="wk-top">
+    <button class="round" id="wk-min" type="button" aria-label="Workout verkleinen">⌄</button>
+    <div class="wk-timer num" id="wk-time">0:00</div>
+    <button class="btn wkdone" id="wk-done" type="button">Klaar</button>
+  </div>
+  <div class="wk-in">
+    <input type="text" class="wk-name" id="wk-name" maxlength="40" aria-label="Naam van de workout">
+    <div class="wk-stats"><span><small class="label">Volume</small><b id="wk-vol" class="num">0 kg</b></span><span><small class="label">Sets</small><b id="wk-sets" class="num">0</b></span></div>
+    <div id="wk-list" class="wrap" style="gap:12px"></div>
+    <button class="btn sec" id="wk-add" type="button">+ Oefening toevoegen</button>
+    <button class="linkbtn" id="wk-cancel" type="button" style="align-self:center;padding:10px">Workout annuleren</button>
+  </div>
+  <div class="rest" id="rest" hidden><div class="rest-bar"><i id="rest-bar"></i></div><span class="muted small">Rust</span><b id="rest-t" class="num">1:30</b>
+    <button id="rest-minus" type="button" aria-label="15 seconden korter">−15</button><button id="rest-plus" type="button" aria-label="15 seconden langer">+15</button><button id="rest-skip" type="button">Overslaan</button></div>
+</div>
+<div class="cam" id="cam" hidden role="dialog" aria-modal="true" aria-label="Scannen">
+  <video id="camv" playsinline muted autoplay></video>
+  <div class="cam-frame" aria-hidden="true"><i></i></div>
+  <div class="cam-top"><button class="round" id="cam-x" type="button" aria-label="Stoppen met scannen">×</button><span id="cam-msg">Richt op de barcode</span><button class="round" id="cam-torch" type="button" aria-label="Lamp aan of uit" hidden>⚡</button></div>
+  <div class="cam-bot"><button class="btn sec" id="cam-type" type="button">Cijfers intypen</button><button class="btn sec" id="cam-photo" type="button">Foto kiezen</button></div>
+</div>
+<div class="sheet-bg" id="sheetbg" hidden></div>
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true"><div class="sheet-in" id="sheetin"></div></div>
+<input type="file" id="fileScan" accept="image/*" capture="environment" hidden>
+<input type="file" id="filePhoto" accept="image/jpeg,image/png,image/webp,image/gif" capture="environment" hidden>
+<input type="file" id="fileBody" accept="image/*" hidden>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" data-view="dag" aria-selected="true"><svg><use href="#i-today"/></svg>Vandaag</button>
+  <button role="tab" data-view="eten" aria-selected="false"><svg><use href="#i-food"/></svg>Eten</button>
+  <button role="tab" data-view="sport" aria-selected="false"><svg><use href="#i-run"/></svg>Sport</button>
+  <button role="tab" data-view="slaap" aria-selected="false"><svg><use href="#i-moon"/></svg>Slaap</button>
+  <button role="tab" data-view="overzicht" aria-selected="false"><svg><use href="#i-stats"/></svg>Overzicht</button>
+</nav>
+<script src="zxing.min.js"></script>
+
+<script>
+(function(){
+const PARTS=[["ochtend","Ochtend","i-sun"],["middag","Middag","i-half"],["avond","Avond","i-moon"],["dag","Hele dag","i-loop"]];
+const DEFAULT_HABITS=[
+  {id:"h1",name:"Glas water na het opstaan",part:"ochtend"},{id:"h2",name:"30 min bewegen",part:"middag"},
+  {id:"h3",name:"Groente bij elke maaltijd",part:"dag"},{id:"h4",name:"15 min lezen",part:"avond"},{id:"h5",name:"Geen scherm na 22:30",part:"avond"}];
+const MEALS=[["ontbijt","Ontbijt"],["lunch","Lunch"],["diner","Avondeten"],["snack","Tussendoor"]];
+const LEVELS=[[0,"Starter"],[100,"Op weg"],[300,"Volhouder"],[700,"Gewoontebouwer"],[1500,"Ritmemeester"],[3000,"Legende"]];
+const LS="dagritme-v1";
+let state={habits:DEFAULT_HABITS.slice(),days:{},profile:null,products:{},routines:[],customEx:[],active:null,body:[],meals:[],photos:[]};
+let view="dag";
+let cur=keyOf(new Date()),newPart="ochtend",lastTog=null;
+let col=null;
+const $=id=>document.getElementById(id);
+const icon=(id,style)=>`<svg${style?` style="${style}"`:""}><use href="#${id}"/></svg>`;
+
+function keyOf(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function fromKey(k){const[y,m,d]=k.split("-").map(Number);return new Date(y,m-1,d)}
+function addDays(k,n){const d=fromKey(k);d.setDate(d.getDate()+n);return keyOf(d)}
+function day(k){return state.days[k]||{}}
+function ensure(k){return state.days[k]||(state.days[k]={habits:{}})}
+function partOf(h){return h.part||"dag"}
+function doneCount(k){const h=day(k).habits||{};return state.habits.filter(x=>h[x.id]).length}
+function sleepHours(dd){if(!dd.bed||!dd.wake)return null;const[a,b]=dd.bed.split(":").map(Number),[c,e]=dd.wake.split(":").map(Number);
+  let m=(c*60+e)-(a*60+b);if(m<=0)m+=1440;return m/60}
+function fmtH(h){if(h==null)return"–";const hh=Math.floor(h),mm=Math.round((h-hh)*60);return hh+"u"+(mm?String(mm).padStart(2,"0"):"")}
+function ringSvg(frac,size){const r=size/2-3,c=2*Math.PI*r;
+  return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="transform:rotate(-90deg)"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--line)" stroke-width="3"/>${frac>0?`<circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${frac>=1?'var(--good)':'var(--pink)'}" stroke-width="3" stroke-linecap="round" stroke-dasharray="${c*frac} ${c}"/>`:""}</svg>`}
+
+/* opslag */
+const LSP="loopa-photos";let photoKey=null;
+function saveLocal(){try{const{photos,...rest}=state;localStorage.setItem(LS,JSON.stringify(rest));
+  const pk=(photos||[]).map(p=>p.id).join();if(pk!==photoKey){localStorage.setItem(LSP,JSON.stringify(photos||[]));photoKey=pk}}catch(e){}}
+function loadLocal(){try{const s=JSON.parse(localStorage.getItem(LS)||"null");if(s&&s.days){state=s;state.products=state.products||{}}}catch(e){}
+  try{const p=JSON.parse(localStorage.getItem(LSP)||"null");if(Array.isArray(p)&&p.length){state.photos=p;photoKey=p.map(x=>x.id).join()}}catch(e){}migrate()}
+function migrate(){state.body=state.body||[];state.meals=state.meals||[];state.photos=state.photos||[];state.products=state.products||{};Object.values(state.days).forEach(d=>{if(d.meals&&typeof d.meals==="object"){d.food=d.food||[];Object.entries(d.meals).forEach(([m,t])=>{if(typeof t==="string"&&t.trim())d.food.push({id:uid(),name:t.trim(),meal:m,src:"hand",kcal:null})});delete d.meals}})}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+const timers={};
+function persist(docId,data){saveLocal();if(!col)return;clearTimeout(timers[docId]);setSync("Opslaan…");
+  timers[docId]=setTimeout(()=>{col.doc(docId).set(data).then(()=>setSync("Alles is opgeslagen in je account.")).catch(()=>setSync("Opslaan in je account lukte niet. Je gegevens staan wel op dit apparaat."))},500)}
+function saveDay(k){persist("d-"+k,{date:k,...state.days[k]})}
+function saveHabits(){persist("config",{habits:state.habits,profile:state.profile||null})}
+function saveProducts(){persist("products",{items:state.products})}
+function setSync(t){$("sync").textContent=t}
+
+/* streak: dagen op rij met minstens één gewoonte */
+function dayStreak(){let n=0,k=keyOf(new Date());if(!doneCount(k))k=addDays(k,-1);while(doneCount(k)){n++;k=addDays(k,-1)}return n}
+function habitStreak(hid){let n=0,k=cur;if(!(day(k).habits||{})[hid])k=addDays(k,-1);while((day(k).habits||{})[hid]){n++;k=addDays(k,-1)}return n}
+
+function renderHeader(){
+  const d=fromKey(cur),today=keyOf(new Date()),diff=Math.round((fromKey(today)-d)/864e5);
+  const dayName=diff===0?"Vandaag":diff===1?"Gisteren":d.toLocaleDateString("nl-NL",{weekday:"long"}).replace(/^./,c=>c.toUpperCase());
+  const dateTxt=d.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"});
+  $("streaknum").textContent=dayStreak();
+  $("week").hidden=!DAYVIEWS.includes(view);
+  const T={eten:"Eten & drinken",sport:"Sport",slaap:"Slaap",overzicht:"Overzicht",instellingen:"Gewoontes & doelen"};
+  if(view==="dag"){$("title").textContent=dayName;$("datelabel").textContent=dateTxt;
+    if(diff===0){const hr=new Date().getHours(),g=hr<6?"Goedenacht":hr<12?"Goedemorgen":hr<18?"Goedemiddag":"Goedenavond";
+      const nm=state.profile&&state.profile.name;$("datelabel").textContent=g+(nm?", "+nm:"")+" · "+d.toLocaleDateString("nl-NL",{day:"numeric",month:"long"})}}
+  else if(DAYVIEWS.includes(view)){$("title").textContent=T[view];$("datelabel").textContent=diff===0?"Vandaag, "+d.toLocaleDateString("nl-NL",{day:"numeric",month:"long"}):dateTxt}
+  else{$("title").textContent=T[view];$("datelabel").textContent=view==="overzicht"?"Hoe gaat het de laatste tijd":"Wat wil je elke dag doen"}
+}
+function renderWeek(){
+  const today=keyOf(new Date()),c=fromKey(cur),dow=(c.getDay()+6)%7,mon=addDays(cur,-dow);
+  const w=$("week");w.innerHTML="";
+  for(let i=0;i<7;i++){const k=addDays(mon,i),dt=fromKey(k),n=state.habits.length;
+    const f=view==="eten"?sumFood(k).kcal/goalKcal():view==="sport"?sportMin(k)/30:view==="slaap"?(sleepHours(day(k))||0)/goalSleep():(n?doneCount(k)/n:0);
+    const b=document.createElement("button");b.className="wday";if(k===cur)b.setAttribute("aria-current","date");
+    b.disabled=k>today;b.setAttribute("aria-label",dt.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"}));
+    b.innerHTML=`<span class="dn">${dt.toLocaleDateString("nl-NL",{weekday:"short"}).slice(0,2)}</span><span class="ring">${ringSvg(k>today?0:Math.min(1,f),34)}<b class="num">${dt.getDate()}</b></span>`;
+    b.onclick=()=>{cur=k;render()};w.appendChild(b)}
+}
+function render(){renderHeader();if(DAYVIEWS.includes(view))renderWeek();
+  ({dag:renderDag,eten:renderEten,sport:renderSport,slaap:renderSlaap,overzicht:renderOverview,instellingen:renderSettings})[view]()}
+function renderDay(){render()}
+function setRing(id,f,color){const el=$(id);el.setAttribute("stroke-dasharray",(264*Math.min(1,f))+" 264");el.style.opacity=f>0?1:0;if(color)el.setAttribute("stroke",color)}
+
+/* ---- Vandaag ---- */
+function renderDag(){
+  const dd=day(cur),h=dd.habits||{},n=state.habits.length,done=doneCount(cur),f=n?done/n:0;
+  setRing("bigarc",f,f>=1?"var(--good)":"var(--pink)");
+  $("pct").textContent=Math.round(f*100)+"%";
+  $("herotitle").textContent=!n?"Nog geen gewoontes":f>=1?"Alles gedaan!":done?"Goed bezig":"Aan de slag";
+  $("herosub").textContent=n?`${done} van ${n} gewoontes gedaan`:"Voeg ze toe via de knop rechtsboven";
+  const t=sumFood(cur),sh=sleepHours(dd),sm=sportMin(cur);
+  $("tiles").innerHTML=[["eten","i-food","Eten",Math.round(t.kcal),"kcal",t.kcal/goalKcal(),"var(--flame)"],
+    ["eten","i-drop","Water",dd.water||0,"glazen",(dd.water||0)/goalWater(),"var(--night)"],
+    ["sport","i-run","Sport",sm,"min",sm/30,"var(--good)"],
+    ["slaap","i-moon","Slaap",sh==null?"–":fmtH(sh),"",sh?sh/goalSleep():0,"var(--night)"]]
+    .map(([v,ic,l,val,u,fr,c])=>`<button class="tile" data-go="${v}"><span class="th">${icon(ic)}<span class="label">${l}</span></span><span class="tv num">${val} <small>${u}</small></span><div class="bar"><i style="width:${Math.min(100,fr*100)}%;background:${c}"></i></div></button>`).join("");
+  $("tiles").querySelectorAll(".tile").forEach(b=>b.onclick=()=>show(b.dataset.go));
+  const box=$("habits");box.innerHTML="";
+  PARTS.forEach(([p,label,ic])=>{const list=state.habits.filter(x=>partOf(x)===p);if(!list.length)return;
+    const g=document.createElement("div");g.className="group";
+    g.innerHTML=`<div class="group-title">${icon(ic)}<span class="label">${label}</span></div>`;
+    list.forEach(x=>{const on=!!h[x.id],s=habitStreak(x.id);
+      const b=document.createElement("button");b.className="habit";b.setAttribute("aria-pressed",on);
+      b.innerHTML=`<span class="name"></span>${s>1?`<span class="streak num">${icon("i-flame")}${s}</span>`:""}<span class="check${on&&x.id===lastTog?" pop":""}">${icon("i-check")}</span>`;
+      b.querySelector(".name").textContent=x.name;
+      b.onclick=()=>{const e=ensure(cur);e.habits=e.habits||{};e.habits[x.id]=!e.habits[x.id];lastTog=x.id;saveDay(cur);render();lastTog=null};
+      g.appendChild(b)});
+    box.appendChild(g)});
+  scale("mood",["😞","😕","😐","🙂","😄"],dd.mood,v=>{ensure(cur).mood=v;saveDay(cur);render()});
+  scale("energy",["🪫","🥱","😐","🙂","⚡"],dd.energy,v=>{ensure(cur).energy=v;saveDay(cur);render()});
+  renderBanners();
+  if(document.activeElement!==$("notes"))$("notes").value=dd.notes||"";
+}
+function scale(id,faces,val,set){const el=$(id);el.innerHTML="";faces.forEach((f,i)=>{const b=document.createElement("button");
+  b.textContent=f;b.setAttribute("aria-pressed",val===i+1);b.setAttribute("aria-label",(i+1)+" van 5");
+  b.onclick=()=>set(val===i+1?null:i+1);el.appendChild(b)})}
+$("notes").addEventListener("input",e=>{ensure(cur).notes=e.target.value;saveDay(cur)});
+
+/* ---- doelen en sommen ---- */
+function goalKcal(){return (state.profile&&state.profile.kcal)||2000}
+function goalSport(){return (state.profile&&state.profile.sport)||150}
+function setProfile(k,v){state.profile=state.profile||{};state.profile[k]=v;saveHabits()}
+function food(k){return day(k).food||[]}
+function sumFood(k){const t={kcal:0,p:0,c:0,f:0};food(k).forEach(x=>{t.kcal+=+x.kcal||0;t.p+=+x.p||0;t.c+=+x.c||0;t.f+=+x.f||0});return t}
+function sportMin(k){return (day(k).sport||[]).reduce((a,x)=>a+(+x.min||0),0)}
+function guessMeal(){const h=new Date().getHours();return h<11?"ontbijt":h<15?"lunch":h<17?"snack":h<21?"diner":"snack"}
+const SRC={scan:"Barcode",qr:"QR-code",foto:"Foto",hand:"Handmatig",label:"Etiket"};
+const r0=v=>v==null||v===""?"":Math.round(+v);
+
+/* ---- Eten ---- */
+function renderEten(){
+  const t=sumFood(cur),g=goalKcal(),f=t.kcal/g;
+  setRing("kcalarc",f,f>1.05?"var(--pink)":"var(--flame)");
+  $("kcalnum").textContent=Math.round(t.kcal);
+  $("kcalsub").textContent=t.kcal>g?`${Math.round(t.kcal-g)} kcal boven je doel van ${g}`:`nog ${Math.round(g-t.kcal)} kcal tot je doel van ${g}`;
+  $("macros").innerHTML=[["Eiwit",t.p,g*.2/4,"var(--pink)"],["Koolhydraten",t.c,g*.5/4,"var(--flame)"],["Vet",t.f,g*.3/9,"var(--night)"]]
+    .map(([l,v,gl,c])=>`<div class="macro"><div class="mrow"><span>${l}</span><span class="num muted">${Math.round(v)} / ${Math.round(gl)} g</span></div><div class="bar"><i style="width:${Math.min(100,v/gl*100)}%;background:${c}"></i></div></div>`).join("");
+  const box=$("foodlists");box.innerHTML="";
+  MEALS.forEach(([m,l])=>{const items=food(cur).filter(x=>x.meal===m),sum=items.reduce((a,x)=>a+(+x.kcal||0),0);
+    const g=document.createElement("div");g.className="mealgroup";
+    g.innerHTML=`<div class="mealhead"><span class="label">${l}</span><span class="muted small num">${sum?Math.round(sum)+" kcal":""}</span>${items.length?`<button class="mini star" aria-label="${l} bewaren als vaste maaltijd">☆</button>`:""}<button class="mini plus" aria-label="${l} toevoegen">+</button></div>`;
+    g.querySelector(".plus").onclick=()=>foodForm({meal:m,src:"hand"},{isNew:true});
+    const st=g.querySelector(".star");if(st)st.onclick=()=>saveTplSheet(m);
+    if(!items.length){const e=document.createElement("div");e.className="emptyline";e.textContent="Nog niets";g.appendChild(e)}
+    items.forEach(x=>{const b=document.createElement("button");b.className="item";
+      b.innerHTML=`<span class="it"><b></b><small></small></span><span class="kc num"></span>`;
+      b.querySelector("b").textContent=x.name||"Zonder naam";
+      b.querySelector("small").textContent=[x.amount,SRC[x.src]].filter(Boolean).join(" · ");
+      b.querySelector(".kc").textContent=x.kcal!=null&&x.kcal!==""?Math.round(x.kcal)+" kcal":"–";
+      b.onclick=()=>foodForm(x,{isNew:false});g.appendChild(b)});
+    box.appendChild(g)});
+  const w=day(cur).water||0;$("wcount").textContent=w;$("watersub").textContent=`${w} van ${goalWater()} glazen water`;
+  renderTpl();
+  $("glasses").innerHTML=Array.from({length:Math.max(goalWater(),w)},(_,i)=>'<span class="'+(i<w?"full":"")+'"></span>').join("");
+}
+$("wplus").onclick=()=>{const e=ensure(cur);e.water=(e.water||0)+1;saveDay(cur);render()};
+$("wminus").onclick=()=>{const e=ensure(cur);e.water=Math.max(0,(e.water||0)-1);saveDay(cur);render()};
+document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{const m=b.dataset.add;
+  if(m==="hand")foodForm({meal:guessMeal(),src:"hand"},{isNew:true});else pickFile(m)});
+$("kcalgoal").onclick=()=>goalSheet("Dagdoel calorieën","kcal per dag",goalKcal(),1000,5000,50,v=>setProfile("kcal",v));
+
+/* ---- sheet ---- */
+function openSheet(build){const s=$("sheetin");s.className="sheet-in";s.innerHTML='<div class="grab"></div>';build(s);
+  $("sheetbg").hidden=false;$("sheet").hidden=false;$("sheet").scrollTop=0;document.body.style.overflow="hidden";
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{$("sheet").classList.add("open");$("sheetbg").classList.add("open")}))}
+function closeSheet(){$("sheet").classList.remove("open");$("sheetbg").classList.remove("open");
+  setTimeout(()=>{if(!$("sheet").classList.contains("open")){$("sheet").hidden=true;$("sheetbg").hidden=true;document.body.style.overflow=""}},300)}
+$("sheetbg").onclick=closeSheet;
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("sheet").hidden)closeSheet()});
+function el(html){const t=document.createElement("template");t.innerHTML=html.trim();return t.content.firstChild}
+function field(label,inputHtml){return el(`<label class="field"><span class="label">${label}</span>${inputHtml}</label>`)}
+function segment(opts,val,onPick,cls){const s=el(`<div class="seg ${cls||""}" role="group"></div>`);
+  const draw=()=>{s.innerHTML="";opts.forEach(([v,l])=>{const b=el(`<button type="button"></button>`);b.textContent=l;b.setAttribute("aria-pressed",v===val);b.onclick=()=>{val=v;onPick(v);draw()};s.appendChild(b)})};draw();return s}
+function busySheet(text,onStop){openSheet(s=>{s.appendChild(el(`<div class="spin" aria-hidden="true"></div>`));
+  const p=el(`<p style="text-align:center;margin:0;font-weight:600"></p>`);p.textContent=text;s.appendChild(p);
+  if(onStop){const b=el(`<button class="btn sec" type="button">Stoppen</button>`);b.onclick=()=>{onStop();closeSheet()};s.appendChild(b)}})}
+function msgSheet(title,text,actions){openSheet(s=>{const h=el("<h2></h2>");h.textContent=title;s.appendChild(h);
+  const p=el(`<p class="muted" style="margin:0"></p>`);p.textContent=text;s.appendChild(p);
+  (actions||[["Sluiten",closeSheet]]).forEach(([l,fn],i)=>{const b=el(`<button class="btn ${i?"sec":""}" type="button"></button>`);b.textContent=l;b.onclick=fn;s.appendChild(b)})})}
+function goalSheet(title,unit,val,min,max,step,save){openSheet(s=>{s.appendChild(el(`<h2>${title}</h2>`));
+  const w=el(`<div class="stepper" style="background:var(--surface-2)"><button class="round" type="button" aria-label="Minder" style="background:var(--surface)">−</button><div class="val num"><span></span><span class="unit">${unit}</span></div><button class="round" type="button" aria-label="Meer" style="background:var(--surface)">+</button></div>`);
+  const sv=()=>w.querySelector(".val span").textContent=val;sv();const[a,b]=w.querySelectorAll("button");
+  a.onclick=()=>{val=Math.max(min,val-step);sv()};b.onclick=()=>{val=Math.min(max,val+step);sv()};s.appendChild(w);
+  const ok=el(`<button class="btn" type="button">Opslaan</button>`);ok.onclick=()=>{save(val);closeSheet();render()};s.appendChild(ok)})}
+
+/* ---- eten toevoegen of aanpassen ---- */
+function recentFoods(){const seen=new Map();Object.keys(state.days).sort().reverse().forEach(k=>food(k).forEach(x=>{if(x.name&&!seen.has(x.name))seen.set(x.name,x)}));return [...seen.values()].slice(0,8)}
+function foodForm(entry,opts){
+  const e={name:"",amount:"",kcal:"",p:"",c:"",f:"",meal:guessMeal(),src:"hand",...entry};
+  openSheet(s=>{
+    s.appendChild(el(`<h2>${opts.isNew?"Eten toevoegen":"Eten aanpassen"}</h2>`));
+    if(opts.unknown){const n=el(`<div class="notebox"><b>Dit product ken ik nog niet.</b> Vul het één keer in, dan herkent de app het bij de volgende scan. Of maak een foto van het etiket, dan leest Claude de voedingswaarden voor je.</div>`);s.appendChild(n);
+      const lb=el(`<button class="btn sec" type="button">${icon("i-camera","width:18px;height:18px;vertical-align:-3px;margin-right:6px")}Foto van het etiket</button>`);
+      lb.onclick=()=>{pendingForm={entry:{...e,...read()},opts};pickFile("label")};s.appendChild(lb)}
+    if(opts.known){s.appendChild(el(`<div class="notebox"><b>Product herkend.</b> De waarden komen van je eerdere scan.</div>`))}
+    if(opts.note){const n=el(`<div class="notebox"></div>`);n.textContent=opts.note;s.appendChild(n)}
+    if(opts.gtin)s.appendChild(el(`<span class="muted small num">Barcode ${opts.gtin}</span>`));
+    if(opts.isNew&&e.src==="hand"&&!e.name){const rc=recentFoods();if(rc.length){const c=el(`<div class="chips"></div>`);
+      rc.forEach(x=>{const b=el(`<button class="chipbtn" type="button"></button>`);b.textContent=x.name;
+        b.onclick=()=>{const keep=read();fill({...x,meal:keep.meal})};c.appendChild(b)});
+      s.appendChild(el(`<span class="label">Eerder gegeten</span>`));s.appendChild(c)}}
+    let gramsInp=null;const pc=opts.per100;
+    if(pc){const card=el(`<div class="prodcard">${opts.img?'<img alt="">':""}<div class="it"><b></b><small class="num"></small><small class="src">Bron: Open Food Facts</small></div></div>`);
+      if(opts.img)card.querySelector("img").src=opts.img;card.querySelector("b").textContent=e.name;
+      const f1=v=>v==null?"?":Math.round(v*10)/10;card.querySelector("small").textContent=`Per 100 g: ${r0(pc.kcal)} kcal · E ${f1(pc.p)} · K ${f1(pc.c)} · V ${f1(pc.f)} g`;s.appendChild(card);
+      const gf=field("Hoeveel gram of ml",`<input type="number" id="f-grams" inputmode="decimal" min="0" max="5000">`);s.appendChild(gf);gramsInp=gf.querySelector("input");gramsInp.value=e.grams||100;
+      const qc=el(`<div class="chips"></div>`);[...new Set([opts.serving,100,150,250].filter(Boolean))].forEach(g=>{const b=el(`<button class="chipbtn" type="button">${g} g</button>`);b.onclick=()=>{gramsInp.value=g;gramsInp.oninput()};qc.appendChild(b)});s.appendChild(qc)}
+    const fName=field("Wat",`<input type="text" id="f-name" maxlength="80" placeholder="bv. Griekse yoghurt met muesli">`);
+    const fAmt=field("Hoeveel",`<input type="text" id="f-amount" maxlength="60" placeholder="bv. 1 bakje (150 g)">`);
+    const fK=field("Calorieën (kcal)",`<input type="number" id="f-kcal" inputmode="decimal" min="0" max="10000">`);
+    const g3=el(`<div class="grid3"></div>`);
+    [["p","Eiwit (g)"],["c","Koolh. (g)"],["f","Vet (g)"]].forEach(([k,l])=>g3.appendChild(field(l,`<input type="number" id="f-${k}" inputmode="decimal" min="0" max="1000">`)));
+    s.append(fName,fAmt,fK,g3);
+    let meal=e.meal;s.appendChild(el(`<span class="label">Maaltijd</span>`));
+    s.appendChild(segment(MEALS.map(([v,l])=>[v,l==="Avondeten"?"Avond":l==="Tussendoor"?"Snack":l]),meal,v=>meal=v));
+    let remember=null;
+    if(opts.gtin){remember=el(`<label class="check-row"><input type="checkbox" id="f-rem" checked>Onthoud dit product voor de volgende scan</label>`);s.appendChild(remember)}
+    function fill(x){$("f-name").value=x.name||"";$("f-amount").value=x.amount||"";$("f-kcal").value=r0(x.kcal);["p","c","f"].forEach(k=>$("f-"+k).value=x[k]==null||x[k]===""?"":Math.round(x[k]*10)/10)}
+    function read(){const n=v=>v===""?null:Math.max(0,+v);return{name:$("f-name").value.trim(),amount:$("f-amount").value.trim(),kcal:n($("f-kcal").value),p:n($("f-p").value),c:n($("f-c").value),f:n($("f-f").value),meal}}
+    fill(e);
+    if(gramsInp){gramsInp.oninput=()=>{const g=+gramsInp.value||0;$("f-kcal").value=pc.kcal==null?"":Math.round(pc.kcal*g/100);
+      ["p","c","f"].forEach(k=>$("f-"+k).value=pc[k]==null?"":Math.round(pc[k]*g/10)/10);$("f-amount").value=g+" g"};gramsInp.oninput()}
+    const row=el(`<div class="btnrow"></div>`);
+    if(!opts.isNew){const del=el(`<button class="btn danger" type="button">Verwijder</button>`);
+      del.onclick=()=>{if(!del.dataset.c){del.dataset.c=1;del.textContent="Zeker?";return}const d=ensure(cur);d.food=(d.food||[]).filter(x=>x.id!==e.id);saveDay(cur);closeSheet();render()};row.appendChild(del)}
+    const ok=el(`<button class="btn" type="button">${opts.isNew?"Toevoegen":"Opslaan"}</button>`);
+    ok.onclick=()=>{const v=read();if(!v.name){$("f-name").focus();$("f-name").placeholder="Geef het eerst een naam";return}
+      const d=ensure(cur);d.food=d.food||[];const item={...e,...v,id:e.id||uid(),src:e.src,...(opts.gtin?{gtin:opts.gtin}:{})};
+      const i=d.food.findIndex(x=>x.id===item.id);if(i>=0)d.food[i]=item;else d.food.push(item);
+      if(opts.gtin&&$("f-rem")&&$("f-rem").checked){state.products[opts.gtin]=pc?{name:v.name,per100:pc,serving:+gramsInp.value||100,img:opts.img||null}:{name:v.name,amount:v.amount,kcal:v.kcal,p:v.p,c:v.c,f:v.f};saveProducts()}
+      saveDay(cur);closeSheet();if(view!=="eten")show("eten");else render()};
+    row.appendChild(ok);s.appendChild(row);
+    if(opts.isNew&&!e.name&&e.src==="hand")setTimeout(()=>$("f-name")&&$("f-name").focus(),320);
+  })}
+let pendingForm=null,scanMode=null;
+
+/* ---- scannen ---- */
+function pickFile(mode){if(mode==="scan"||mode==="qr"){scanLive(mode);return}
+  if((mode==="foto"||mode==="label")&&!getKey()&&!(window.claude&&claude.use)){msgSheet("Stel eerst foto-herkenning in","Om foto's te laten herkennen heeft Loopa een Claude API-sleutel nodig. Je stelt hem één keer in onder Gewoontes & doelen.",[["Naar instellingen",()=>{closeSheet();show("instellingen")}],["Handmatig invullen",()=>foodForm({meal:guessMeal(),src:"hand"},{isNew:true})]]);return}
+  pickFileRaw(mode)}
+function pickFileRaw(mode){scanMode=mode;const i=(mode==="foto"||mode==="label")?$("filePhoto"):$("fileScan");i.value="";i.click()}
+$("fileScan").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;const mode=scanMode;
+  busySheet(mode==="qr"?"QR-code lezen…":"Barcode lezen…");
+  let txt=null;try{txt=await decodeImage(f,mode)}catch(err){}
+  if(txt)handleCode(txt,mode);else codeFailed(mode)});
+$("filePhoto").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;analysePhoto(f,scanMode)});
+async function scaled(file,max){const url=URL.createObjectURL(file);try{const img=new Image();img.src=url;await img.decode();
+  const k=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight)),c=document.createElement("canvas");
+  c.width=Math.round(img.naturalWidth*k);c.height=Math.round(img.naturalHeight*k);c.getContext("2d").drawImage(img,0,0,c.width,c.height);return c}finally{URL.revokeObjectURL(url)}}
+async function decodeImage(file,mode){
+  const canvas=await scaled(file,1400);
+  if("BarcodeDetector" in window){try{const want=mode==="qr"?["qr_code"]:["ean_13","ean_8","upc_a","upc_e","code_128","code_39","itf","qr_code"];
+    const sup=await BarcodeDetector.getSupportedFormats(),fm=want.filter(x=>sup.includes(x));
+    if(fm.length){const r=await new BarcodeDetector({formats:fm}).detect(canvas);if(r.length)return r[0].rawValue}}catch(e){}}
+  if(!window.ZXing)throw new Error("geen lezer");
+  const hints=new Map();hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
+  const reader=new ZXing.MultiFormatReader();reader.setHints(hints);
+  const tryCanvas=cv=>{const src=new ZXing.HTMLCanvasElementLuminanceSource(cv);const bmp=new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(src));return reader.decode(bmp).getText()};
+  try{return tryCanvas(canvas)}catch(e){}
+  const r=document.createElement("canvas");r.width=canvas.height;r.height=canvas.width;const cx=r.getContext("2d");cx.translate(r.width/2,r.height/2);cx.rotate(Math.PI/2);cx.drawImage(canvas,-canvas.width/2,-canvas.height/2);
+  return tryCanvas(r)}
+function normGtin(g){g=g.replace(/\D/g,"");if(g.length===14&&g[0]==="0")g=g.slice(1);if(g.length===13&&g[0]==="0"&&false)g=g.slice(1);return g}
+function handleCode(txt,mode){
+  txt=String(txt).trim();let gtin=null;const m=txt.match(/(?:^|\/)01\/(\d{8,14})/);
+  if(m)gtin=normGtin(m[1]);else if(/^\d{8,14}$/.test(txt))gtin=normGtin(txt);
+  if(gtin){const p=state.products[gtin];
+    if(p&&p.per100)foodForm({name:p.name,grams:p.serving||100,meal:guessMeal(),src:mode},{isNew:true,gtin,known:true,per100:p.per100,img:p.img});
+    else if(p)foodForm({...p,meal:guessMeal(),src:mode},{isNew:true,gtin,known:true});
+    else lookupOFF(gtin,mode);return}
+  let o=null;try{o=JSON.parse(txt)}catch(e){}
+  if(o&&typeof o==="object"&&(o.name||o.naam))foodForm({name:o.name||o.naam,amount:o.amount||o.portie||"",kcal:o.kcal,p:o.p??o.eiwit,c:o.c??o.koolhydraten,f:o.f??o.vet,meal:guessMeal(),src:"qr"},{isNew:true});
+  else foodForm({name:"",meal:guessMeal(),src:mode},{isNew:true,note:"Deze code bevat geen productnummer, dus vul het zelf in. In de code staat: "+txt.slice(0,140)})}
+function codeFailed(mode){msgSheet(mode==="qr"?"Geen QR-code gevonden":"Geen barcode gevonden",
+  "Maak de foto van dichtbij, recht van voren en met genoeg licht. Je kunt de cijfers onder de barcode ook zelf intypen.",
+  [["Opnieuw proberen",()=>{closeSheet();setTimeout(()=>pickFile(mode),320)}],["Cijfers intypen",()=>typeCode(mode)]])}
+function typeCode(mode){openSheet(s=>{s.appendChild(el(`<h2>Barcode intypen</h2>`));
+  s.appendChild(field("De cijfers onder de streepjes",`<input type="text" id="f-code" inputmode="numeric" maxlength="14" placeholder="bv. 8710400000000">`));
+  const ok=el(`<button class="btn" type="button">Zoeken</button>`);ok.onclick=()=>{const v=$("f-code").value.replace(/\D/g,"");if(v.length<8){$("f-code").focus();return}handleCode(v,mode)};s.appendChild(ok);
+  setTimeout(()=>$("f-code").focus(),320)})}
+
+/* ---- foto herkennen met Claude ---- */
+const PROMPT_FOOD=`Je krijgt een foto van eten of drinken van iemand die bijhoudt wat hij eet. Herken wat er op de foto staat en schat per onderdeel de portie en de voedingswaarden van die portie.
+Antwoord ALLEEN met JSON in precies deze vorm:
+{"items":[{"name":"korte Nederlandse naam","amount":"geschatte portie, bv. 1 bord (350 g)","kcal":0,"p":0,"c":0,"f":0}]}
+p, c en f zijn grammen eiwit, koolhydraten en vet. Gebruik hele getallen. Staat er geen eten of drinken op de foto, geef dan {"items":[]}.`;
+const PROMPT_LABEL=`Je krijgt een foto van een verpakking of voedingsetiket. Lees de productnaam en de voedingswaarden.
+Gebruik de waarden per portie als die op het etiket staan, anders per 100 g of 100 ml.
+Antwoord ALLEEN met JSON in precies deze vorm:
+{"name":"productnaam","amount":"bv. 1 portie (30 g) of 100 g","kcal":0,"p":0,"c":0,"f":0}
+p, c en f zijn grammen eiwit, koolhydraten en vet. Gebruik null voor een waarde die je niet kunt lezen.`;
+function aiError(code){return({not_granted:"Je hebt Claude geen toestemming gegeven om de foto te bekijken. Je kunt het ook handmatig invullen.",
+  rate_limited:"Er gaat nu te veel tegelijk. Probeer het over een minuut nog eens.",images_unavailable:"Foto's naar Claude sturen werkt niet in deze weergave. Open de app in claude.ai.",
+  image_rejected:"Deze foto kon niet gelezen worden. Probeer een JPG of PNG.",
+  bad_key:"De API-sleutel klopt niet of is verlopen. Controleer hem onder Gewoontes & doelen.",no_credit:"Je API-account heeft geen tegoed meer. Vul het aan op console.anthropic.com.",
+  offline:"Geen internet. Probeer het opnieuw als je verbinding hebt.",refusal:"Claude kon deze foto niet beoordelen. Probeer een andere foto."})[code]||"Het herkennen lukte niet. Probeer het nog eens of vul het handmatig in."}
+async function analysePhoto(file,mode){
+  const sample=await visionClient();
+  if(!sample){msgSheet("Stel eerst foto-herkenning in","Om foto's te laten herkennen heeft de app een Claude API-sleutel nodig. Je stelt hem één keer in onder Gewoontes & doelen.",[["Naar instellingen",()=>{closeSheet();show("instellingen")}],["Handmatig invullen",()=>foodForm({meal:guessMeal(),src:"hand"},{isNew:true})]]);return}
+  if(false){msgSheet("Foto herkennen werkt hier niet","Open de app via claude.ai om foto's te laten herkennen. Je kunt het nu handmatig invullen.",[["Handmatig invullen",()=>foodForm({meal:guessMeal(),src:"hand"},{isNew:true})],["Sluiten",closeSheet]]);return}
+  const ctl=new AbortController();
+  busySheet(mode==="label"?"Claude leest het etiket…":"Claude bekijkt je foto…",()=>ctl.abort());
+  try{const r=await sample.json(mode==="label"?PROMPT_LABEL:PROMPT_FOOD,{images:[file],signal:ctl.signal});
+    if(mode==="label"){const pf=pendingForm||{entry:{meal:guessMeal(),src:"scan"},opts:{isNew:true}};pendingForm=null;
+      foodForm({...pf.entry,name:r.name||pf.entry.name,amount:r.amount||"",kcal:r.kcal,p:r.p,c:r.c,f:r.f,src:pf.entry.src||"label"},{...pf.opts,unknown:false,note:"Ingevuld vanaf het etiket. Kijk even of het klopt."});return}
+    photoResults((r&&r.items)||[])}
+  catch(err){if(err&&err.code==="cancelled")return;
+    msgSheet("Dat lukte niet",aiError(err&&err.code),[["Handmatig invullen",()=>foodForm({meal:guessMeal(),src:"hand"},{isNew:true})],["Sluiten",closeSheet]])}}
+function photoResults(items){
+  if(!items.length){msgSheet("Geen eten gevonden","Claude zag geen eten of drinken op de foto. Probeer een andere foto of vul het handmatig in.",[["Andere foto",()=>{closeSheet();setTimeout(()=>pickFile("foto"),320)}],["Handmatig invullen",()=>foodForm({meal:guessMeal(),src:"hand"},{isNew:true})]]);return}
+  const on=items.map(()=>true);let meal=guessMeal();
+  openSheet(s=>{s.appendChild(el(`<h2>Dit zag Claude</h2>`));
+    s.appendChild(el(`<span class="muted small">Schattingen op basis van de foto. Tik op iets om het aan te passen.</span>`));
+    const list=el(`<div class="wrap" style="gap:8px"></div>`);
+    items.forEach((x,i)=>{const r=el(`<div style="display:flex;gap:8px;align-items:center"><input type="checkbox" checked aria-label="Meenemen" style="width:22px;height:22px;accent-color:var(--pink);flex:none"><button class="item" type="button" style="background:var(--surface-2)"><span class="it"><b></b><small></small></span><span class="kc num"></span></button></div>`);
+      r.querySelector("b").textContent=x.name||"Onbekend";r.querySelector("small").textContent=[x.amount,`E ${r0(x.p)||0} · K ${r0(x.c)||0} · V ${r0(x.f)||0} g`].filter(Boolean).join(" · ");
+      r.querySelector(".kc").textContent=(r0(x.kcal)||0)+" kcal";r.querySelector("input").onchange=ev=>{on[i]=ev.target.checked;upd()};
+      r.querySelector(".item").onclick=()=>foodForm({...x,meal,src:"foto"},{isNew:true});list.appendChild(r)});
+    s.appendChild(list);s.appendChild(el(`<span class="label">Maaltijd</span>`));
+    s.appendChild(segment(MEALS.map(([v,l])=>[v,l==="Avondeten"?"Avond":l==="Tussendoor"?"Snack":l]),meal,v=>meal=v));
+    const ok=el(`<button class="btn" type="button"></button>`);
+    const upd=()=>{const n=on.filter(Boolean).length,k=items.reduce((a,x,i)=>a+(on[i]?+x.kcal||0:0),0);ok.textContent=n?`${n} toevoegen · ${Math.round(k)} kcal`:"Niets gekozen";ok.disabled=!n};upd();
+    ok.onclick=()=>{const d=ensure(cur);d.food=d.food||[];items.forEach((x,i)=>{if(on[i])d.food.push({id:uid(),name:x.name||"Onbekend",amount:x.amount||"",kcal:x.kcal??null,p:x.p??null,c:x.c??null,f:x.f??null,meal,src:"foto"})});
+      saveDay(cur);closeSheet();if(view!=="eten")show("eten");else render()};
+    s.appendChild(ok)})}
+
+/* ---- Sport ---- */
+const SPORTS=[["hardlopen","Hardlopen","🏃",9],["fietsen","Fietsen","🚴",7],["wandelen","Wandelen","🚶",3.5],["fitness","Fitness","🏋️",5.5],
+  ["zwemmen","Zwemmen","🏊",7],["voetbal","Voetbal","⚽",7],["yoga","Yoga","🧘",2.8],["anders","Anders","✨",5]];
+const INT=[["licht","Licht",.75],["gemiddeld","Gemiddeld",1],["zwaar","Zwaar",1.3]];
+function sportKcal(x){const s=SPORTS.find(y=>y[0]===x.type)||SPORTS[7],i=INT.find(y=>y[0]===x.int)||INT[1];return Math.round(s[3]*i[2]*70*(+x.min||0)/60)}
+function weekKeys(k){const d=fromKey(k),dow=(d.getDay()+6)%7,mon=addDays(k,-dow);return Array.from({length:7},(_,i)=>addDays(mon,i))}
+function renderSport(){renderGymCard();renderRecords();
+  const wk=weekKeys(cur),tot=wk.reduce((a,k)=>a+sportMin(k),0),g=goalSport();
+  setRing("sportarc",tot/g);$("sportnum").textContent=tot;
+  $("sportsub").textContent=tot>=g?`Weekdoel van ${g} min gehaald!`:`nog ${g-tot} min tot je weekdoel van ${g}`;
+  const list=$("sportlist");list.innerHTML="";const items=day(cur).sport||[];
+  $("sporttoday").textContent=cur===keyOf(new Date())?"Trainingen vandaag":"Trainingen op deze dag";
+  if(!items.length)list.appendChild(el(`<div class="emptyline">Nog geen training. Tik op Training toevoegen.</div>`));
+  items.forEach(x=>{if(x.workout){const vs=volume(x.workout),b=el(`<button class="item"><span class="em">🏋️</span><span class="it"><b></b><small></small></span><span class="kc num"></span></button>`);
+      b.querySelector("b").textContent=x.workout.name;b.querySelector("small").textContent=`${x.workout.ex.length} oefeningen · ${vs.n} sets · ${vs.v.toLocaleString("nl-NL")} kg`;
+      b.querySelector(".kc").textContent=x.min+" min";b.onclick=()=>workoutDetail(x);list.appendChild(b);return}
+    const s=SPORTS.find(y=>y[0]===x.type)||SPORTS[7],b=el(`<button class="item"><span class="em">${s[2]}</span><span class="it"><b></b><small></small></span><span class="kc num"></span></button>`);
+    b.querySelector("b").textContent=x.type==="anders"&&x.note?x.note:s[1];
+    b.querySelector("small").textContent=`${(INT.find(y=>y[0]===x.int)||INT[1])[1]} · ± ${sportKcal(x)} kcal`;
+    b.querySelector(".kc").textContent=x.min+" min";b.onclick=()=>sportForm(x,false);list.appendChild(b)});
+  if(document.activeElement!==$("steps"))$("steps").value=day(cur).steps??"";
+  const W=340,H=140,L=24,B=20,T=8,bw=(W-L)/7,mx=Math.max(60,...wk.map(sportMin)),y=v=>T+(H-T-B)*(1-v/mx);
+  let s="";[0,Math.round(mx/2),mx].forEach(v=>{s+=`<line x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-5}" y="${y(v)+3}" text-anchor="end">${v}</text>`});
+  wk.forEach((k,i)=>{const v=sportMin(k),x=L+i*bw;if(v)s+=`<rect x="${x+bw*.22}" y="${y(v)}" width="${bw*.56}" height="${y(0)-y(v)}" rx="5" fill="${k===cur?'var(--good)':'var(--surface-2)'}" ${k===cur?'':'stroke="var(--good)" stroke-width="1.5"'}/>`;
+    s+=`<text x="${x+bw/2}" y="${H-5}" text-anchor="middle">${fromKey(k).toLocaleDateString("nl-NL",{weekday:"short"}).slice(0,2)}</text>`});
+  $("sportchart").innerHTML=s}
+$("steps").addEventListener("input",e=>{const v=e.target.value;ensure(cur).steps=v===""?null:Math.max(0,Math.round(+v));saveDay(cur)});
+$("addsport").onclick=()=>sportForm({type:"hardlopen",min:30,int:"gemiddeld"},true);
+$("sportgoal").onclick=()=>goalSheet("Weekdoel sporten","minuten per week",goalSport(),30,1000,10,v=>setProfile("sport",v));
+function sportForm(entry,isNew){const x={...entry};
+  openSheet(s=>{s.appendChild(el(`<h2>${isNew?"Training toevoegen":"Training aanpassen"}</h2>`));
+    const tg=el(`<div class="typegrid"></div>`);const drawT=()=>{tg.innerHTML="";SPORTS.forEach(([v,l,em])=>{const b=el(`<button type="button" class="typebtn"><span>${em}</span></button>`);
+      b.appendChild(document.createTextNode(l));b.setAttribute("aria-pressed",x.type===v);b.onclick=()=>{x.type=v;drawT();est()};tg.appendChild(b)})};drawT();s.appendChild(tg);
+    const st=el(`<div class="stepper" style="background:var(--surface-2);padding:18px 0"><button class="round" type="button" aria-label="5 minuten minder" style="background:var(--surface)">−</button><div class="val num"><span></span><span class="unit">minuten</span></div><button class="round" type="button" aria-label="5 minuten meer" style="background:var(--surface)">+</button></div>`);
+    const sv=()=>{st.querySelector(".val span").textContent=x.min;est()};const[a,b]=st.querySelectorAll("button");
+    a.onclick=()=>{x.min=Math.max(5,x.min-5);sv()};b.onclick=()=>{x.min=Math.min(600,x.min+5);sv()};s.appendChild(st);
+    s.appendChild(el(`<span class="label">Hoe zwaar was het?</span>`));s.appendChild(segment(INT.map(i=>[i[0],i[1]]),x.int,v=>{x.int=v;est()},"s3"));
+    s.appendChild(field("Notitie",`<input type="text" id="s-note" maxlength="80" placeholder="bv. 5 km rondje park">`));$("s-note")||0;
+    const e=el(`<span class="muted small num"></span>`);s.appendChild(e);function est(){e.textContent=`Verbruik ongeveer ${sportKcal(x)} kcal (schatting voor 70 kg)`}
+    sv();s.querySelector("#s-note").value=x.note||"";
+    const row=el(`<div class="btnrow"></div>`);
+    if(!isNew){const del=el(`<button class="btn danger" type="button">Verwijder</button>`);del.onclick=()=>{if(!del.dataset.c){del.dataset.c=1;del.textContent="Zeker?";return}
+      const d=ensure(cur);d.sport=(d.sport||[]).filter(y=>y.id!==x.id);saveDay(cur);closeSheet();render()};row.appendChild(del)}
+    const ok=el(`<button class="btn" type="button">${isNew?"Toevoegen":"Opslaan"}</button>`);
+    ok.onclick=()=>{x.note=s.querySelector("#s-note").value.trim();x.id=x.id||uid();const d=ensure(cur);d.sport=d.sport||[];const i=d.sport.findIndex(y=>y.id===x.id);if(i>=0)d.sport[i]=x;else d.sport.push(x);
+      saveDay(cur);closeSheet();render()};row.appendChild(ok);s.appendChild(row)})}
+
+/* ---- Gym ---- */
+const MUSCLES=[["borst","Borst"],["rug","Rug"],["schouders","Schouders"],["biceps","Biceps"],["triceps","Triceps"],["benen","Benen"],["hamstrings","Hamstrings"],
+  ["billen","Billen"],["kuiten","Kuiten"],["buik","Buik"],["onderarmen","Onderarmen"],["hele","Hele lichaam"],["cardio","Cardio"]];
+const EQUIP={bb:"Barbell",db:"Dumbbell",ma:"Machine",ka:"Kabel",lg:"Lichaamsgewicht",kb:"Kettlebell",sm:"Smith",ov:"Overig"};
+const EXRAW={
+ borst:"Bench Press|bb;Incline Bench Press|bb;Decline Bench Press|bb;Dumbbell Bench Press|db;Incline Dumbbell Press|db;Dumbbell Fly|db;Incline Dumbbell Fly|db;Chest Press|ma;Incline Chest Press|ma;Pec Deck|ma;Cable Crossover|ka;Low Cable Fly|ka;Push-up|lg;Chest Dip|lg;Smith Bench Press|sm;Smith Incline Press|sm;Dumbbell Pullover|db",
+ rug:"Deadlift|bb;Bent Over Row|bb;Pendlay Row|bb;T-Bar Row|ma;Dumbbell Row|db;Pull-up|lg;Chin-up|lg;Lat Pulldown|ka;Close Grip Lat Pulldown|ka;Seated Cable Row|ka;Machine Row|ma;Straight Arm Pulldown|ka;Rack Pull|bb;Back Extension|lg;Inverted Row|lg;Assisted Pull-up|ma;Barbell Shrug|bb;Dumbbell Shrug|db",
+ schouders:"Overhead Press|bb;Dumbbell Shoulder Press|db;Arnold Press|db;Machine Shoulder Press|ma;Lateral Raise|db;Cable Lateral Raise|ka;Machine Lateral Raise|ma;Front Raise|db;Rear Delt Fly|db;Reverse Pec Deck|ma;Face Pull|ka;Upright Row|bb;Smith Shoulder Press|sm",
+ biceps:"Barbell Curl|bb;EZ-Bar Curl|bb;Dumbbell Curl|db;Hammer Curl|db;Incline Dumbbell Curl|db;Preacher Curl|ma;Concentration Curl|db;Cable Curl|ka;Spider Curl|db;Bayesian Cable Curl|ka",
+ triceps:"Triceps Pushdown|ka;Rope Pushdown|ka;Overhead Cable Extension|ka;Skull Crusher|bb;Dumbbell Overhead Extension|db;Close Grip Bench Press|bb;Triceps Dip|lg;Bench Dip|lg;Triceps Kickback|db;Machine Triceps Extension|ma",
+ benen:"Squat|bb;Front Squat|bb;Goblet Squat|db;Hack Squat|ma;Leg Press|ma;Leg Extension|ma;Bulgarian Split Squat|db;Lunge|db;Walking Lunge|db;Smith Squat|sm;Step-up|db;Pendulum Squat|ma;Sissy Squat|lg",
+ hamstrings:"Romanian Deadlift|bb;Dumbbell Romanian Deadlift|db;Lying Leg Curl|ma;Seated Leg Curl|ma;Good Morning|bb;Nordic Curl|lg;Stiff Leg Deadlift|bb",
+ billen:"Hip Thrust|bb;Machine Hip Thrust|ma;Glute Bridge|lg;Cable Kickback|ka;Hip Abduction|ma;Hip Adduction|ma;Sumo Deadlift|bb;Kettlebell Swing|kb",
+ kuiten:"Standing Calf Raise|ma;Seated Calf Raise|ma;Leg Press Calf Raise|ma;Single Leg Calf Raise|lg",
+ buik:"Crunch|lg;Cable Crunch|ka;Hanging Leg Raise|lg;Lying Leg Raise|lg;Plank|lg|t;Side Plank|lg|t;Russian Twist|lg;Ab Wheel Rollout|ov;Bicycle Crunch|lg;Sit-up|lg;Mountain Climber|lg;Dead Bug|lg;Pallof Press|ka;Decline Crunch|lg",
+ onderarmen:"Wrist Curl|db;Reverse Wrist Curl|db;Farmer's Walk|db;Reverse Curl|bb;Dead Hang|lg|t",
+ hele:"Clean and Press|bb;Power Clean|bb;Thruster|bb;Snatch|bb;Burpee|lg;Turkish Get-up|kb;Sled Push|ov;Battle Ropes|ov|t",
+ cardio:"Loopband|ma|c;Hometrainer|ma|c;Crosstrainer|ma|c;Roeitrainer|ma|c;Traploper|ma|c;Touwtjespringen|ov|t"};
+const EXLIB=[];Object.entries(EXRAW).forEach(([m,str])=>str.split(";").forEach(x=>{const[n,e,t]=x.split("|");EXLIB.push({id:n.toLowerCase().replace(/[^a-z0-9]+/g,"-"),name:n,m,e,t:t||"w"})}));
+function allEx(){return EXLIB.concat(state.customEx||[])}
+function exById(id){return allEx().find(x=>x.id===id)||{id,name:id,m:"hele",e:"ov",t:"w"}}
+const mLabel=m=>(MUSCLES.find(x=>x[0]===m)||[0,m])[1];
+const COLS={w:["kg","Reps"],t:["kg","Sec"],c:["km","Min"]};
+function saveGym(){persist("gym",{routines:state.routines||[],customEx:state.customEx||[]})}
+function saveActive(){persist("active",{w:state.active||null})}
+function fmtClock(s){s=Math.max(0,Math.floor(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0")}
+function lastSets(exId,skipId){const keys=Object.keys(state.days).sort().reverse();
+  for(const k of keys){const ws=(state.days[k].sport||[]).filter(s=>s.workout&&s.id!==skipId).reverse();
+    for(const w of ws){const e=w.workout.ex.find(x=>x.ex===exId);if(e&&e.sets.some(s=>s.done))return e.sets.filter(s=>s.done)}}return null}
+function volume(w){let v=0,n=0;w.ex.forEach(e=>{const t=exById(e.ex).t;e.sets.forEach(s=>{if(s.done){n++;if(t==="w")v+=(+s.kg||0)*(+s.reps||0)}})});return{v:Math.round(v),n}}
+
+/* gym-kaart op Sport */
+function renderGymCard(){const box=$("gymcard");box.innerHTML="";
+  if(state.active){const a=state.active,b=el(`<button class="resume" type="button"><span class="dot"></span><span class="it"><b></b><small></small></span><span class="kc">Hervatten</span></button>`);
+    b.querySelector("b").textContent=a.name;b.querySelector("small").textContent=`${a.ex.length} oefeningen · bezig sinds ${new Date(a.start).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"})}`;
+    b.onclick=openWorkout;box.appendChild(b);return}
+  const start=el(`<button class="btn" type="button">Lege workout starten</button>`);start.onclick=()=>startWorkout(null);box.appendChild(start);
+  const head=el(`<div class="mealhead"><span class="label">Mijn schema's</span><button class="linkbtn" type="button">Nieuw schema</button></div>`);
+  head.querySelector("button").onclick=()=>routineEditor(null);box.appendChild(head);
+  const rs=state.routines||[];if(!rs.length)box.appendChild(el(`<div class="emptyline">Nog geen schema's. Maak er een, of sla een workout op als schema.</div>`));
+  const grid=el(`<div class="routines"></div>`);
+  rs.forEach(r=>{const c=el(`<div class="routine"><b></b><small></small><div class="btnrow"><button class="btn" type="button">Start</button><button class="btn sec" type="button" aria-label="Schema aanpassen">Aanpassen</button></div></div>`);
+    c.querySelector("b").textContent=r.name;c.querySelector("small").textContent=r.ex.map(e=>exById(e.ex).name).join(", ");
+    const[s1,s2]=c.querySelectorAll("button");s1.onclick=()=>startWorkout(r);s2.onclick=()=>routineEditor(r);grid.appendChild(c)});
+  box.appendChild(grid)}
+
+/* workout starten en bijhouden */
+function startWorkout(r){
+  state.active={id:uid(),name:r?r.name:"Workout",start:Date.now(),day:keyOf(new Date()),routine:r?r.id:null,
+    ex:r?r.ex.map(e=>({ex:e.ex,sets:Array.from({length:e.sets||3},()=>({kg:"",reps:"",done:false}))})):[]};
+  saveActive();openWorkout();if(!r)setTimeout(()=>exercisePicker(ids=>{ids.forEach(id=>state.active.ex.push({ex:id,sets:[{kg:"",reps:"",done:false},{kg:"",reps:"",done:false},{kg:"",reps:"",done:false}]}));saveActive();drawWorkout()}),350)}
+let wkTick=null,rest={end:0,len:90,timer:null};
+function openWorkout(){$("wk").hidden=false;document.body.style.overflow="hidden";drawWorkout();clearInterval(wkTick);wkTick=setInterval(tickWorkout,1000);tickWorkout()}
+function closeWorkout(){$("wk").hidden=true;document.body.style.overflow="";clearInterval(wkTick);stopRest();render()}
+function tickWorkout(){if(!state.active)return;$("wk-time").textContent=fmtClock((Date.now()-state.active.start)/1000);
+  if(rest.end){const left=(rest.end-Date.now())/1000;if(left<=0){stopRest();if(navigator.vibrate)try{navigator.vibrate(200)}catch(e){}}else{$("rest-t").textContent=fmtClock(left);$("rest-bar").style.width=(left/rest.len*100)+"%"}}}
+function startRest(){rest.end=Date.now()+rest.len*1000;$("rest").hidden=false;tickWorkout()}
+function stopRest(){rest.end=0;$("rest").hidden=true}
+function drawWorkout(){const a=state.active;if(!a)return;
+  $("wk-name").value=a.name;const vs=volume(a);$("wk-vol").textContent=vs.v.toLocaleString("nl-NL")+" kg";$("wk-sets").textContent=vs.n;
+  const box=$("wk-list");box.innerHTML="";
+  if(!a.ex.length)box.appendChild(el(`<div class="emptyline" style="text-align:center;padding:24px">Voeg je eerste oefening toe</div>`));
+  a.ex.forEach((e,ei)=>{const x=exById(e.ex),cols=COLS[x.t],prev=lastSets(e.ex);
+    const card=el(`<section class="excard"><div class="exhead"><div class="it"><b></b><small></small></div><button class="mini" type="button" aria-label="Oefening verwijderen">×</button></div>
+      <div class="setgrid sethdr"><span>Set</span><span>Vorige</span><span>${cols[0]}</span><span>${cols[1]}</span><span>✓</span></div></section>`);
+    card.querySelector("b").textContent=x.name;card.querySelector("small").textContent=mLabel(x.m)+" · "+EQUIP[x.e];
+    const rm=card.querySelector(".mini");rm.onclick=()=>{if(!rm.dataset.c){rm.dataset.c=1;rm.textContent="?";rm.style.color="var(--pink)";setTimeout(()=>{rm.textContent="×";delete rm.dataset.c;rm.style.color=""},2500);return}a.ex.splice(ei,1);saveActive();drawWorkout()};
+    e.sets.forEach((s,si)=>{const pv=prev&&prev[si],row=el(`<div class="setgrid setrow${s.done?" done":""}"><span class="sn num">${si+1}</span><span class="pv num"></span>
+      <input type="number" inputmode="decimal" min="0" step="0.5" aria-label="${cols[0]} set ${si+1}"><input type="number" inputmode="numeric" min="0" aria-label="${cols[1]} set ${si+1}"><button class="tick" type="button" aria-label="Set ${si+1} klaar">${icon("i-check")}</button></div>`);
+      row.querySelector(".pv").textContent=pv?`${pv.kg||0}${cols[0]==="kg"?"":" "+cols[0]} × ${pv.reps||0}`:"–";
+      const[i1,i2]=row.querySelectorAll("input");i1.value=s.kg;i2.value=s.reps;if(pv){i1.placeholder=pv.kg||"";i2.placeholder=pv.reps||""}
+      i1.oninput=()=>{s.kg=i1.value;saveActive()};i2.oninput=()=>{s.reps=i2.value;saveActive()};
+      row.querySelector(".pv").onclick=()=>{if(pv){s.kg=pv.kg;s.reps=pv.reps;i1.value=s.kg;i2.value=s.reps;saveActive()}};
+      row.querySelector(".tick").onclick=()=>{if(!s.done){if(s.kg===""&&i1.placeholder)s.kg=i1.placeholder;if(s.reps===""&&i2.placeholder)s.reps=i2.placeholder;
+          if(s.reps===""||s.reps==null){i2.focus();return}s.done=true;if(x.t!=="c")startRest()}else s.done=false;saveActive();drawWorkout()};
+      card.appendChild(row)});
+    const add=el(`<button class="addset" type="button">+ Set toevoegen</button>`);
+    add.onclick=()=>{const last=e.sets[e.sets.length-1];e.sets.push({kg:last?last.kg:"",reps:last?last.reps:"",done:false});saveActive();drawWorkout()};card.appendChild(add);
+    box.appendChild(card)})}
+$("wk-name").addEventListener("input",e=>{if(state.active){state.active.name=e.target.value||"Workout";saveActive()}});
+$("wk-add").onclick=()=>exercisePicker(ids=>{ids.forEach(id=>state.active.ex.push({ex:id,sets:[{kg:"",reps:"",done:false},{kg:"",reps:"",done:false},{kg:"",reps:"",done:false}]}));saveActive();drawWorkout()});
+$("wk-min").onclick=closeWorkout;
+$("rest-skip").onclick=stopRest;
+$("rest-minus").onclick=()=>{rest.end-=15000;tickWorkout()};$("rest-plus").onclick=()=>{rest.end+=15000;rest.len=Math.max(rest.len,(rest.end-Date.now())/1000);tickWorkout()};
+$("wk-cancel").onclick=()=>{const b=$("wk-cancel");if(!b.dataset.c){b.dataset.c=1;b.textContent="Tik nog een keer om te annuleren";setTimeout(()=>{b.textContent="Workout annuleren";delete b.dataset.c},3000);return}
+  state.active=null;saveActive();closeWorkout()};
+$("wk-done").onclick=finishWorkout;
+function finishWorkout(){const a=state.active;if(!a)return;const vs=volume(a);
+  if(!vs.n){msgSheet("Nog geen sets afgevinkt","Vink de sets af die je gedaan hebt, of annuleer de workout.");return}
+  const min=Math.max(1,Math.round((Date.now()-a.start)/60000));let asRoutine=!a.routine;
+  openSheet(s=>{s.appendChild(el(`<h2>Workout afronden</h2>`));
+    s.appendChild(el(`<div class="plan"><div class="stat" style="background:var(--surface-2)"><span class="label">Duur</span><span class="v num">${min} min</span></div><div class="stat" style="background:var(--surface-2)"><span class="label">Volume</span><span class="v num">${vs.v.toLocaleString("nl-NL")} kg</span></div></div>`));
+    const prs=newRecords(a);
+    if(prs.length){const p=el(`<div class="notebox"><b>🏆 Nieuw record!</b></div>`);prs.forEach(t=>{const d=document.createElement("div");d.textContent=t;p.appendChild(d)});s.appendChild(p)}
+    const best=a.ex.map(e=>{const d=e.sets.filter(x=>x.done);if(!d.length)return null;const b=d.reduce((p,c)=>(+c.kg||0)*(1+(+c.reps||0)/30)>(+p.kg||0)*(1+(+p.reps||0)/30)?c:p);return `${exById(e.ex).name}: ${d.length} sets, beste ${b.kg||0} × ${b.reps}`}).filter(Boolean);
+    const ul=el(`<div class="planlist"></div>`);best.forEach(t=>{const d=el(`<div style="background:var(--surface-2)"></div>`);d.textContent=t;ul.appendChild(d)});s.appendChild(ul);
+    if(!a.routine){const c=el(`<label class="check-row"><input type="checkbox" checked>Bewaar als schema om later opnieuw te doen</label>`);c.querySelector("input").onchange=ev=>asRoutine=ev.target.checked;s.appendChild(c)}
+    const ok=el(`<button class="btn" type="button">Opslaan</button>`);
+    ok.onclick=()=>{const ex=a.ex.map(e=>({ex:e.ex,sets:e.sets.filter(x=>x.done).map(x=>({kg:x.kg===""?null:+x.kg,reps:+x.reps||0,done:true}))})).filter(e=>e.sets.length);
+      const d=ensure(a.day);d.sport=d.sport||[];d.sport.push({id:a.id,type:"fitness",min,int:"gemiddeld",note:a.name,workout:{name:a.name,ex}});saveDay(a.day);
+      if(asRoutine&&!a.routine){state.routines=state.routines||[];state.routines.push({id:uid(),name:a.name==="Workout"?"Schema "+(state.routines.length+1):a.name,ex:ex.map(e=>({ex:e.ex,sets:e.sets.length}))});saveGym()}
+      state.active=null;saveActive();closeSheet();cur=a.day;closeWorkout();show("sport")};
+    s.appendChild(ok)})}
+
+/* oefening kiezen */
+function exercisePicker(onDone){const chosen=[];let q="",mf=null;
+  openSheet(s=>{s.classList.add("tall");s.appendChild(el(`<h2>Oefening toevoegen</h2>`));
+    const inp=el(`<input type="text" id="ex-q" placeholder="Zoek een oefening" aria-label="Zoek een oefening">`);s.appendChild(inp);
+    const chips=el(`<div class="chips scrollx"></div>`);const drawChips=()=>{chips.innerHTML="";[[null,"Alles"],...MUSCLES].forEach(([v,l])=>{const b=el(`<button class="chipbtn" type="button"></button>`);b.textContent=l;if(v===mf)b.classList.add("on");b.onclick=()=>{mf=v;drawChips();draw()};chips.appendChild(b)})};drawChips();s.appendChild(chips);
+    const list=el(`<div class="exlist"></div>`);s.appendChild(list);
+    const own=el(`<button class="linkbtn" type="button" style="align-self:flex-start">Eigen oefening maken</button>`);own.onclick=()=>customExercise(onDone);s.appendChild(own);
+    const ok=el(`<button class="btn stickybtn" type="button"></button>`);s.appendChild(ok);
+    const upd=()=>{ok.textContent=chosen.length?`${chosen.length} toevoegen`:"Kies een of meer oefeningen";ok.disabled=!chosen.length};upd();
+    ok.onclick=()=>{closeSheet();onDone(chosen.slice())};
+    function draw(){list.innerHTML="";const ql=q.toLowerCase();
+      const rows=allEx().filter(x=>(!mf||x.m===mf)&&(!ql||x.name.toLowerCase().includes(ql)||mLabel(x.m).toLowerCase().includes(ql)||EQUIP[x.e].toLowerCase().includes(ql)));
+      if(!rows.length)list.appendChild(el(`<div class="emptyline">Niets gevonden. Maak een eigen oefening.</div>`));
+      rows.forEach(x=>{const on=chosen.includes(x.id),b=el(`<button class="exrow" type="button"><span class="it"><b></b><small></small></span><span class="tick2">${icon("i-check")}</span></button>`);
+        b.setAttribute("aria-pressed",on);b.querySelector("b").textContent=x.name;b.querySelector("small").textContent=mLabel(x.m)+" · "+EQUIP[x.e];
+        b.onclick=()=>{const i=chosen.indexOf(x.id);if(i>=0)chosen.splice(i,1);else chosen.push(x.id);b.setAttribute("aria-pressed",i<0);upd()};list.appendChild(b)})}
+    inp.oninput=()=>{q=inp.value.trim();draw()};draw()})}
+function customExercise(onDone){let m="borst",e="ma",t="w";
+  openSheet(s=>{s.appendChild(el(`<h2>Eigen oefening</h2>`));
+    s.appendChild(field("Naam",`<input type="text" id="cx-name" maxlength="50" placeholder="bv. Incline Machine Fly">`));
+    s.appendChild(el(`<span class="label">Spiergroep</span>`));const ch=el(`<div class="chips"></div>`);
+    const dm=()=>{ch.innerHTML="";MUSCLES.forEach(([v,l])=>{const b=el(`<button class="chipbtn" type="button"></button>`);b.textContent=l;if(v===m)b.classList.add("on");b.onclick=()=>{m=v;dm()};ch.appendChild(b)})};dm();s.appendChild(ch);
+    s.appendChild(el(`<span class="label">Materiaal</span>`));const ce=el(`<div class="chips"></div>`);
+    const de=()=>{ce.innerHTML="";Object.entries(EQUIP).forEach(([v,l])=>{const b=el(`<button class="chipbtn" type="button"></button>`);b.textContent=l;if(v===e)b.classList.add("on");b.onclick=()=>{e=v;de()};ce.appendChild(b)})};de();s.appendChild(ce);
+    s.appendChild(el(`<span class="label">Bijhouden in</span>`));s.appendChild(segment([["w","kg en reps"],["t","seconden"],["c","km en min"]],t,v=>t=v,"s3"));
+    const ok=el(`<button class="btn" type="button">Opslaan en toevoegen</button>`);
+    ok.onclick=()=>{const n=$("cx-name").value.trim();if(!n){$("cx-name").focus();return}const x={id:"c-"+uid(),name:n,m,e,t};
+      state.customEx=state.customEx||[];state.customEx.push(x);saveGym();closeSheet();onDone([x.id])};s.appendChild(ok);
+    setTimeout(()=>$("cx-name").focus(),320)})}
+
+/* schema's */
+function routineEditor(r,draft){const x=draft||(r?JSON.parse(JSON.stringify(r)):{id:uid(),name:"",ex:[]});const isNew=!r;
+  openSheet(s=>{s.appendChild(el(`<h2>${isNew?"Nieuw schema":"Schema aanpassen"}</h2>`));
+    s.appendChild(field("Naam",`<input type="text" id="r-name" maxlength="40" placeholder="bv. Push dag">`));s.querySelector("#r-name").value=x.name;
+    const list=el(`<div class="wrap" style="gap:6px"></div>`);s.appendChild(list);
+    const draw=()=>{list.innerHTML="";if(!x.ex.length)list.appendChild(el(`<div class="emptyline">Nog geen oefeningen</div>`));
+      x.ex.forEach((e,i)=>{const row=el(`<div class="exrow" style="cursor:default"><span class="it"><b></b><small></small></span><span class="setstep"><button class="mini" type="button" aria-label="Minder sets">−</button><span class="num"></span><button class="mini" type="button" aria-label="Meer sets">+</button></span><button class="mini" type="button" aria-label="Verwijderen">×</button></div>`);
+        row.querySelector("b").textContent=exById(e.ex).name;row.querySelector("small").textContent=mLabel(exById(e.ex).m);row.querySelector(".setstep .num").textContent=e.sets+" sets";
+        const[mi,pl,rm]=row.querySelectorAll("button");mi.onclick=()=>{e.sets=Math.max(1,e.sets-1);draw()};pl.onclick=()=>{e.sets=Math.min(10,e.sets+1);draw()};rm.onclick=()=>{x.ex.splice(i,1);draw()};list.appendChild(row)})};draw();
+    const add=el(`<button class="btn sec" type="button">+ Oefeningen toevoegen</button>`);
+    add.onclick=()=>{x.name=$("r-name").value.trim();exercisePicker(ids=>{ids.forEach(id=>x.ex.push({ex:id,sets:3}));routineEditor(r,x)})};s.appendChild(add);
+    const row=el(`<div class="btnrow"></div>`);
+    if(!isNew){const del=el(`<button class="btn danger" type="button">Verwijder</button>`);del.onclick=()=>{if(!del.dataset.c){del.dataset.c=1;del.textContent="Zeker?";return}
+      state.routines=(state.routines||[]).filter(y=>y.id!==x.id);saveGym();closeSheet();render()};row.appendChild(del)}
+    const ok=el(`<button class="btn" type="button">Opslaan</button>`);
+    ok.onclick=()=>{x.name=$("r-name").value.trim()||"Mijn schema";if(!x.ex.length){add.focus();return}state.routines=state.routines||[];
+      const i=state.routines.findIndex(y=>y.id===x.id);if(i>=0)state.routines[i]=x;else state.routines.push(x);saveGym();closeSheet();render()};
+    row.appendChild(ok);s.appendChild(row)})}
+
+
+/* afgeronde workout bekijken */
+function workoutDetail(w){const wo=w.workout;
+  openSheet(s=>{const h=el("<h2></h2>");h.textContent=wo.name;s.appendChild(h);const vs=volume(wo);
+    s.appendChild(el(`<span class="muted small num">${w.min} min · ${vs.n} sets · ${vs.v.toLocaleString("nl-NL")} kg volume</span>`));
+    wo.ex.forEach(e=>{const x=exById(e.ex),c=el(`<div class="excard" style="background:var(--surface-2)"><div class="exhead"><div class="it"><b></b><small></small></div></div></div>`);
+      c.querySelector("b").textContent=x.name;c.querySelector("small").textContent=mLabel(x.m);
+      e.sets.forEach((st,i)=>{const r=el(`<div class="setline num"><span>${i+1}</span><span></span></div>`);r.lastChild.textContent=`${st.kg??"–"} ${COLS[x.t][0]} × ${st.reps} ${COLS[x.t][1].toLowerCase()}`;c.appendChild(r)});s.appendChild(c)});
+    const row=el(`<div class="btnrow"></div>`);
+    const del=el(`<button class="btn danger" type="button">Verwijder</button>`);del.onclick=()=>{if(!del.dataset.c){del.dataset.c=1;del.textContent="Zeker?";return}
+      const d=ensure(cur);d.sport=(d.sport||[]).filter(y=>y.id!==w.id);saveDay(cur);closeSheet();render()};
+    const again=el(`<button class="btn" type="button">Opnieuw doen</button>`);again.onclick=()=>{closeSheet();
+      if(state.active){msgSheet("Er loopt al een workout","Rond die eerst af of annuleer hem.");return}
+      setTimeout(()=>startWorkout({id:null,name:wo.name,ex:wo.ex.map(e=>({ex:e.ex,sets:e.sets.length}))}),320)};
+    row.append(del,again);s.appendChild(row)})}
+
+
+/* ---- live scannen met de camera ---- */
+let camStream=null,camReader=null,camLoop=null,camMode=null,camDone=false;
+async function scanLive(mode){camMode=mode;camDone=false;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){pickFileRaw(mode);return}
+  $("cam").hidden=false;$("cam").classList.toggle("qr",mode==="qr");$("cam-msg").textContent=mode==="qr"?"Richt op de QR-code":"Richt op de barcode";$("cam-torch").hidden=true;
+  const v=$("camv"),want=mode==="qr"?["qr_code"]:["ean_13","ean_8","upc_a","upc_e","code_128","code_39","itf","qr_code"];
+  try{let det=null;
+    if("BarcodeDetector" in window){try{const sup=await BarcodeDetector.getSupportedFormats(),fm=want.filter(x=>sup.includes(x));if(fm.length)det=new BarcodeDetector({formats:fm})}catch(e){}}
+    if(det){camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}},audio:false});
+      v.srcObject=camStream;await v.play();
+      const tick=async()=>{if(!camStream||camDone)return;try{if(v.readyState>=2){const r=await det.detect(v);if(r.length){gotCode(r[0].rawValue);return}}}catch(e){}camLoop=setTimeout(tick,120)};tick()}
+    else{const B=ZXing.BarcodeFormat,hints=new Map();
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,mode==="qr"?[B.QR_CODE]:[B.EAN_13,B.EAN_8,B.UPC_A,B.UPC_E,B.CODE_128,B.CODE_39,B.ITF,B.QR_CODE]);
+      camReader=new ZXing.BrowserMultiFormatReader(hints,200);
+      await camReader.decodeFromConstraints({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}}},v,(res)=>{if(res&&!camDone)gotCode(res.getText())});
+      camStream=v.srcObject}
+    const track=camStream&&camStream.getVideoTracks&&camStream.getVideoTracks()[0];
+    try{const caps=track&&track.getCapabilities?track.getCapabilities():null;if(caps&&caps.torch){let on=false;$("cam-torch").hidden=false;
+      $("cam-torch").onclick=()=>{on=!on;track.applyConstraints({advanced:[{torch:on}]}).catch(()=>{})}}}catch(e){}
+  }catch(err){stopCam();
+    msgSheet("Camera niet beschikbaar","Geef Loopa toestemming om je camera te gebruiken, in de instellingen van je browser. Je kunt ook een foto kiezen of de cijfers intypen.",
+      [["Foto kiezen",()=>{closeSheet();setTimeout(()=>pickFileRaw(mode),320)}],["Cijfers intypen",()=>typeCode(mode)]])}}
+function stopCam(){camDone=true;clearTimeout(camLoop);if(camReader){try{camReader.reset()}catch(e){}camReader=null}
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null}const v=$("camv");v.pause();v.srcObject=null;$("cam").hidden=true}
+function gotCode(txt){if(camDone)return;const m=camMode;stopCam();try{navigator.vibrate&&navigator.vibrate(80)}catch(e){}handleCode(txt,m)}
+$("cam-x").onclick=stopCam;
+$("cam-type").onclick=()=>{const m=camMode;stopCam();typeCode(m)};
+$("cam-photo").onclick=()=>{const m=camMode;stopCam();pickFileRaw(m)};
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&!$("cam").hidden)stopCam()});
+
+/* ---- voedingswaarden opzoeken in Open Food Facts ---- */
+async function lookupOFF(gtin,mode){busySheet("Product opzoeken…");
+  const base={meal:guessMeal(),src:mode};
+  try{const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),9000);
+    const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${gtin}.json?fields=product_name,product_name_nl,brands,nutriments,serving_quantity,serving_size,image_front_small_url`,{signal:ctl.signal});
+    clearTimeout(t);const j=await r.json();
+    if(j&&j.status===1&&j.product){const P=j.product,n=P.nutriments||{},num=v=>v==null||v===""||isNaN(+v)?null:+v;
+      let kcal=num(n["energy-kcal_100g"]);if(kcal==null&&num(n["energy_100g"])!=null)kcal=num(n["energy_100g"])/4.184;
+      const per100={kcal,p:num(n.proteins_100g),c:num(n.carbohydrates_100g),f:num(n.fat_100g)};
+      const nm=(P.product_name_nl||P.product_name||"").trim(),br=(P.brands||"").split(",")[0].trim();
+      const name=[nm,br&&!nm.toLowerCase().includes(br.toLowerCase())?br:""].filter(Boolean).join(" · ")||"Product "+gtin;
+      const serving=num(P.serving_quantity);
+      if(kcal==null){foodForm({...base,name},{isNew:true,gtin,unknown:true,note:"Dit product staat in Open Food Facts, maar zonder voedingswaarden."});return}
+      foodForm({...base,name,grams:serving||100},{isNew:true,gtin,per100,img:P.image_front_small_url||null,serving:serving?Math.round(serving):null});return}
+    foodForm(base,{isNew:true,gtin,unknown:true})}
+  catch(e){foodForm(base,{isNew:true,gtin,unknown:true,note:"Opzoeken lukte niet. Controleer je internetverbinding, of vul het product zelf in."})}}
+
+/* ---- foto's herkennen: via Claude in claude.ai, of met een eigen API-sleutel ---- */
+const KEY="loopa-apikey";
+function getKey(){try{return localStorage.getItem(KEY)||""}catch(e){return ""}}
+async function visionClient(){
+  if(window.claude&&claude.use){const smp=await claude.use("sample");if(smp)return{json:(p,o)=>smp.json(p,o)}}
+  const key=getKey();if(!key)return null;
+  return{json:async(prompt,{images,signal})=>{
+    let Anthropic;try{({default:Anthropic}=await import("https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@1.0.0/+esm"))}catch(e){throw{code:"offline"}}
+    const client=new Anthropic({apiKey:key,dangerouslyAllowBrowser:true});
+    const data=await toJpegB64(images[0],1400);
+    const messages=[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/jpeg",data}},{type:"text",text:prompt}]}];
+    let msg;
+    try{msg=await client.beta.messages.create({model:"claude-opus-5-5",max_tokens:8000,output_config:{effort:"low"},betas:["server-side-fallback-2026-07-01"],fallbacks:"default",messages},{signal})}
+    catch(err){if(err instanceof Anthropic.APIUserAbortError)throw{code:"cancelled"};
+      if(err instanceof Anthropic.AuthenticationError)throw{code:"bad_key"};
+      if(err instanceof Anthropic.RateLimitError)throw{code:"rate_limited"};
+      if(err instanceof Anthropic.BadRequestError){if(/credit/i.test(err.message||""))throw{code:"no_credit"};
+        try{msg=await client.messages.create({model:"claude-opus-5-5",max_tokens:8000,output_config:{effort:"low"},messages},{signal})}catch(e2){throw{code:e2 instanceof Anthropic.AuthenticationError?"bad_key":"failed"}}}
+      else if(err instanceof Anthropic.APIConnectionError)throw{code:"offline"};
+      else throw{code:"failed"}}
+    if(msg.stop_reason==="refusal")throw{code:"refusal"};
+    const text=msg.content.filter(b=>b.type==="text").map(b=>b.text).join(""),m=text.match(/\{[\s\S]*\}/);
+    if(!m)throw{code:"failed"};try{return JSON.parse(m[0])}catch(e){throw{code:"failed"}}}}}
+async function toJpegB64(file,max){const c=await scaled(file,max);return c.toDataURL("image/jpeg",.85).split(",")[1]}
+$("savekey").onclick=()=>{const v=$("apikey").value.trim();if(!v||v.startsWith("•")){$("apikey").focus();return}
+  try{localStorage.setItem(KEY,v)}catch(e){}$("apikey").value="••••••••••••";$("keynote").textContent="Sleutel opgeslagen op dit apparaat."};
+$("delkey").onclick=()=>{try{localStorage.removeItem(KEY)}catch(e){}$("apikey").value="";$("keynote").textContent="Sleutel gewist."};
+$("apikey").addEventListener("focus",e=>{if(e.target.value.startsWith("•"))e.target.value=""});
+
+/* ---- back-up ---- */
+$("backup").onclick=()=>{const blob=new Blob([JSON.stringify({app:"loopa",version:1,saved:new Date().toISOString(),state},null,1)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`loopa-backup-${keyOf(new Date())}.json`;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)};
+$("restore").onclick=()=>{$("restorefile").value="";$("restorefile").click()};
+$("restorefile").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;
+  let data=null;try{const j=JSON.parse(await f.text());data=j.state||j}catch(err){}
+  if(!data||typeof data.days!=="object"){msgSheet("Dit is geen Loopa-back-up","Kies het bestand dat je eerder met Back-up downloaden hebt bewaard.");return}
+  const n=Object.keys(data.days).length;
+  msgSheet("Back-up terugzetten?",`Deze back-up bevat ${n} dagen. Alles wat nu in de app staat wordt vervangen.`,[["Terugzetten",()=>{
+    state={habits:[],days:{},profile:null,products:{},routines:[],customEx:[],active:null,...data};migrate();saveLocal();closeSheet();show("dag")}],["Annuleren",closeSheet]])});
+
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
+
+/* ---- Slaap ---- */
+function renderSlaap(){const dd=day(cur);
+  $("bed").value=dd.bed||"";$("wake").value=dd.wake||"";
+  const sh=sleepHours(dd);$("sleephrs").textContent=fmtH(sh);
+  $("sleepnote").textContent=sh==null?"vul je tijden in":sh>=goalSleep()?"geslapen, doel gehaald":"geslapen, doel is "+goalSleep()+" uur";
+  scale("sleepq",["😫","😕","😐","🙂","😄"],dd.sleepQ,v=>{ensure(cur).sleepQ=v;saveDay(cur);render()});
+  renderSleepChart()}
+["bed","wake"].forEach(id=>$(id).addEventListener("change",e=>{ensure(cur)[id]=e.target.value;saveDay(cur);render()}));
+function renderSleepChart(){
+  const today=keyOf(new Date()),d14=Array.from({length:14},(_,i)=>addDays(today,i-13));
+  const W=340,H=150,L=24,B=20,T=8,max=12,bw=(W-L)/14,y=v=>T+(H-T-B)*(1-v/max);
+  const gs=goalSleep();let s="";[0,4,8,12].forEach(v=>{s+=`<line x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-5}" y="${y(v)+3}" text-anchor="end">${v}</text>`});
+  s+=`<line x1="${L}" x2="${W}" y1="${y(gs)}" y2="${y(gs)}" stroke="var(--night)" stroke-dasharray="4 3"/>`;$("sleepgoal").textContent="14 dagen · doel "+gs+" u";
+  let any=false;
+  d14.forEach((k,i)=>{const h=sleepHours(day(k)),x=L+i*bw;
+    if(h!=null){any=true;const v=Math.min(h,max);s+=`<rect x="${x+bw*.2}" y="${y(v)}" width="${bw*.6}" height="${y(0)-y(v)}" rx="4" fill="${h>=gs-0.5?'var(--night)':'var(--flame)'}"/>`}
+    if(i%2===1)s+=`<text x="${x+bw/2}" y="${H-5}" text-anchor="middle">${fromKey(k).getDate()}</text>`});
+  if(!any)s+=`<text x="${(W+L)/2}" y="${H/2}" text-anchor="middle">Nog geen slaap ingevuld</text>`;
+  $("sleepchart").innerHTML=s}
+
+/* ---- Overzicht ---- */
+function renderOverview(){
+  renderBody();renderFeel();$("rapsub").textContent=weekLabel(reportWeek());
+  const today=keyOf(new Date()),last=n=>Array.from({length:n},(_,i)=>addDays(today,i-n+1));
+  const w7=last(7),avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+  const sl=avg(w7.map(k=>sleepHours(day(k))).filter(x=>x!=null));$("s-sleep").textContent=sl==null?"–":fmtH(sl);
+  let tot=0,dn=0;w7.forEach(k=>{tot+=state.habits.length;dn+=doneCount(k)});$("s-habit").textContent=tot?Math.round(dn/tot*100)+"%":"–";
+  const ws=avg(w7.map(k=>day(k).water).filter(x=>x!=null));$("s-water").textContent=ws==null?"–":ws.toFixed(1).replace(".",",");
+  const kc=avg(w7.filter(k=>food(k).some(x=>x.kcal)).map(k=>sumFood(k).kcal));$("s-kcal").textContent=kc==null?"–":Math.round(kc);
+  const sp=w7.reduce((a,k)=>a+sportMin(k),0);$("s-sport").textContent=sp?sp+" min":"–";
+  const stp=avg(w7.map(k=>day(k).steps).filter(x=>x!=null));$("s-steps").textContent=stp==null?"–":Math.round(stp).toLocaleString("nl-NL");
+  let xp=0;Object.values(state.days).forEach(d=>{Object.values(d.habits||{}).forEach(v=>{if(v)xp+=10});xp+=(d.sport||[]).length*15});
+  let li=0;LEVELS.forEach((l,i)=>{if(xp>=l[0])li=i});const nx=LEVELS[li+1];
+  $("lvl-name").textContent=LEVELS[li][1];$("lvl-xp").textContent=xp+" punten";
+  $("lvl-next").textContent=nx?`nog ${nx[0]-xp} tot ${nx[1]}`:"hoogste niveau";
+  $("lvl-bar").style.width=(nx?(xp-LEVELS[li][0])/(nx[0]-LEVELS[li][0])*100:100)+"%";
+  const d14=last(14);
+  if(!state.habits.length){$("hgrid").innerHTML='<p class="empty">Nog geen gewoontes.</p>';return}
+  let t='<table class="hgrid"><thead><tr><th></th>'+d14.map(k=>`<th class="num">${fromKey(k).getDate()}</th>`).join("")+'</tr></thead><tbody>';
+  state.habits.forEach(x=>{t+='<tr><th></th>'+d14.map(k=>`<td class="${(day(k).habits||{})[x.id]?"on":""}" title="${k}"></td>`).join("")+'</tr>'});
+  $("hgrid").innerHTML=t+'</tbody></table>';
+  $("hgrid").querySelectorAll("tbody th").forEach((th,i)=>th.textContent=state.habits[i].name);
+}
+
+/* gewoontes beheren */
+function renderSeg(){const s=$("partseg");s.innerHTML="";PARTS.forEach(([p,l])=>{const b=document.createElement("button");b.type="button";
+  b.textContent=l;b.setAttribute("aria-pressed",p===newPart);b.onclick=()=>{newPart=p;renderSeg()};s.appendChild(b)})}
+function renderSettings(){renderSeg();renderRemUI();const l=$("editlist");l.innerHTML="";
+  if(!state.habits.length)l.innerHTML='<p class="empty">Nog geen gewoontes.</p>';
+  state.habits.forEach((x,i)=>{const r=document.createElement("div");r.className="edit-item";
+    r.innerHTML='<div style="flex:1;min-width:0;display:flex;flex-direction:column"><span class="n"></span><span class="p"></span></div><button class="btn-del" type="button">Verwijder</button>';
+    r.querySelector(".n").textContent=x.name;r.querySelector(".p").textContent=PARTS.find(p=>p[0]===partOf(x))[1];
+    const b=r.querySelector("button");b.onclick=()=>{if(b.dataset.c){state.habits.splice(i,1);saveHabits();renderSettings()}else{b.dataset.c=1;b.textContent="Zeker?";setTimeout(()=>{b.textContent="Verwijder";delete b.dataset.c},3000)}};
+    l.appendChild(r)});
+  const pr=state.profile;$("goalnote").textContent=pr?`Slaapdoel ${pr.sleepGoal} uur, ${pr.water} glazen water per dag. Focus: ${(pr.goals||[]).map(g=>(GOALS.find(x=>x[0]===g)||[0,g])[1].toLowerCase()).join(", ")||"nog niet gekozen"}.`:"Je hebt de vragenlijst nog niet ingevuld.";
+  $("storenote").textContent=col?"Je gegevens staan in je eigen account. Alleen jij kunt ze zien, ook op je telefoon.":"Je gegevens staan alleen op dit apparaat, niet in de cloud. Download af en toe een back-up, dan raak je niets kwijt als je je browsergegevens wist of een nieuwe telefoon neemt.";
+  $("apikey").value=getKey()?"••••••••••••":"";$("keynote").textContent=getKey()?"Er is een sleutel ingesteld.":"Nog geen sleutel ingesteld.";
+}
+$("addform").addEventListener("submit",e=>{e.preventDefault();const v=$("newhabit").value.trim();if(!v)return;
+  state.habits.push({id:"h"+Date.now().toString(36),name:v,part:newPart});$("newhabit").value="";saveHabits();renderSettings()});
+
+/* ===== v8: lichaam, vaste maaltijden, records, stemming, weekrapport, herinneringen ===== */
+const nf1=v=>v==null||isNaN(v)?"–":(Math.round(v*10)/10).toLocaleString("nl-NL");
+const avgOf=a=>{a=a.filter(x=>x!=null&&x!==""&&!isNaN(x)).map(Number);return a.length?a.reduce((x,y)=>x+y,0)/a.length:null};
+const dShort=k=>fromKey(k).toLocaleDateString("nl-NL",{day:"numeric",month:"short"});
+function hm(m){m=((Math.round(m)%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")}
+function toMin(t){const[a,b]=(t||"0:0").split(":").map(Number);return a*60+(b||0)}
+function avgWake(keys){return avgOf(keys.map(k=>day(k).wake).filter(Boolean).map(toMin))}
+function saveBody(){persist("body",{items:state.body||[]})}
+function saveMeals(){persist("meals",{items:state.meals||[]})}
+function savePhoto(p){persist("p-"+p.id,{photo:p})}
+function dropPhoto(id){state.photos=state.photos.filter(p=>p.id!==id);saveLocal();clearTimeout(timers["p-"+id]);if(col)col.doc("p-"+id).delete().catch(()=>{})}
+
+let toastT=null;
+function toast(text,action,fn){const t=$("toast");t.innerHTML="";const s=document.createElement("span");s.textContent=text;t.appendChild(s);
+  if(action){const b=document.createElement("button");b.type="button";b.textContent=action;b.onclick=()=>{fn();t.classList.remove("show")};t.appendChild(b)}
+  t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),4500)}
+
+/* lijngrafiek op datum */
+function lineChart(pts,opts){opts=opts||{};const W=340,H=140,L=30,B=20,T=10,c=opts.color||"var(--pink)";
+  const vals=pts.map(p=>p.v).concat(opts.goal?[opts.goal]:[]);let lo=Math.min(...vals),hi=Math.max(...vals);const pad=Math.max(1,(hi-lo)*.15);lo=Math.floor(lo-pad);hi=Math.ceil(hi+pad);
+  const t0=+fromKey(pts[0].date),t1=Math.max(t0+864e5,+fromKey(pts[pts.length-1].date));
+  const x=k=>L+8+(W-L-16)*(fromKey(k)-t0)/(t1-t0),y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo));
+  let s="";[lo,(lo+hi)/2,hi].forEach(v=>s+=`<line x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-5}" y="${y(v)+3}" text-anchor="end">${Math.round(v)}</text>`);
+  if(opts.goal)s+=`<line x1="${L}" x2="${W}" y1="${y(opts.goal)}" y2="${y(opts.goal)}" stroke="var(--good)" stroke-dasharray="4 3"/>`;
+  s+=`<polyline points="${pts.map(p=>x(p.date)+","+y(p.v)).join(" ")}" fill="none" stroke="${c}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  pts.forEach(p=>s+=`<circle cx="${x(p.date)}" cy="${y(p.v)}" r="3.2" fill="${c}"/>`);
+  s+=`<text x="${x(pts[0].date)}" y="${H-5}" text-anchor="start">${dShort(pts[0].date)}</text>`;
+  if(pts.length>1)s+=`<text x="${x(pts[pts.length-1].date)}" y="${H-5}" text-anchor="end">${dShort(pts[pts.length-1].date)}</text>`;
+  return s}
+function chartEl(inner,label){const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("class","chart");svg.setAttribute("viewBox","0 0 340 140");svg.setAttribute("role","img");svg.setAttribute("aria-label",label);svg.innerHTML=inner;return svg}
+
+/* ---- Lichaam ---- */
+function bodySorted(){return (state.body||[]).slice().sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0)}
+function lastWith(f){const b=bodySorted().filter(x=>x[f]!=null);return b[b.length-1]||null}
+function goalKg(){return state.profile&&state.profile.goalKg||null}
+function renderBody(){const box=$("bodybox");box.innerHTML="";const lw=lastWith("kg"),lz=lastWith("waist"),ws=bodySorted().filter(x=>x.kg!=null);
+  if(!lw&&!lz)box.appendChild(el(`<div class="emptyline">Nog geen metingen. Weeg jezelf bijvoorbeeld elke maandagochtend, dan zie je hier je verloop.</div>`));
+  else{const row=el(`<div class="bigval"></div>`);
+    if(lw){row.appendChild(el(`<b class="num">${nf1(lw.kg)} kg</b>`));
+      const ref=ws.filter(x=>x.date<=addDays(lw.date,-28)).pop()||ws[0];
+      if(ref&&ref!==lw){const d=lw.kg-ref.kg,g=goalKg(),good=g&&d?(g<ref.kg?d<0:d>0):null;
+        row.appendChild(el(`<span class="delta num ${good==null?"":good?"up":"down"}">${d>0?"+":d<0?"−":"±"}${nf1(Math.abs(d))} kg sinds ${dShort(ref.date)}</span>`))}}
+    else row.appendChild(el(`<b class="num">${nf1(lz.waist)} cm</b>`));
+    box.appendChild(row);
+    const sub=[lw&&lz?`Buikomtrek ${nf1(lz.waist)} cm`:null,goalKg()?`Streefgewicht ${nf1(goalKg())} kg`:null,lw?`laatst gewogen ${fromKey(lw.date).toLocaleDateString("nl-NL",{day:"numeric",month:"long"})}`:null].filter(Boolean).join(" · ");
+    if(sub)box.appendChild(el(`<span class="muted small num"></span>`)).textContent=sub.replace(/^./,c=>c.toUpperCase());
+    if(ws.length>1)box.appendChild(chartEl(lineChart(ws.slice(-40).map(x=>({date:x.date,v:x.kg})),{goal:goalKg()}),"Gewicht over tijd"))}
+  const r=el(`<div class="btnrow"><button class="btn" type="button">Meten</button><button class="btn sec" type="button"></button></div>`);
+  const[b1,b2]=r.querySelectorAll("button");b2.textContent="Foto's"+(state.photos.length?" ("+state.photos.length+")":"");b1.onclick=bodyForm;b2.onclick=photoSheet;box.appendChild(r)}
+function bodyForm(){const prev=lastWith("kg"),pz=lastWith("waist"),today=keyOf(new Date());
+  openSheet(s=>{s.appendChild(el(`<h2>Meting toevoegen</h2>`));
+    s.appendChild(field("Datum",`<input type="date" id="b-date" max="${today}" value="${today}">`));
+    const r=el(`<div class="row"></div>`);r.append(field("Gewicht (kg)",`<input type="number" id="b-kg" inputmode="decimal" step="0.1" min="20" max="400" placeholder="${prev?nf1(prev.kg):"bv. 72,5"}">`),
+      field("Buikomtrek (cm)",`<input type="number" id="b-waist" inputmode="decimal" step="0.5" min="30" max="250" placeholder="${pz?nf1(pz.waist):"bv. 84"}">`));s.appendChild(r);
+    s.appendChild(el(`<span class="muted small">Meet altijd op hetzelfde moment, bijvoorbeeld 's ochtends voor het ontbijt. Je buikomtrek meet je ter hoogte van je navel.</span>`));
+    const ok=el(`<button class="btn" type="button">Opslaan</button>`);
+    ok.onclick=()=>{const n=v=>v===""||v==null?null:Math.round(+String(v).replace(",",".")*10)/10,kg=n($("b-kg").value),w=n($("b-waist").value),d=$("b-date").value||today;
+      if(kg==null&&w==null){$("b-kg").focus();return}
+      const ex=state.body.find(x=>x.date===d);if(ex){if(kg!=null)ex.kg=kg;if(w!=null)ex.waist=w}else state.body.push({id:uid(),date:d,kg,waist:w});
+      saveBody();closeSheet();render();toast("Meting opgeslagen")};s.appendChild(ok);
+    const hist=bodySorted().reverse().slice(0,8);
+    if(hist.length){s.appendChild(el(`<span class="label">Eerdere metingen</span>`));
+      hist.forEach(h=>{const r=el(`<div class="item" style="background:var(--surface-2)"><span class="it"><b class="num"></b><small></small></span><button class="mini" type="button" aria-label="Meting verwijderen" style="background:var(--surface)">×</button></div>`);
+        r.querySelector("b").textContent=[h.kg!=null?nf1(h.kg)+" kg":null,h.waist!=null?nf1(h.waist)+" cm":null].filter(Boolean).join(" · ");
+        r.querySelector("small").textContent=fromKey(h.date).toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"long"});
+        const x=r.querySelector(".mini");x.onclick=()=>{if(!x.dataset.c){x.dataset.c=1;x.textContent="?";x.style.color="var(--pink)";return}state.body=state.body.filter(y=>y.id!==h.id);saveBody();r.remove();render()};s.appendChild(r)})}
+    const gl=el(`<button class="linkbtn" type="button" style="align-self:center;padding:8px">${goalKg()?"Streefgewicht aanpassen":"Streefgewicht instellen"}</button>`);
+    gl.onclick=()=>goalSheet("Streefgewicht","kg",goalKg()||(prev?Math.round(prev.kg):70),35,250,0.5,v=>setProfile("goalKg",v));s.appendChild(gl)})}
+function photoSheet(){openSheet(s=>{s.appendChild(el(`<h2>Voortgangsfoto's</h2>`));
+  s.appendChild(el(`<span class="muted small">Maak elke paar weken een foto op dezelfde plek, in hetzelfde licht en in dezelfde houding. Zo zie je verschil dat de weegschaal niet laat zien. De foto's zijn alleen voor jou${col?", ze staan in je eigen account":", ze blijven op dit apparaat"}.</span>`));
+  const add=el(`<button class="btn" type="button">Foto toevoegen</button>`);add.onclick=()=>{const i=$("fileBody");i.value="";i.click()};s.appendChild(add);
+  const ps=state.photos.slice().sort((a,b)=>a.date<b.date?1:-1);
+  if(ps.length>1){const c=el(`<button class="btn sec" type="button">Eerste en nieuwste vergelijken</button>`);c.onclick=()=>comparePhotos(ps[ps.length-1],ps[0]);s.appendChild(c)}
+  if(!ps.length){s.appendChild(el(`<div class="emptyline">Nog geen foto's.</div>`));return}
+  const g=el(`<div class="photos"></div>`);
+  ps.forEach(p=>{const b=el(`<button type="button"><img alt=""><span class="num"></span></button>`),im=b.querySelector("img");im.src=p.img;im.alt="Foto van "+dShort(p.date);
+    b.querySelector("span").textContent=dShort(p.date);b.onclick=()=>photoView(p);g.appendChild(b)});s.appendChild(g)})}
+function photoView(p){const ps=state.photos.slice().sort((a,b)=>a.date<b.date?-1:1);
+  openSheet(s=>{s.appendChild(el(`<h2></h2>`)).textContent=fromKey(p.date).toLocaleDateString("nl-NL",{day:"numeric",month:"long",year:"numeric"});
+    const im=el(`<img class="photobig" alt="Voortgangsfoto">`);im.src=p.img;s.appendChild(im);
+    if(ps.length>1&&ps[0].id!==p.id){const c=el(`<button class="btn" type="button">Vergelijken met de eerste foto</button>`);c.onclick=()=>comparePhotos(ps[0],p);s.appendChild(c)}
+    const row=el(`<div class="btnrow"></div>`),del=el(`<button class="btn danger" type="button">Verwijder</button>`),back=el(`<button class="btn sec" type="button">Terug</button>`);
+    del.onclick=()=>{if(!del.dataset.c){del.dataset.c=1;del.textContent="Zeker?";return}dropPhoto(p.id);photoSheet();render()};back.onclick=photoSheet;row.append(del,back);s.appendChild(row)})}
+function comparePhotos(a,b){openSheet(s=>{s.appendChild(el(`<h2>Vergelijken</h2>`));
+  const days=Math.round((fromKey(b.date)-fromKey(a.date))/864e5);s.appendChild(el(`<span class="muted small num">${days} ${days===1?"dag":"dagen"} ertussen</span>`));
+  const c=el(`<div class="compare"></div>`);
+  [a,b].forEach(p=>{const f=el(`<figure><img alt=""><figcaption class="muted small num"></figcaption></figure>`);f.querySelector("img").src=p.img;f.querySelector("img").alt="Foto van "+dShort(p.date);
+    const w=state.body.find(x=>x.date===p.date&&x.kg!=null);f.querySelector("figcaption").textContent=fromKey(p.date).toLocaleDateString("nl-NL",{day:"numeric",month:"short",year:"numeric"})+(w?" · "+nf1(w.kg)+" kg":"");c.appendChild(f)});
+  s.appendChild(c);const back=el(`<button class="btn sec" type="button">Terug</button>`);back.onclick=photoSheet;s.appendChild(back)})}
+$("fileBody").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;
+  try{const c=await scaled(f,900),p={id:uid(),date:keyOf(new Date()),img:c.toDataURL("image/jpeg",.72)};state.photos.push(p);saveLocal();savePhoto(p);photoSheet();render()}
+  catch(err){msgSheet("Foto lukte niet","Deze foto kon niet geladen worden. Probeer een andere foto.")}});
+
+/* ---- Vaste maaltijden ---- */
+const mealName=m=>(MEALS.find(x=>x[0]===m)||[0,m])[1];
+function renderTpl(){const box=$("mealtpl");box.innerHTML="";const ts=state.meals||[];
+  const head=el(`<div class="mealhead"><span class="label">Vaste maaltijden</span></div>`);
+  if(ts.length){const b=el(`<button class="linkbtn" type="button">Beheren</button>`);b.onclick=manageTpl;head.appendChild(b)}box.appendChild(head);
+  if(!ts.length){box.appendChild(el(`<div class="emptyline">Eet je vaak hetzelfde? Tik op ☆ bij een maaltijd hieronder om hem te bewaren. Daarna zet je hem hier met één tik in je dag.</div>`));return}
+  const row=el(`<div class="tplrow"></div>`);
+  ts.forEach(t=>{const k=t.items.reduce((a,x)=>a+(+x.kcal||0),0),b=el(`<button class="tpl" type="button"><b></b><small class="num"></small></button>`);
+    b.querySelector("b").textContent=t.name;b.querySelector("small").textContent=`${mealName(t.meal)} · ${t.items.length} ${t.items.length===1?"ding":"dingen"}${k?" · "+Math.round(k)+" kcal":""}`;
+    b.setAttribute("aria-label",`${t.name} toevoegen aan ${mealName(t.meal)}`);b.onclick=()=>addTpl(t);row.appendChild(b)});
+  box.appendChild(row)}
+function addTpl(t){const k=cur,d=ensure(k);d.food=d.food||[];const ids=[],meal=t.meal||guessMeal();
+  t.items.forEach((x,i)=>{const id=uid()+i;ids.push(id);d.food.push({...x,id,meal,src:x.src||"hand"})});saveDay(k);render();
+  toast(`${t.name} toegevoegd aan ${mealName(meal).toLowerCase()}`,"Ongedaan",()=>{const e=ensure(k);e.food=(e.food||[]).filter(x=>!ids.includes(x.id));saveDay(k);render()})}
+function saveTplSheet(m){const items=food(cur).filter(x=>x.meal===m).map(({id,...x})=>x);
+  openSheet(s=>{s.appendChild(el(`<h2>Bewaar als vaste maaltijd</h2>`));
+    s.appendChild(field("Naam",`<input type="text" id="t-name" maxlength="40">`));$("t-name").value=items.length===1?items[0].name:"Mijn "+mealName(m).toLowerCase();
+    const l=el(`<div class="planlist"></div>`);items.forEach(x=>{const d=el(`<div style="background:var(--surface-2)"></div>`);d.textContent=x.name;if(x.kcal)d.appendChild(el(`<span class="num">${Math.round(x.kcal)} kcal</span>`));l.appendChild(d)});s.appendChild(l);
+    s.appendChild(el(`<span class="muted small">Met één tik op de vaste maaltijd zet je dit allemaal bij ${mealName(m).toLowerCase()}.</span>`));
+    const ok=el(`<button class="btn" type="button">Bewaren</button>`);
+    ok.onclick=()=>{const n=$("t-name").value.trim();if(!n){$("t-name").focus();return}state.meals.push({id:uid(),name:n,meal:m,items});saveMeals();closeSheet();render();toast("Bewaard bij je vaste maaltijden")};s.appendChild(ok)})}
+function manageTpl(){openSheet(s=>{s.appendChild(el(`<h2>Vaste maaltijden</h2>`));
+  state.meals.forEach(t=>{const r=el(`<div class="item" style="background:var(--surface-2)"><span class="it"><b></b><small></small></span><button class="mini" type="button" aria-label="Verwijderen" style="background:var(--surface)">×</button></div>`);
+    r.querySelector("b").textContent=t.name;r.querySelector("small").textContent=mealName(t.meal)+": "+t.items.map(x=>x.name).join(", ");
+    const x=r.querySelector(".mini");x.onclick=()=>{if(!x.dataset.c){x.dataset.c=1;x.textContent="?";x.style.color="var(--pink)";return}state.meals=state.meals.filter(y=>y.id!==t.id);saveMeals();r.remove();render()};s.appendChild(r)});
+  s.appendChild(el(`<span class="muted small">Tik twee keer op × om een vaste maaltijd te verwijderen. Wat je al gegeten hebt blijft staan.</span>`));
+  const c=el(`<button class="btn sec" type="button">Klaar</button>`);c.onclick=closeSheet;s.appendChild(c)})}
+
+/* ---- Gym-records ---- */
+const e1rm=(kg,r)=>(+kg||0)*(1+Math.min(+r||0,30)/30);
+function setScore(t,s){return t==="w"?e1rm(s.kg,s.reps):t==="t"?(+s.reps||0):(+s.kg||0)}
+function exHistory(){const H={};
+  Object.keys(state.days).sort().forEach(k=>(state.days[k].sport||[]).forEach(w=>{if(!w.workout)return;
+    w.workout.ex.forEach(e=>{const sets=(e.sets||[]).filter(s=>s.done!==false&&(+s.reps||0)>0);if(!sets.length)return;const t=exById(e.ex).t;
+      let best=null,score=-1;sets.forEach(s=>{const sc=setScore(t,s);if(sc>score||(sc===score&&(+s.reps||0)>(+best.reps||0))){score=sc;best=s}});
+      (H[e.ex]=H[e.ex]||[]).push({date:k,best,score,maxKg:Math.max(...sets.map(s=>+s.kg||0)),maxReps:Math.max(...sets.map(s=>+s.reps||0)),vol:sets.reduce((a,s)=>a+(+s.kg||0)*(+s.reps||0),0)})})}));
+  return H}
+function prLine(x,s){return x.t==="w"?(+s.kg?`${nf1(+s.kg)} kg × ${s.reps}`:`${s.reps} herhalingen`):x.t==="t"?`${+s.kg?nf1(+s.kg)+" kg · ":""}${s.reps} sec`:`${nf1(+s.kg||0)} km in ${s.reps} min`}
+let prAll=false;
+function renderRecords(){const H=exHistory(),box=$("prlist");box.innerHTML="";
+  const ids=Object.keys(H).sort((a,b)=>H[b][H[b].length-1].date.localeCompare(H[a][H[a].length-1].date));
+  if(!ids.length){box.appendChild(el(`<div class="emptyline">Rond een gym-workout af, dan zie je hier per oefening je beste set en je vooruitgang.</div>`));return}
+  (prAll?ids:ids.slice(0,5)).forEach(id=>{const x=exById(id),h=H[id],bb=h.reduce((a,c)=>c.score>a.score?c:a);
+    const b=el(`<button class="item"><span class="em">🏆</span><span class="it"><b></b><small class="num"></small></span><span class="kc num"></span></button>`);
+    b.querySelector("b").textContent=x.name;b.querySelector("small").textContent=`beste ${prLine(x,bb.best)} · ${h.length}× gedaan`;
+    b.querySelector(".kc").textContent=x.t==="w"&&+bb.best.kg?"1RM ±"+Math.round(bb.score):"";
+    b.onclick=()=>prDetail(id,h);box.appendChild(b)});
+  if(ids.length>5){const m=el(`<button class="linkbtn" type="button" style="align-self:center;padding:6px"></button>`);m.textContent=prAll?"Minder tonen":`Alle ${ids.length} oefeningen`;m.onclick=()=>{prAll=!prAll;renderRecords()};box.appendChild(m)}}
+function prDetail(id,h){const x=exById(id),bb=h.reduce((a,c)=>c.score>a.score?c:a),mx=f=>Math.max(...h.map(y=>y[f]));
+  openSheet(s=>{s.appendChild(el(`<h2></h2>`)).textContent=x.name;
+    s.appendChild(el(`<span class="muted small"></span>`)).textContent=`${mLabel(x.m)} · ${EQUIP[x.e]} · ${h.length} keer gedaan`;
+    const R=x.t==="w"?(mx("maxKg")?[["Zwaarste gewicht",nf1(mx("maxKg"))+" kg"],["1RM-schatting",Math.round(bb.score)+" kg"],["Meeste herhalingen",mx("maxReps")],["Meeste volume",Math.round(mx("vol")).toLocaleString("nl-NL")+" kg"]]:[["Meeste herhalingen",mx("maxReps")],["Keer gedaan",h.length]])
+      :x.t==="t"?[["Langste tijd",mx("maxReps")+" sec"],["Zwaarste gewicht",nf1(mx("maxKg"))+" kg"]]:[["Verste afstand",nf1(mx("maxKg"))+" km"],["Langste duur",mx("maxReps")+" min"]];
+    const g=el(`<div class="plan"></div>`);R.forEach(([l,v])=>g.appendChild(el(`<div class="stat" style="background:var(--surface-2)"><span class="label">${l}</span><span class="v num">${v}</span></div>`)));s.appendChild(g);
+    const useReps=x.t==="w"&&!mx("maxKg");
+    if(h.length>1){s.appendChild(el(`<span class="label">${useReps?"Herhalingen per workout":x.t==="w"?"1RM-schatting per workout (kg)":x.t==="t"?"Seconden per workout":"Kilometers per workout"}</span>`));
+      s.appendChild(chartEl(lineChart(h.map(y=>({date:y.date,v:useReps?y.maxReps:Math.round(y.score*10)/10})),{color:"var(--good)"}),"Progressie van "+x.name))}
+    s.appendChild(el(`<span class="label">Beste set per workout</span>`));
+    h.slice().reverse().slice(0,12).forEach(y=>{const r=el(`<div class="setline wide num"><span></span><span></span></div>`);r.firstChild.textContent=dShort(y.date);r.lastChild.textContent=prLine(x,y.best)+(y===bb?"  🏆":"");s.appendChild(r)});
+    if(x.t==="w"&&mx("maxKg"))s.appendChild(el(`<span class="muted small">De 1RM-schatting is ongeveer wat je één keer zou kunnen tillen, berekend uit je beste set. Gaat die lijn omhoog, dan word je sterker.</span>`))})}
+function newRecords(a){const H=exHistory(),out=[];
+  a.ex.forEach(e=>{const h=H[e.ex];if(!h)return;const x=exById(e.ex),d=e.sets.filter(s=>s.done&&(+s.reps||0)>0);if(!d.length)return;
+    const pMax=Math.max(...h.map(y=>y.maxKg)),pS=Math.max(...h.map(y=>y.score)),mk=Math.max(...d.map(s=>+s.kg||0)),sc=Math.max(...d.map(s=>setScore(x.t,s)));
+    if(x.t==="w"&&mk>pMax&&pMax>0)out.push(`${x.name}: zwaarste ooit, ${nf1(mk)} kg`);
+    else if(x.t==="w"&&!pMax&&!mk&&Math.max(...d.map(s=>+s.reps))>Math.max(...h.map(y=>y.maxReps)))out.push(`${x.name}: meeste herhalingen ooit, ${Math.max(...d.map(s=>+s.reps))}`);
+    else if(sc>pS&&sc>0)out.push(`${x.name}: ${x.t==="w"?"beste 1RM-schatting, ±"+Math.round(sc)+" kg":x.t==="t"?"langste tijd, "+sc+" sec":"verste afstand, "+nf1(sc)+" km"}`)});
+  return out}
+
+/* ---- Stemming en energie ---- */
+function feel(dd){return avgOf([dd.mood,dd.energy])}
+function insights(){const today=keyOf(new Date()),ks=Array.from({length:60},(_,i)=>addDays(today,-i)).filter(k=>feel(day(k))!=null),gs=goalSleep(),gw=goalWater(),out=[];
+  const F=[[k=>{const h=sleepHours(day(k));return h==null?null:h>=gs-0.5},`Na een nacht van ${fmtH(gs-0.5)} of meer`,"na een kortere nacht","😴"],
+    [k=>sportMin(k)>0||(day(k).steps||0)>=8000,"Op dagen dat je sport of veel loopt","op andere dagen","🏃"],
+    [k=>day(k).water==null?null:(day(k).water||0)>=gw,`Als je ${gw} glazen water drinkt`,"als je minder drinkt","💧"],
+    [k=>state.habits.length?doneCount(k)/state.habits.length>=.75:null,"Op dagen dat je je gewoontes doet","op andere dagen","✅"],
+    [k=>food(k).some(x=>x.kcal)?sumFood(k).p>=goalKcal()*.2/4*.8:null,"Op dagen met genoeg eiwit","op dagen met weinig eiwit","🥚"]];
+  F.forEach(([test,yes,no,em])=>{const a=[],b=[];ks.forEach(k=>{const t=test(k);if(t==null)return;(t?a:b).push(feel(day(k)))});
+    if(a.length<3||b.length<3)return;const ma=avgOf(a),mb=avgOf(b),d=ma-mb;if(Math.abs(d)<.3)return;
+    out.push({em,d,text:`${yes} voel je je gemiddeld ${nf1(ma)} uit 5, ${no} ${nf1(mb)}.`})});
+  return{n:ks.length,list:out.sort((x,y)=>Math.abs(y.d)-Math.abs(x.d))}}
+function renderFeel(){const today=keyOf(new Date()),d14=Array.from({length:14},(_,i)=>addDays(today,i-13));
+  const W=340,H=130,L=24,B=20,T=8,bw=(W-L)/14,y=v=>T+(H-T-B)*(1-(v-1)/4),x=i=>L+i*bw+bw/2;
+  let s="";[1,3,5].forEach(v=>s+=`<line x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-5}" y="${y(v)+3}" text-anchor="end">${v}</text>`);
+  let any=false;
+  [["mood","var(--pink)"],["energy","var(--flame)"]].forEach(([f,c])=>{let seg=[];const flush=()=>{if(seg.length>1)s+=`<polyline points="${seg.join(" ")}" fill="none" stroke="${c}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;seg=[]};
+    d14.forEach((k,i)=>{const v=day(k)[f];if(v){any=true;seg.push(x(i)+","+y(v));s+=`<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="${c}"/>`}else flush()});flush()});
+  d14.forEach((k,i)=>{if(i%2===1)s+=`<text x="${x(i)}" y="${H-5}" text-anchor="middle">${fromKey(k).getDate()}</text>`});
+  if(!any)s+=`<text x="${(W+L)/2}" y="${H/2}" text-anchor="middle">Nog niets ingevuld</text>`;
+  $("feelchart").innerHTML=s;
+  const ins=insights(),box=$("insights");box.innerHTML="";
+  if(!ins.list.length){box.appendChild(el(`<div class="notebox"></div>`)).textContent=ins.n<7?`Vul op Vandaag elke dag je stemming en energie in (nu ${ins.n} ${ins.n===1?"dag":"dagen"}). Na een week of twee zie je hier wat jou helpt: slaap, sport, water, je gewoontes of eten.`:"Nog geen duidelijk verband gevonden. Hoe meer dagen je invult, hoe beter Loopa het ziet.";return}
+  ins.list.slice(0,4).forEach(i=>{const d=el(`<div class="insight"><span>${i.em}</span><span></span></div>`);d.lastChild.textContent=i.text;box.appendChild(d)})}
+
+/* ---- Weekrapport ---- */
+function reportWeek(){const t=keyOf(new Date()),mon=weekKeys(t)[0];return new Date().getDay()===0?mon:addDays(mon,-7)}
+function weekLabel(mon){return `${dShort(mon)} – ${dShort(addDays(mon,6))}`}
+function weekStats(mon){const ks=Array.from({length:7},(_,i)=>addDays(mon,i)),today=keyOf(new Date()),past=ks.filter(k=>k<=today),n=state.habits.length;
+  let tot=0,dn=0;past.forEach(k=>{tot+=n;dn+=doneCount(k)});const fd=past.filter(k=>food(k).some(x=>x.kcal));
+  const bw=bodySorted().filter(x=>x.kg!=null),inW=bw.filter(x=>x.date>=mon&&x.date<=ks[6]),before=bw.filter(x=>x.date<mon).pop(),wLast=inW[inW.length-1],wRef=before||inW[0];
+  const filled=past.filter(k=>{const d=day(k);return doneCount(k)||food(k).length||d.water||d.bed||d.mood||d.energy||(d.sport||[]).length||d.steps}).length;
+  return{ks,past,filled,sleep:avgOf(past.map(k=>sleepHours(day(k)))),habits:tot&&filled?dn/tot:null,kcal:fd.length?avgOf(fd.map(k=>sumFood(k).kcal)):null,
+    sport:past.reduce((a,k)=>a+sportMin(k),0),trainings:past.reduce((a,k)=>a+(day(k).sport||[]).length,0),water:avgOf(past.map(k=>day(k).water)),
+    feel:avgOf(past.map(k=>feel(day(k)))),weight:wLast&&wRef&&wLast!==wRef?wLast.kg-wRef.kg:null,wNow:wLast?wLast.kg:null,
+    best:n?past.filter(k=>doneCount(k)).sort((a,b)=>doneCount(b)-doneCount(a))[0]||null:null}}
+function weekPRs(mon){const end=addDays(mon,6),out=[];Object.entries(exHistory()).forEach(([id,h])=>{let mx=-1;h.forEach((y,i)=>{if(i>0&&y.score>mx&&y.score>0&&y.date>=mon&&y.date<=end)out.push(exById(id).name);mx=Math.max(mx,y.score)})});return[...new Set(out)]}
+function openReport(){const rw=reportWeek();setProfile("lastReport",rw);weekReport(rw);render()}
+function weekReport(mon){const today=keyOf(new Date()),w=weekStats(mon),p=weekStats(addDays(mon,-7)),prs=weekPRs(mon);
+  openSheet(s=>{const nav=el(`<div class="card-head"><button class="round" type="button" aria-label="Vorige week">‹</button><div style="text-align:center;display:flex;flex-direction:column"><h2 style="margin:0">Weekrapport</h2><span class="muted small num"></span></div><button class="round" type="button" aria-label="Volgende week">›</button></div>`);
+    nav.querySelector("span").textContent=weekLabel(mon);const[pv,nx]=nav.querySelectorAll("button");pv.onclick=()=>weekReport(addDays(mon,-7));
+    nx.disabled=addDays(mon,7)>today;nx.style.opacity=nx.disabled?.3:1;nx.onclick=()=>weekReport(addDays(mon,7));s.appendChild(nav);
+    if(!w.filled){s.appendChild(el(`<div class="notebox">In deze week is nog niets ingevuld.</div>`));return}
+    const T=[["Slaap",w.sleep,p.sleep,fmtH,1,v=>fmtH(Math.abs(v))],["Gewoontes",w.habits,p.habits,v=>Math.round(v*100)+"%",1,v=>Math.round(Math.abs(v)*100)+"%"],
+      ["Sport",w.sport,p.filled?p.sport:null,v=>v+" min",1,v=>Math.abs(v)+" min"],["Water",w.water,p.water,v=>nf1(v)+" gl",1,v=>nf1(Math.abs(v))],
+      ["Kcal per dag",w.kcal,p.kcal,v=>Math.round(v),0,v=>Math.round(Math.abs(v))],["Gevoel",w.feel,p.feel,v=>nf1(v)+"/5",1,v=>nf1(Math.abs(v))]];
+    const g=el(`<div class="stats"></div>`);
+    T.forEach(([l,v,pv,f,dir,fd])=>{const t=el(`<div class="stat rstat"><span class="label">${l}</span><span class="v num"></span><span class="d num"></span></div>`);
+      t.querySelector(".v").textContent=v==null?"–":f(v);const dd=t.querySelector(".d");
+      const dtx=v!=null&&pv!=null?fd(v-pv):"";if(dtx&&/[1-9]/.test(dtx)){const up=v>pv;dd.textContent=(up?"▲ ":"▼ ")+dtx;if(dir)dd.style.color=up?"var(--good)":"var(--pink)"}else dd.textContent=pv==null?" ":"gelijk";
+      g.appendChild(t)});s.appendChild(g);
+    s.appendChild(el(`<span class="muted small">Pijltjes vergelijken met de week ervoor.</span>`));
+    const hl=[];
+    if(w.trainings)hl.push(["🏋️",`${w.trainings} ${w.trainings===1?"training":"trainingen"} gedaan${prs.length?", met een nieuw record bij "+prs.slice(0,3).join(", "):""}.`]);
+    if(w.weight!=null)hl.push(["⚖️",`Gewicht ${w.weight>0?"+":w.weight<0?"−":"±"}${nf1(Math.abs(w.weight))} kg, je weegt nu ${nf1(w.wNow)} kg.`]);
+    if(w.best)hl.push(["⭐",`Beste dag: ${fromKey(w.best).toLocaleDateString("nl-NL",{weekday:"long"})}, met ${doneCount(w.best)} van de ${state.habits.length} gewoontes.`]);
+    const good=[],tips=[],gs=goalSleep(),gw=goalWater(),gk=goalKcal(),gsp=goalSport();
+    if(w.sleep!=null){if(w.sleep>=gs-0.25)good.push(["😴",`Je sliep gemiddeld ${fmtH(w.sleep)}, dat is je doel.`]);
+      else{const wk=avgWake(w.past);tips.push(["😴",`Je sliep gemiddeld ${fmtH(w.sleep)} en je doel is ${gs} uur.${wk!=null?` Sta je rond ${hm(wk)} op, ga dan om ${hm(wk-gs*60-15)} naar bed. Zet de bedtijd-herinnering aan om dat vol te houden.`:" Probeer elke avond op dezelfde tijd naar bed te gaan."}`])}}
+    if(w.habits!=null){if(w.habits>=.8)good.push(["✅",`Je deed ${Math.round(w.habits*100)}% van je gewoontes. Sterk volgehouden.`]);
+      else if(w.habits<.5)tips.push(["✅",`Je deed ${Math.round(w.habits*100)}% van je gewoontes. Kies er volgende week één of twee om echt op te focussen. Dat werkt beter dan alles tegelijk.`])}
+    if(w.water!=null){if(w.water>=gw)good.push(["💧",`Je dronk gemiddeld genoeg water.`]);else if(w.water<gw*.75)tips.push(["💧",`Je dronk gemiddeld ${nf1(w.water)} glazen water, je doel is ${gw}. Zet een fles water op je bureau of zet de water-herinnering aan.`])}
+    if(w.sport>=gsp)good.push(["🏃",`Je sportte ${w.sport} minuten, je weekdoel is gehaald.`]);
+    else if(w.past.length===7){const blocks=Math.ceil((gsp-w.sport)/30);tips.push(["🏃",w.sport?`Je sportte ${w.sport} van de ${gsp} minuten. Plan volgende week ${blocks} extra ${blocks===1?"blok":"blokken"} van 30 minuten in je agenda.`:`Je hebt deze week niet gesport. Begin klein: een stevige wandeling van 20 minuten telt ook.`])}
+    if(w.kcal!=null){if(w.kcal>gk*1.1)tips.push(["🍽️",`Je at gemiddeld ${Math.round(w.kcal)} kcal per dag, ${Math.round(w.kcal-gk)} boven je doel. Bewaar je gezonde favorieten als vaste maaltijd, dan kies je sneller iets lichts.`]);
+      else if(w.kcal<gk*.75)tips.push(["🍽️",`Je at gemiddeld ${Math.round(w.kcal)} kcal, flink onder je doel van ${gk}. Misschien vul je niet alles in, of eet je te weinig.`]);
+      else good.push(["🍽️",`Je at mooi rond je caloriedoel.`])}
+    const ins=insights().list[0];if(ins)tips.push(["💡","Wat jou helpt: "+ins.text]);
+    const list=(title,arr)=>{if(!arr.length)return;s.appendChild(el(`<span class="label"></span>`)).textContent=title;
+      arr.forEach(([em,t])=>{const d=el(`<div class="insight"><span>${em}</span><span></span></div>`);d.lastChild.textContent=t;s.appendChild(d)})};
+    list("Deze week",hl);list("Wat goed ging",good);list("Tips voor volgende week",tips.slice(0,4));
+    if(!good.length&&!tips.length)s.appendChild(el(`<div class="notebox">Vul meer in, zoals je slaap en je water, dan krijg je hier tips.</div>`));
+    const c=el(`<button class="btn sec" type="button">Sluiten</button>`);c.onclick=closeSheet;s.appendChild(c)})}
+$("openrap").onclick=openReport;
+
+/* ---- Herinneringen ---- */
+function suggestBed(){const wk=avgWake(Array.from({length:14},(_,i)=>addDays(keyOf(new Date()),-i)));const m=(wk??420)-goalSleep()*60-15;return hm(Math.round(m/15)*15)}
+function rem(){const r=(state.profile&&state.profile.rem)||{};return{water:!!r.water,habits:!!r.habits,habitsAt:r.habitsAt||"20:30",bed:!!r.bed,bedAt:r.bedAt||suggestBed()}}
+function setRem(k,v){const r=rem();r[k]=v;setProfile("rem",r);renderRemUI();startRem()}
+const inArtifact=()=>!!(window.claude&&claude.use);
+const canNotify=()=>"Notification" in window&&!inArtifact();
+function renderRemUI(){const r=rem();$("rem-water").checked=r.water;$("rem-habits").checked=r.habits;$("rem-bed").checked=r.bed;
+  if(document.activeElement!==$("rem-habits-at"))$("rem-habits-at").value=r.habitsAt;if(document.activeElement!==$("rem-bed-at"))$("rem-bed-at").value=r.bedAt;
+  const perm=canNotify()?Notification.permission:"none";$("rem-notif").hidden=!canNotify()||perm!=="default";$("rem-ics").hidden=inArtifact();$("rembtns").hidden=$("rem-notif").hidden&&$("rem-ics").hidden;
+  $("remnote").textContent=!canNotify()?(inArtifact()?"Als het tijd is, zie je de herinnering bovenaan Vandaag.":"Als het tijd is, zie je de herinnering bovenaan Vandaag. Wil je ook een seintje als Loopa dicht is, zet ze dan in je agenda.")
+    :perm==="granted"?"Je krijgt een melding als Loopa open staat en je ziet ze bovenaan Vandaag. Wil je ook een seintje als de app dicht is, zet ze dan in je agenda."
+    :perm==="denied"?"Meldingen staan uit in de instellingen van je telefoon. Je ziet de herinneringen wel bovenaan Vandaag, en je kunt ze in je agenda zetten."
+    :"Zet meldingen aan voor een seintje terwijl Loopa open staat. Wil je ook een seintje als de app dicht is, zet ze dan in je agenda."}
+["water","habits","bed"].forEach(k=>$("rem-"+k).onchange=e=>{setRem(k,e.target.checked);if(e.target.checked&&canNotify()&&Notification.permission==="default")Notification.requestPermission().then(renderRemUI).catch(()=>{})});
+$("rem-habits-at").onchange=e=>setRem("habitsAt",e.target.value||"20:30");
+$("rem-bed-at").onchange=e=>setRem("bedAt",e.target.value||"22:30");
+$("rem-notif").onclick=()=>Notification.requestPermission().then(renderRemUI).catch(()=>{});
+$("rem-ics").onclick=downloadIcs;
+function dueReminders(){const r=rem(),now=new Date(),m=now.getHours()*60+now.getMinutes(),t=keyOf(now),dd=day(t),out=[];
+  if(r.water&&m>=600&&m<=1290){const gw=goalWater(),want=Math.floor(gw*Math.min(1,(m-480)/780)),have=dd.water||0;
+    if(have<want-1)out.push({id:"w"+Math.floor(m/120),em:"💧",title:"Tijd voor water",text:`Je zit op ${have} van ${gw} glazen. Rond deze tijd zou je op ${want} zitten.`,go:"eten"})}
+  if(r.habits&&m>=toMin(r.habitsAt)&&state.habits.length){const left=state.habits.length-doneCount(t);if(left>0)out.push({id:"h",em:"✅",title:"Gewoontes afvinken",text:`Nog ${left} ${left===1?"gewoonte":"gewoontes"} te gaan vandaag.`,go:"dag"})}
+  if(r.bed){const diff=(m-toMin(r.bedAt)+1440)%1440;if(diff<=90||diff>=1420)out.push({id:"b",em:"🌙",title:diff>=1420?"Bijna bedtijd":"Bedtijd",text:`Je bedtijd is ${r.bedAt}. Leg je telefoon weg, dan haal je je ${goalSleep()} uur slaap.`,go:"slaap"})}
+  return out}
+const dismissed={};
+function renderBanners(){const box=$("banners");box.innerHTML="";if(cur!==keyOf(new Date())){box.hidden=true;return}
+  const items=dueReminders().filter(x=>!dismissed[x.id]),rw=reportWeek(),dw=new Date().getDay();
+  if((dw===0||dw===1)&&(!state.profile||state.profile.lastReport!==rw)&&weekStats(rw).filled)items.unshift({id:"rep",em:"📊",title:"Je weekrapport staat klaar",text:"Kijk hoe je week ging en krijg tips voor volgende week.",fn:openReport});
+  box.hidden=!items.length;
+  items.forEach(x=>{const b=el(`<div class="banner"><span class="em" aria-hidden="true">${x.em}</span><button class="it" type="button"><b></b><small></small></button><button class="x" type="button" aria-label="Wegklikken">×</button></div>`);
+    b.querySelector("b").textContent=x.title;b.querySelector("small").textContent=x.text;
+    b.querySelector(".it").onclick=x.fn||(()=>{if(x.go!=="dag")show(x.go)});
+    b.querySelector(".x").onclick=()=>{if(x.id==="rep")setProfile("lastReport",rw);else dismissed[x.id]=1;renderBanners()};box.appendChild(b)})}
+const LSR="loopa-rem-fired";let remT=null;
+function notify(title,body){const o={body,icon:"icons/icon-192.png",badge:"icons/icon-192.png",tag:"loopa-"+title};
+  const plain=()=>{try{new Notification(title,o)}catch(e){}};
+  if(navigator.serviceWorker&&navigator.serviceWorker.controller)navigator.serviceWorker.ready.then(r=>r.showNotification(title,o)).catch(plain);else plain()}
+function checkRem(){if(view==="dag"&&!document.hidden)renderBanners();if(!canNotify()||Notification.permission!=="granted")return;
+  let f={};try{f=JSON.parse(localStorage.getItem(LSR)||"{}")}catch(e){}const t=keyOf(new Date());if(f.d!==t)f={d:t,ids:[]};
+  dueReminders().forEach(x=>{if(f.ids.includes(x.id))return;f.ids.push(x.id);notify(x.title,x.text)});try{localStorage.setItem(LSR,JSON.stringify(f))}catch(e){}}
+function startRem(){clearInterval(remT);remT=setInterval(checkRem,60000);checkRem()}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkRem()});
+function downloadIcs(){const r=rem(),now=new Date(),st=keyOf(now).replace(/-/g,""),ev=[],stamp=now.toISOString().replace(/[-:]/g,"").slice(0,15)+"Z";
+  const add=(id,time,title,desc)=>{const[h,m]=time.split(":");ev.push(["BEGIN:VEVENT",`UID:loopa-${id}@loopa`,`DTSTAMP:${stamp}`,`DTSTART:${st}T${h}${m}00`,"DURATION:PT5M","RRULE:FREQ=DAILY",`SUMMARY:${title}`,`DESCRIPTION:${desc}`,"TRANSP:TRANSPARENT","BEGIN:VALARM","ACTION:DISPLAY",`DESCRIPTION:${title}`,"TRIGGER:PT0M","END:VALARM","END:VEVENT"].join("\r\n"))};
+  if(r.water)["10:00","13:00","16:00","19:00"].forEach((t,i)=>add("water"+i,t,"💧 Drink een glas water","Houd je glazen bij in Loopa."));
+  if(r.habits)add("habits",r.habitsAt,"✅ Gewoontes afvinken in Loopa","Kijk welke gewoontes je vandaag nog kunt doen.");
+  if(r.bed)add("bed",r.bedAt,"🌙 Bedtijd","Leg je telefoon weg. Je slaapdoel is "+goalSleep()+" uur.");
+  if(!ev.length){msgSheet("Nog niets aangezet","Zet eerst minstens één herinnering aan, dan kun je ze in je agenda zetten.");return}
+  const txt=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Loopa//NL","CALSCALE:GREGORIAN","X-WR-CALNAME:Loopa"].concat(ev,["END:VCALENDAR"]).join("\r\n")+"\r\n";
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:"text/calendar"}));a.download="loopa-herinneringen.ics";document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
+  msgSheet("Agendabestand gemaakt","Open het bestand en kies Alles toevoegen. Je agenda geeft je dan elke dag een seintje, ook als Loopa dicht is. Pas je later de tijden aan, verwijder dan de oude afspraken en zet ze opnieuw in je agenda.")}
+
+/* tabs */
+const VIEWS=["dag","eten","sport","slaap","overzicht","instellingen"],DAYVIEWS=["dag","eten","sport","slaap"];
+document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>show(b.dataset.view));
+$("gear").onclick=()=>show("instellingen");
+function show(v){view=v;document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.view===v));
+  VIEWS.forEach(n=>$("view-"+n).hidden=n!==v);render();window.scrollTo(0,0)}
+
+/* doelen uit de vragenlijst */
+function goalSleep(){return (state.profile&&state.profile.sleepGoal)||8}
+function goalWater(){return (state.profile&&state.profile.water)||8}
+
+/* vragenlijst */
+const GOALS=[["slaap","Beter slapen","😴"],["eten","Gezonder eten","🥗"],["bewegen","Meer bewegen","🏃"],["energie","Meer energie","⚡"],
+  ["scherm","Minder schermtijd","📵"],["rust","Meer rust in mijn hoofd","🧘"],["focus","Meer gedaan krijgen","🎯"]];
+const CATALOG={
+  slaap:[["Naar bed voor 23:00","avond"],["Geen scherm na 22:30","avond"],["Geen koffie na 15:00","middag"]],
+  eten:[["Groente bij elke maaltijd","dag"],["Rustig ontbijten","ochtend"],["Geen frisdrank","dag"]],
+  bewegen:[["30 min bewegen","middag"],["8.000 stappen","dag"],["5 min rekken","ochtend"]],
+  energie:[["Glas water na het opstaan","ochtend"],["10 min naar buiten","middag"]],
+  scherm:[["Telefoon weg tijdens het eten","dag"],["Eerste uur geen telefoon","ochtend"]],
+  rust:[["5 min ademhalen","ochtend"],["3 dingen opschrijven waar je blij mee bent","avond"]],
+  focus:[["Dagplanning maken","ochtend"],["15 min lezen","avond"]]};
+const onb={step:0,a:{name:"",goals:[],block:null,sleepNow:null,sleepGoal:8,water:8,energy:null,picked:null},timer:null};
+function suggestions(){const out=[],seen=new Set(),gs=onb.a.goals.length?onb.a.goals:["energie","slaap","bewegen"];
+  gs.forEach(g=>(CATALOG[g]||[]).forEach(([n,p],i)=>{if(!seen.has(n)){seen.add(n);out.push({name:n,part:(g==="bewegen"&&i===0&&onb.a.energy)?onb.a.energy:p,goal:g})}}));return out}
+function defaultPicks(){const per=onb.a.block==="start"?1:2,picks=[],cnt={};
+  suggestions().forEach(s=>{cnt[s.goal]=(cnt[s.goal]||0);if(cnt[s.goal]<per&&picks.length<5){cnt[s.goal]++;picks.push(s.name)}});return picks}
+const STEPS=[
+  {id:"welcome"},
+  {id:"name",title:"Hoe mogen we je noemen?",lead:"Dan begroeten we je elke dag persoonlijk.",skip:true},
+  {id:"goals",title:"Waar wil je aan werken?",lead:"Kies alles wat bij je past.",multi:"goals",opts:GOALS.map(g=>[g[0],g[1],g[2]])},
+  {id:"block",title:"Wat maakt het nu lastig?",lead:"Zo stemmen we je plan op je af.",single:"block",opts:[
+    ["vergeten","Ik vergeet het gewoon","🤷","Een vaste plek op je dag helpt"],["tijd","Ik heb er geen tijd voor","⏱️","We houden het klein en kort"],
+    ["motivatie","Na een paar dagen zakt mijn motivatie in","📉","Reeksen en punten houden je scherp"],["start","Ik weet niet waar ik moet beginnen","🧭","We starten met een paar makkelijke"]]},
+  {id:"sleepNow",title:"Hoeveel slaap je meestal?",lead:"Een gewone doordeweekse nacht.",single:"sleepNow",opts:[
+    ["<6","Minder dan 6 uur","🥱"],["6-7","6 tot 7 uur","😐"],["7-8","7 tot 8 uur","🙂"],[">8","Meer dan 8 uur","😌"]]},
+  {id:"sleepGoal",title:"Wat is je slaapdoel?",lead:"Volwassenen hebben meestal 7 tot 9 uur nodig.",stepper:"sleepGoal",min:5,max:11,unit:"uur per nacht"},
+  {id:"water",title:"Hoeveel glazen water wil je per dag drinken?",lead:"Een glas is ongeveer 250 ml.",stepper:"water",min:2,max:16,unit:"glazen per dag"},
+  {id:"energy",title:"Wanneer heb je de meeste energie?",lead:"Dan zetten we de lastigste gewoontes op dat moment.",single:"energy",opts:[
+    ["ochtend","In de ochtend","🌅"],["middag","In de middag","☀️"],["avond","In de avond","🌙"]]},
+  {id:"habits",title:"Je eerste gewoontes",lead:"We hebben er een paar voor je gekozen. Pas aan wat je wilt."},
+  {id:"analyse"},
+  {id:"plan"}];
+function openOnb(){onb.step=0;onbDir=1;prevFrac=0;onbBusy=false;$("onb").hidden=false;$("onbfoot").hidden=false;document.body.style.overflow="hidden";
+  if(state.profile)Object.assign(onb.a,{name:state.profile.name||"",goals:(state.profile.goals||[]).slice(),sleepGoal:goalSleep(),water:goalWater()});
+  renderOnb()}
+function closeOnb(){$("onb").hidden=true;$("onbfoot").hidden=true;document.body.style.overflow="";clearTimeout(onb.timer)}
+function optBtn(val,label,em,sub,on,single){const b=document.createElement("button");b.type="button";b.className="opt"+(single?" single":"");
+  b.setAttribute("aria-pressed",on);b.innerHTML=`<span class="em">${em||""}</span><span class="t"><span></span>${sub?"<small></small>":""}</span><span class="tick">${icon("i-check")}</span>`;
+  b.querySelector(".t span").textContent=label;if(sub)b.querySelector("small").textContent=sub;return b}
+let onbDir=1,onbBusy=false,prevFrac=0;
+function renderOnb(){renderOnbInner();const box=$("onbin"),bar=box.querySelector(".onb-bar i"),f=onb.step/(STEPS.length-1);
+  box.classList.remove("out-f","out-b");box.classList.add(onbDir>0?"in-f":"in-b");
+  if(bar){bar.style.width=prevFrac*100+"%";requestAnimationFrame(()=>requestAnimationFrame(()=>{bar.style.width=f*100+"%"}))}prevFrac=f}
+function transition(fn,dir){if(onbBusy)return;onbBusy=true;const box=$("onbin");box.classList.remove("in-f","in-b");box.classList.add(dir>0?"out-f":"out-b");
+  setTimeout(()=>{onbDir=dir;fn();onbBusy=false},matchMedia("(prefers-reduced-motion: reduce)").matches?0:170)}
+function renderOnbInner(){
+  const st=STEPS[onb.step],box=$("onbin"),next=$("onbnext"),a=onb.a;box.innerHTML="";clearTimeout(onb.timer);
+  $("onb").scrollTop=0;$("onbfoot").hidden=false;next.disabled=false;
+  if(st.id!=="welcome"&&st.id!=="analyse"){
+    const top=document.createElement("div");top.className="onb-top";
+    top.innerHTML=`<button class="round" type="button" aria-label="Terug">‹</button><div class="onb-bar"><i style="width:${onb.step/(STEPS.length-1)*100}%"></i></div>`+(st.skip?'<button class="skip" type="button">Overslaan</button>':"");
+    top.querySelector("button").onclick=()=>transition(()=>{onb.step=Math.max(0,onb.step-1);renderOnb()},-1);
+    if(st.skip)top.querySelector(".skip").onclick=()=>{a.name="";go()};
+    box.appendChild(top)}
+  if(st.title){const h=document.createElement("h1");h.textContent=st.title;box.appendChild(h);
+    if(st.lead){const p=document.createElement("p");p.className="lead";p.textContent=st.lead;box.appendChild(p)}}
+  next.textContent="Verder";
+  if(st.id==="welcome"){box.className="onb-in welcome";
+    box.innerHTML=`<svg class="logo-big" role="img" aria-label="Loopa logo"><use href="#logo"/></svg><h1>Loopa</h1><p class="lead" style="margin:0;max-width:30ch">Bouw gewoontes die blijven hangen. Beter slapen, gezonder eten en elke dag een beetje sterker.</p><p class="muted small">Een paar vragen, minder dan een minuut.</p>`;
+    next.textContent="Beginnen";return}
+  box.className="onb-in";
+  if(st.id==="name"){const i=document.createElement("input");i.type="text";i.id="onbname";i.maxLength=30;i.placeholder="Je voornaam";i.value=a.name;i.autocomplete="given-name";
+    i.style.fontSize="1.2rem";i.style.padding="16px";i.oninput=()=>{a.name=i.value.trim()};i.onkeydown=e=>{if(e.key==="Enter")go()};box.appendChild(i);setTimeout(()=>i.focus(),50)}
+  if(st.multi){const o=document.createElement("div");o.className="opts";
+    st.opts.forEach(([v,l,em])=>{const b=optBtn(v,l,em,null,a.goals.includes(v));
+      b.onclick=()=>{const i=a.goals.indexOf(v);if(i>=0)a.goals.splice(i,1);else a.goals.push(v);a.picked=null;b.setAttribute("aria-pressed",i<0);next.disabled=!a.goals.length};o.appendChild(b)});
+    box.appendChild(o);next.disabled=!a.goals.length}
+  if(st.single){const o=document.createElement("div");o.className="opts";
+    st.opts.forEach(([v,l,em,sub])=>{const b=optBtn(v,l,em,sub,a[st.single]===v,true);
+      b.onclick=()=>{a[st.single]=v;if(st.single==="block")a.picked=null;o.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed",x===b));next.disabled=false;setTimeout(go,280)};o.appendChild(b)});
+    box.appendChild(o);next.disabled=a[st.single]==null;$("onbfoot").hidden=a[st.single]==null}
+  if(st.stepper){const k=st.stepper,w=document.createElement("div");w.className="stepper";
+    w.innerHTML=`<button class="round" type="button" aria-label="Minder">−</button><div class="val num"><span></span><span class="unit"></span></div><button class="round" type="button" aria-label="Meer">+</button>`;
+    const show=()=>{w.querySelector(".val span").textContent=a[k]};w.querySelector(".unit").textContent=st.unit;show();
+    const[mi,pl]=w.querySelectorAll("button");mi.onclick=()=>{a[k]=Math.max(st.min,a[k]-1);show()};pl.onclick=()=>{a[k]=Math.min(st.max,a[k]+1);show()};box.appendChild(w)}
+  if(st.id==="habits"){if(!a.picked)a.picked=defaultPicks();const o=document.createElement("div");o.className="opts";
+    suggestions().forEach(s=>{const pl=PARTS.find(p=>p[0]===s.part)[1],b=optBtn(s.name,s.name,"",pl,a.picked.includes(s.name));
+      b.querySelector(".em").innerHTML=icon(PARTS.find(p=>p[0]===s.part)[2],"width:20px;height:20px;color:var(--muted)");
+      b.onclick=()=>{const i=a.picked.indexOf(s.name);if(i>=0)a.picked.splice(i,1);else a.picked.push(s.name);b.setAttribute("aria-pressed",i<0);upd()};o.appendChild(b)});
+    const upd=()=>{next.disabled=!a.picked.length;next.textContent=a.picked.length?`Verder met ${a.picked.length} gewoonte${a.picked.length>1?"s":""}`:"Kies minstens één"};
+    box.appendChild(o);upd()}
+  if(st.id==="analyse"){box.className="onb-in analyse";$("onbfoot").hidden=true;
+    box.innerHTML=`<div class="bigring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface-2)" stroke-width="9"/><circle id="anarc" cx="50" cy="50" r="42" fill="none" stroke="var(--pink)" stroke-width="9" stroke-linecap="round" stroke-dasharray="0 264"/></svg><div class="pct num" id="anpct">0%</div></div>
+      <h1>Je plan wordt gemaakt</h1><div class="checks">${["Je doelen bekijken","Je slaapdoel instellen","Gewoontes over je dag verdelen","Je eerste dag klaarzetten"].map(t=>`<div>${icon("i-today")}<span>${t}</span></div>`).join("")}</div>`;
+    const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches,dur=reduce?600:2600,t0=performance.now(),rows=box.querySelectorAll(".checks div");
+    const tick=()=>{const f=Math.min(1,(performance.now()-t0)/dur);$("anarc").setAttribute("stroke-dasharray",(264*f)+" 264");$("anpct").textContent=Math.round(f*100)+"%";
+      rows.forEach((r,i)=>r.classList.toggle("on",f>=(i+1)/rows.length-0.01));
+      if(f<1)requestAnimationFrame(tick);else onb.timer=setTimeout(go,450)};requestAnimationFrame(tick);return}
+  if(st.id==="plan"){const n=a.picked.length;
+    box.querySelector("h1")||box.insertAdjacentHTML("beforeend",`<h1>Je plan staat klaar${a.name?", ":""}<span id="pn"></span></h1><p class="lead">Je kunt alles later aanpassen onder Gewoontes.</p>`);
+    if(a.name)$("pn").textContent=a.name;
+    box.insertAdjacentHTML("beforeend",`<div class="plan"><div class="stat"><span class="label">Slaapdoel</span><span class="v num">${a.sleepGoal} uur</span></div><div class="stat"><span class="label">Water</span><span class="v num">${a.water} glazen</span></div></div><div class="planlist"></div>`);
+    const pl=box.querySelector(".planlist");suggestions().filter(s=>a.picked.includes(s.name)).forEach(s=>{const d=document.createElement("div");
+      d.innerHTML=`${icon("i-check","width:18px;height:18px;color:var(--good)")}<b style="font-weight:600"></b><span></span>`;d.querySelector("b").textContent=s.name;d.querySelector("span").textContent=PARTS.find(p=>p[0]===s.part)[1];pl.appendChild(d)});
+    next.textContent="Start mijn eerste dag"}
+}
+function go(){const st=STEPS[onb.step];if(st.id==="plan"){finishOnb();return}transition(()=>{onb.step++;renderOnb()},1)}
+$("onbnext").onclick=go;
+function finishOnb(){const a=onb.a,sug=suggestions().filter(s=>a.picked.includes(s.name));
+  // bestaande gewoontes met dezelfde naam houden hun vinkjes
+  const keep=new Map(state.habits.map(h=>[h.name,h]));
+  const order={ochtend:0,middag:1,avond:2,dag:3};
+  state.habits=sug.map((s,i)=>{const old=keep.get(s.name);return{id:old?old.id:"h"+Date.now().toString(36)+i,name:s.name,part:s.part}}).sort((x,y)=>order[x.part]-order[y.part]);
+  state.profile={name:a.name,goals:a.goals.slice(),block:a.block,sleepNow:a.sleepNow,sleepGoal:a.sleepGoal,water:a.water,energy:a.energy,done:keyOf(new Date())};
+  saveHabits();closeOnb();show("dag")}
+$("redo").onclick=()=>openOnb();
+
+loadLocal();render();setSync("Opgeslagen op dit apparaat.");startRem();
+if(!state.profile)openOnb();
+
+/* account-opslag */
+(async()=>{
+  if(!window.claude||!claude.use)return;
+  try{
+    const [d,u]=await Promise.all([claude.use("db"),claude.use("user")]);
+    if(!d||!u)return;
+    const id=await u.id();if(!id)return;
+    col=d.collection("data/users/"+id);
+    const snap=await Promise.race([col.get(),new Promise((_,r)=>setTimeout(()=>r(new Error("timeout")),10000))]);
+    if(snap.empty){
+      await col.doc("config").set({habits:state.habits,profile:state.profile||null});
+      for(const k of Object.keys(state.days))await col.doc("d-"+k).set({date:k,...state.days[k]});
+      if(Object.keys(state.products||{}).length)saveProducts();if((state.routines||[]).length||(state.customEx||[]).length)saveGym();if(state.active)saveActive();
+      if(state.body.length)saveBody();if(state.meals.length)saveMeals();state.photos.forEach(savePhoto);
+    }else{
+      const days={};let habits=null,profile=null,products=null,gym=null,active,body=null,meals=null;const photos=[];
+      snap.docs.forEach(s=>{const v=s.data()||{};if(s.id==="config"){habits=v.habits;profile=v.profile||null}else if(s.id==="products"){products=v.items||{}}else if(s.id==="gym"){gym=v}else if(s.id==="active"){active=v.w||null}else if(s.id==="body"){body=v.items||[]}else if(s.id==="meals"){meals=v.items||[]}else if(s.id.startsWith("p-")&&v.photo){photos.push(v.photo)}else if(v.date){const{date,...rest}=v;days[date]=rest}});
+      const localProf=state.profile;state={habits:habits||state.habits,days,profile:profile||localProf,products:products||state.products||{},routines:gym?gym.routines||[]:state.routines||[],customEx:gym?gym.customEx||[]:state.customEx||[],active:active!==undefined?active:state.active||null,body:body||state.body||[],meals:meals||state.meals||[],photos:photos.length?photos:(state.photos||[])};migrate();saveLocal();if(!profile&&localProf)saveHabits();
+    }
+    setSync("Alles is opgeslagen in je account.");
+    render();
+    if(state.profile&&!$("onb").hidden&&onb.step===0)closeOnb();
+  }catch(e){col=null;setSync("Opgeslagen op dit apparaat.")}
+})();
+})();
+</script>
+
+</body>
+</html>
