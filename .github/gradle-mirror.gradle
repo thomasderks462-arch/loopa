@@ -1,0 +1,10 @@
+// Maven Central geeft GitHub-runners soms 429 (te veel verzoeken). Gebruik dan Google's spiegel.
+def mirror = 'https://maven-central.storage-download.googleapis.com/maven2/'
+def swap = { RepositoryHandler repos ->
+  repos.configureEach { r ->
+    if (r instanceof MavenArtifactRepository && r.url.toString().startsWith('https://repo.maven.apache.org')) r.url = mirror
+  }
+}
+beforeSettings { s -> swap(s.pluginManagement.repositories); swap(s.buildscript.repositories) }
+settingsEvaluated { s -> swap(s.pluginManagement.repositories); swap(s.dependencyResolutionManagement.repositories) }
+allprojects { swap(buildscript.repositories); swap(repositories) }
