@@ -285,7 +285,7 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 .wk{position:fixed;inset:0;z-index:25;background:var(--bg);overflow-y:auto;
   padding:env(safe-area-inset-top,0px) max(16px,env(safe-area-inset-right,0px)) calc(120px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 .wk-top{position:sticky;top:0;z-index:2;background:var(--bg);display:flex;align-items:center;gap:10px;padding:10px 0;max-width:520px;margin:0 auto}
-.wk-timer{flex:1;text-align:center;font-weight:800;font-size:1.15rem}
+.wk-timer{flex:1;text-align:center;font-weight:800;font-size:1.7rem;letter-spacing:-.5px}
 .btn.wkdone{width:auto;padding:10px 20px;background:var(--good);color:#04130a}
 .wk-in{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 .wk .wk-name{font-family:var(--display);font-size:1.6rem;font-weight:800;background:transparent;border:0;padding:0;color:var(--ink);width:100%}
@@ -349,6 +349,32 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 .setline{display:flex;gap:12px;font-size:.88rem;padding:3px 2px}
 .setline span:first-child{color:var(--muted);width:18px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}.spin{animation-duration:3s}.resume .dot{animation:none}}
+/* v21 */
+.lock.biomode .dots,.lock.biomode .pad,.lock.biomode>p{display:none}
+.lock:not(.biomode) .biobig{display:none}.lock:not(.biomode) .pinlink{display:none}
+.biobig{border:0;background:none;color:var(--ink);font:inherit;display:flex;flex-direction:column;align-items:center;gap:14px;cursor:pointer;padding:20px 30px}
+.biobig .bioic{width:96px;height:96px;border-radius:28px;display:grid;place-items:center;color:#ff6a1f;background:var(--surface);box-shadow:0 6px 24px rgba(255,106,31,.18);font-size:2.6rem}
+.biobig .bioic svg{width:58px;height:58px}
+.biobig.scan .bioic{animation:bioscan 1s ease-in-out infinite}
+@keyframes bioscan{50%{transform:scale(.93);box-shadow:0 2px 10px rgba(255,106,31,.35)}}
+.lock.biomode{cursor:pointer}
+.setrow.pr .sn{color:#fff;background:linear-gradient(135deg,#ffb31a,#ff6a1f);border-radius:8px}
+.setrow.pr .sn{position:relative}.setrow.pr .sn::after{content:"🏆";position:absolute;top:-9px;right:-9px;font-size:.7rem}
+.rwrow{display:flex;align-items:center;gap:14px;background:var(--surface-2);border-radius:16px;padding:12px 14px;animation:aiin .35s ease both}
+.rwrow .rwem{font-size:2rem;width:44px;text-align:center}.rwrow .it{display:flex;flex-direction:column}
+.medals{display:flex;flex-direction:column;gap:8px}
+.medgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.med{background:var(--surface-2);border-radius:16px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.med span{font-size:1.7rem;filter:grayscale(1);opacity:.35}.med.got span{filter:none;opacity:1}
+.med b{font-size:.78rem;line-height:1.2}.med small{font-size:.68rem;color:var(--muted)}
+.med.got{background:linear-gradient(160deg,#fff3e6,#ffe2c9)}
+.med .bar{width:80%;height:4px;margin-top:4px}.med .bar i{background:linear-gradient(90deg,#ff5a1f,#ffa21a)}
+.wkpill{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 8px);z-index:25;display:flex;align-items:center;gap:8px;border:0;font:inherit;color:#fff;background:#1b1714;border-radius:999px;padding:9px 16px;box-shadow:0 6px 20px rgba(0,0,0,.25);cursor:pointer;max-width:calc(100% - 32px);animation:pillin .3s ease both}
+@keyframes pillin{from{opacity:0;transform:translate(-50%,-10px)}to{opacity:1;transform:translate(-50%,0)}}
+.wkpill small{white-space:nowrap}
+.wkpill .dot{width:9px;height:9px;border-radius:50%;background:#2bd46f;animation:pulse 1.4s infinite;flex:none}
+.wkpill b{font-size:1.05rem}.wkpill span:not(.dot){opacity:.8;font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.wkpill small{color:#ffb27a;font-weight:700}
 /* v20 faceid */
 .biorow{display:flex;align-items:center;gap:12px;background:var(--surface-2);border-radius:16px;padding:12px 14px;cursor:pointer}
 .biorow .it{flex:1;display:flex;flex-direction:column;gap:2px}
@@ -971,6 +997,7 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
 </div>
 <div class="onb-foot" id="onbfoot" hidden><button class="btn" id="onbnext">Verder</button></div>
 
+<button class="wkpill" id="wkpill" type="button" hidden aria-label="Terug naar je workout"><span class="dot"></span><b id="wkpill-t" class="num">0:00</b><span id="wkpill-n"></span><small id="wkpill-r" class="num"></small></button>
 <div class="wk" id="wk" hidden role="dialog" aria-modal="true" aria-label="Workout">
   <div class="wk-top">
     <button class="round" id="wk-min" type="button" aria-label="Workout verkleinen">⌄</button>
@@ -1454,14 +1481,14 @@ function drawWorkout(){const a=state.active;if(!a)return;
       <div class="setgrid sethdr"><span>Set</span><span>Vorige</span><span>${cols[0]}</span><span>${cols[1]}</span><span>✓</span></div></section>`);
     card.querySelector("b").textContent=x.name;card.querySelector("small").textContent=mLabel(x.m)+" · "+EQUIP[x.e];fixImgs(card);card.querySelector(".exthbtn").onclick=()=>exInfo(e.ex);
     const rm=card.querySelector(".mini");rm.onclick=()=>{if(!rm.dataset.c){rm.dataset.c=1;rm.textContent="?";rm.style.color="var(--pink)";setTimeout(()=>{rm.textContent="×";delete rm.dataset.c;rm.style.color=""},2500);return}a.ex.splice(ei,1);saveActive();drawWorkout()};
-    e.sets.forEach((s,si)=>{const pv=prev&&prev[si],row=el(`<div class="setgrid setrow${s.done?" done":""}"><span class="sn num">${si+1}</span><span class="pv num"></span>
+    e.sets.forEach((s,si)=>{const pv=prev&&prev[si],row=el(`<div class="setgrid setrow${s.done?" done":""}${s.pr?" pr":""}"><span class="sn num">${si+1}</span><span class="pv num"></span>
       <input type="number" inputmode="decimal" min="0" step="0.5" aria-label="${cols[0]} set ${si+1}"><input type="number" inputmode="numeric" min="0" aria-label="${cols[1]} set ${si+1}"><button class="tick" type="button" aria-label="Set ${si+1} klaar">${icon("i-check")}</button></div>`);
       row.querySelector(".pv").textContent=pv?`${pv.kg||0}${cols[0]==="kg"?"":" "+cols[0]} × ${pv.reps||0}`:"–";
       const[i1,i2]=row.querySelectorAll("input");i1.value=s.kg;i2.value=s.reps;if(pv){i1.placeholder=pv.kg||"";i2.placeholder=pv.reps||""}
       i1.oninput=()=>{s.kg=i1.value;saveActive()};i2.oninput=()=>{s.reps=i2.value;saveActive()};
       row.querySelector(".pv").onclick=()=>{if(pv){s.kg=pv.kg;s.reps=pv.reps;i1.value=s.kg;i2.value=s.reps;saveActive()}};
       row.querySelector(".tick").onclick=()=>{if(!s.done){if(s.kg===""&&i1.placeholder)s.kg=i1.placeholder;if(s.reps===""&&i2.placeholder)s.reps=i2.placeholder;
-          if(s.reps===""||s.reps==null){i2.focus();return}s.done=true;if(x.t!=="c")startRest()}else s.done=false;saveActive();drawWorkout()};
+          if(s.reps===""||s.reps==null){i2.focus();return}s.done=true;livePR(e.ex,s);if(x.t!=="c")startRest()}else{s.done=false;s.pr=false}saveActive();drawWorkout()};
       card.appendChild(row)});
     const add=el(`<button class="addset" type="button">+ Set toevoegen</button>`);
     add.onclick=()=>{const last=e.sets[e.sets.length-1];e.sets.push({kg:last?last.kg:"",reps:last?last.reps:"",done:false});saveActive();drawWorkout()};card.appendChild(add);
@@ -1486,9 +1513,9 @@ function finishWorkout(){const a=state.active;if(!a)return;const vs=volume(a);
     if(!a.routine){const c=el(`<label class="check-row"><input type="checkbox" checked>Bewaar als schema om later opnieuw te doen</label>`);c.querySelector("input").onchange=ev=>asRoutine=ev.target.checked;s.appendChild(c)}
     const ok=el(`<button class="btn" type="button">Opslaan</button>`);
     ok.onclick=()=>{const ex=a.ex.map(e=>({ex:e.ex,sets:e.sets.filter(x=>x.done).map(x=>({kg:x.kg===""?null:+x.kg,reps:+x.reps||0,done:true}))})).filter(e=>e.sets.length);
-      const d=ensure(a.day);d.sport=d.sport||[];d.sport.push({id:a.id,type:"fitness",min,int:"gemiddeld",note:a.name,workout:{name:a.name,ex}});saveDay(a.day);
+      const d=ensure(a.day);d.sport=d.sport||[];const rwB=new Set(allMedalKeys());d.sport.push({id:a.id,type:"fitness",min,int:"gemiddeld",note:a.name,workout:{name:a.name,ex}});saveDay(a.day);const rwNew=allMedalKeys().filter(k=>!rwB.has(k));
       if(asRoutine&&!a.routine){state.routines=state.routines||[];state.routines.push({id:uid(),name:a.name==="Workout"?"Schema "+(state.routines.length+1):a.name,ex:ex.map(e=>({ex:e.ex,sets:e.sets.length}))});saveGym()}
-      state.active=null;saveActive();closeSheet();cur=a.day;closeWorkout();show("sport");cheer(prs.length?"🏆 Nieuw record! Sterk gedaan.":"💪 Workout opgeslagen. Sterk gedaan!",prs.length>0)};
+      state.active=null;saveActive();closeSheet();cur=a.day;closeWorkout();show("sport");if(rwNew.length)setTimeout(()=>rewardSheet(rwNew,prs),500);else cheer(prs.length?"🏆 Nieuw record! Sterk gedaan.":"💪 Workout opgeslagen. Sterk gedaan!",prs.length>0)};
     s.appendChild(ok)})}
 
 /* oefening kiezen */
@@ -1721,6 +1748,65 @@ function renderSettings(){renderPinUI();renderSeg();renderRemUI();renderIdeas();
 $("addform").addEventListener("submit",e=>{e.preventDefault();const v=$("newhabit").value.trim();if(!v)return;
   state.habits.push({id:"h"+Date.now().toString(36),name:v,part:newPart});$("newhabit").value="";saveHabits();renderSettings()});
 
+/* ===== v21: Face ID meteen, beloningen per oefening, workout-tijd in beeld ===== */
+function isIOSWeb(){return !window.LoopaBio&&(/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1))}
+function bioLock(){const ov=document.querySelector(".lock");if(!ov||!bioOn()||ov.querySelector(".biobig"))return;
+  bioAvail().then(info=>{if(!info.ok||!document.body.contains(ov))return;
+    const face=/Face|gezicht/.test(info.label);
+    const big=el(`<button class="biobig" type="button" aria-label="Ontgrendel met ${info.label}"><span class="bioic" aria-hidden="true">${face?`<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M6 20V12a6 6 0 0 1 6-6h8M44 6h8a6 6 0 0 1 6 6v8M58 44v8a6 6 0 0 1-6 6h-8M20 58h-8a6 6 0 0 1-6-6v-8"/><path d="M22 24v4M42 24v4M32 24v12h-3M24 44c4 4 12 4 16 0"/></svg>`:"☝️"}</span><b>${isIOSWeb()?"Tik om te ontgrendelen":"Ontgrendelen met "+info.label}</b></button>`);
+    const pinl=el(`<button class="linkbtn pinlink" type="button">Pincode gebruiken</button>`);
+    ov.classList.add("biomode");ov.querySelector(".pad").after(big);big.after(pinl);
+    let busy=false;const go=async()=>{if(busy||!document.body.contains(ov))return;busy=true;big.classList.add("scan");const ok=await bioVerify();busy=false;big.classList.remove("scan");
+      if(ok&&document.body.contains(ov)){ov.classList.add("unlocked");setTimeout(()=>ov.remove(),180)}else if(!isIOSWeb())ov.classList.remove("biomode")};
+    pinl.onclick=e=>{e.stopPropagation();ov.classList.remove("biomode")};
+    big.onclick=e=>{e.stopPropagation();go()};
+    ov.addEventListener("click",e=>{if(ov.classList.contains("biomode")&&!e.target.closest(".pinlink"))go()});
+    const ua=navigator.userActivation;
+    if(!isIOSWeb()||(ua&&ua.isActive))go()})}
+
+/* ---- beloningen per oefening ---- */
+const EXN=[[1,"🌱","Eerste keer"],[5,"🥉","5 keer gedaan"],[10,"🥈","10 keer gedaan"],[25,"🥇","25 keer gedaan"],[50,"💎","50 keer gedaan"],[100,"👑","100 keer gedaan"]];
+const EXKG=[20,40,60,80,100,120,140,160,180,200,250];
+function exMedals(id,h){const x=exById(id),n=h.length,out=[];
+  EXN.forEach(([m,em,name])=>out.push({key:"n"+m,em,name,got:n>=m,prog:Math.min(1,n/m),hint:n>=m?"Gehaald":`nog ${m-n}× doen`}));
+  if(x.t==="w"){const mk=Math.max(0,...h.map(y=>+y.maxKg||0));if(mk>0){let shown=0;
+    EXKG.forEach(c=>{if(mk>=c||shown<1){if(mk<c)shown++;out.push({key:"kg"+c,em:c>=100?"🦍":"🏋️",name:`${c} kg-club`,got:mk>=c,prog:Math.min(1,mk/c),hint:mk>=c?"Gehaald":`nog ${nf1(c-mk)} kg`})}})}}
+  return out}
+function allMedalKeys(){const H=exHistory(),out=[];Object.keys(H).forEach(id=>exMedals(id,H[id]).forEach(m=>{if(m.got)out.push(id+":"+m.key)}));return out}
+function topMedal(id,h){const g=exMedals(id,h).filter(m=>m.got&&m.key[0]==="n");return g.length?" · "+g[g.length-1].em:""}
+function rewardSheet(keys,prs){confetti();if(navigator.vibrate)try{navigator.vibrate([60,40,120])}catch(e){}
+  const H=exHistory();
+  openSheet(s=>{s.appendChild(el(`<div class="streakwin"><span aria-hidden="true">🎖️</span><h2>${keys.length===1?"Nieuwe beloning!":keys.length+" nieuwe beloningen!"}</h2><p class="muted">Sterk gedaan. Je ziet ze terug bij Sport › Records.</p></div>`));
+    keys.forEach(k=>{const[id,mk]=k.split(":"),m=exMedals(id,H[id]||[]).find(z=>z.key===mk);if(!m)return;
+      const r=el(`<div class="rwrow"><span class="rwem" aria-hidden="true"></span><span class="it"><b></b><small class="muted"></small></span></div>`);
+      r.querySelector(".rwem").textContent=m.em;r.querySelector("b").textContent=m.name;r.querySelector("small").textContent=exById(id).name;s.appendChild(r)});
+    (prs||[]).forEach(t=>{const r=el(`<div class="rwrow"><span class="rwem" aria-hidden="true">🏆</span><span class="it"><b>Nieuw record</b><small class="muted"></small></span></div>`);r.querySelector("small").textContent=t;s.appendChild(r)});
+    const ok=el(`<button class="btn" type="button">Top!</button>`);ok.onclick=closeSheet;s.appendChild(ok)})}
+function medalSection(id,h){const s=$("sheetin");if(!s)return;const ms=exMedals(id,h),got=ms.filter(m=>m.got).length;
+  const w=el(`<div class="medals"><div class="mealhead"><span class="label">Beloningen</span><span class="muted small">${got} van ${ms.length}</span></div><div class="medgrid"></div></div>`);
+  ms.forEach(m=>{const c=el(`<div class="med${m.got?" got":""}"><span aria-hidden="true"></span><b></b><small></small>${m.got?"":'<div class="bar"><i></i></div>'}</div>`);
+    c.querySelector("span").textContent=m.em;c.querySelector("b").textContent=m.name;c.querySelector("small").textContent=m.hint;if(!m.got)c.querySelector(".bar i").style.width=(m.prog*100)+"%";w.querySelector(".medgrid").appendChild(c)});
+  const plan=s.querySelector(".plan");if(plan)plan.after(w);else s.appendChild(w)}
+const _prDetail=prDetail;prDetail=function(id,h){_prDetail(id,h);medalSection(id,h)};
+function livePR(exId,s){const a=state.active;if(!a)return;const x=exById(exId),h=exHistory()[exId];a.rw=a.rw||{};
+  if(!h){if(!a.rw["first:"+exId]){a.rw["first:"+exId]=1;toast(`🌱 Eerste keer ${x.name}! Je eerste beloning is binnen.`)}return}
+  const sc=setScore(x.t,s);if(!(sc>0))return;const prev=Math.max(...h.map(y=>y.score));
+  const e=a.ex.find(z=>z.ex===exId),cur=Math.max(0,...e.sets.filter(z=>z!==s&&z.done&&z.pr).map(z=>setScore(x.t,z)));
+  if(sc>prev&&sc>cur){s.pr=true;toast(`🏆 Nieuw record: ${x.name}, ${prLine(x,s)}`);if(navigator.vibrate)try{navigator.vibrate([40,30,80])}catch(err){}confetti()}}
+
+/* ---- workout-tijd in beeld ---- */
+let wkLock=null;
+function wkPillTick(){const p=$("wkpill");if(!p)return;const a=state.active,open=!$("wk").hidden;
+  if(a&&!document.hidden){if(!wkLock||wkLock.released){wkLock={released:false,pending:true};try{navigator.wakeLock?navigator.wakeLock.request("screen").then(l=>{wkLock=l}).catch(()=>{wkLock=null}):(wkLock=null)}catch(e){wkLock=null}}}
+  else if(!a&&wkLock&&!wkLock.pending){try{wkLock.release()}catch(e){}wkLock=null}
+  const sheetOpen=!$("sheet").hidden;p.hidden=!a||open||sheetOpen||!!document.querySelector(".lock,.gpsv,.aiv");if(!a)return;
+  $("wkpill-t").textContent=fmtClock((Date.now()-a.start)/1000);$("wkpill-n").textContent=a.name||"Workout";
+  if(rest.end){const left=(rest.end-Date.now())/1000;if(left<=0){rest.end=0;if(!open){toast("⏱️ Rust voorbij, volgende set!");if(navigator.vibrate)try{navigator.vibrate([200,100,200])}catch(e){}}}$("wkpill-r").textContent=left>0?"Rust "+fmtClock(left):""}else $("wkpill-r").textContent=""}
+setInterval(wkPillTick,1000);
+$("wkpill").onclick=()=>openWorkout();
+$("wk-min").onclick=()=>{const r=rest.end;closeWorkout();if(r>Date.now())rest.end=r;wkPillTick()};
+const _openWorkout=openWorkout;openWorkout=function(){_openWorkout();if(rest.end>Date.now()){$("rest").hidden=false;tickWorkout()}wkPillTick()};
+
 /* ===== v20: Face ID / vingerafdruk bij de pincode ===== */
 function b64u(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
 function unb64u(s){return Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((s.length+3)%4)),c=>c.charCodeAt(0))}
@@ -1742,12 +1828,6 @@ async function bioVerify(){const v=(()=>{try{return localStorage.getItem("loopa-
   if(window.LoopaBio)return window.LoopaBio.verify("Ontgrendel Loopa");
   try{const a=await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{type:"public-key",id:unb64u(v)}],userVerification:"required",timeout:60000}});return !!a}catch(e){return false}}
 function bioOff(){try{localStorage.removeItem("loopa-bio")}catch(e){}}
-/* vergrendelscherm: knop + meteen proberen */
-function bioLock(){const ov=document.querySelector(".lock");if(!ov||!bioOn()||ov.querySelector(".biobtn"))return;
-  bioAvail().then(info=>{if(!info.ok||!document.body.contains(ov))return;
-    const b=el(`<button class="biobtn" type="button"><span aria-hidden="true">${/Face|gezicht/.test(info.label)?"🙂":"☝️"}</span> Ontgrendel met ${info.label}</button>`);
-    const go=async()=>{b.disabled=true;const ok=await bioVerify();b.disabled=false;if(ok&&document.body.contains(ov)){ov.classList.add("unlocked");setTimeout(()=>ov.remove(),180)}};
-    b.onclick=go;ov.querySelector(".pad").after(b);setTimeout(go,350)})}
 async function renderBioUI(){const row=$("biorow");if(!row)return;const info=await bioAvail();
   row.hidden=!getPin()||!info.ok;if(row.hidden)return;
   row.querySelector("b").textContent=`${info.label} gebruiken`;row.querySelector("small").textContent=`Ontgrendel Loopa met ${info.label}. Je pincode blijft werken als reserve.`;
@@ -2765,7 +2845,7 @@ function renderRecords(){const H=exHistory(),box=$("prlist");box.innerHTML="";
   if(!ids.length){box.appendChild(el(`<div class="emptyline">Rond een gym-workout af, dan zie je hier per oefening je beste set en je vooruitgang.</div>`));return}
   (prAll?ids:ids.slice(0,5)).forEach(id=>{const x=exById(id),h=H[id],bb=h.reduce((a,c)=>c.score>a.score?c:a);
     const b=el(`<button class="item"><span class="em">🏆</span><span class="it"><b></b><small class="num"></small></span><span class="kc num"></span></button>`);
-    b.querySelector("b").textContent=x.name;b.querySelector("small").textContent=`beste ${prLine(x,bb.best)} · ${h.length}× gedaan`;
+    b.querySelector("b").textContent=x.name;b.querySelector("small").textContent=`beste ${prLine(x,bb.best)} · ${h.length}× gedaan${topMedal(id,h)}`;
     b.querySelector(".kc").textContent=x.t==="w"&&+bb.best.kg?"1RM ±"+Math.round(bb.score):"";
     b.onclick=()=>prDetail(id,h);box.appendChild(b)});
   if(ids.length>5){const m=el(`<button class="linkbtn" type="button" style="align-self:center;padding:6px"></button>`);m.textContent=prAll?"Minder tonen":`Alle ${ids.length} oefeningen`;m.onclick=()=>{prAll=!prAll;renderRecords()};box.appendChild(m)}}
