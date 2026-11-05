@@ -8,6 +8,8 @@ Deze map maakt van de web-app een echte app met [Capacitor](https://capacitorjs.
   Download: https://github.com/thomasderks462-arch/loopa/releases/tag/app-latest
 - iPhone: het Xcode-project staat in `ios/`. Bouwen en in de App Store zetten kan alleen met een Apple Developer-account (99 dollar per jaar) en Xcode op een Mac (of een cloud-Mac).
 
+Icoon opnieuw maken: zet nieuwe plaatjes in `assets/` en draai `npx @capacitor/assets generate --android --ios`.
+
 Zelf bouwen:
 
 ```

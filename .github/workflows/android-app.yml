@@ -25,7 +25,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-      - uses: android-actions/setup-android@v3
       - name: Web-app klaarzetten
         working-directory: app
         run: |
