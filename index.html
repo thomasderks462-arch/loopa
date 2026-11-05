@@ -1616,7 +1616,10 @@ function fiGet(){if(!fiCache){try{fiCache=JSON.parse(localStorage.getItem(LSFI)|
 function fiPut(t,u){const c=fiGet();c[t]=u;try{localStorage.setItem(LSFI,JSON.stringify(c))}catch(e){}}
 function wikiPhoto(t){const c=fiGet();if(t in c)return Promise.resolve(c[t]);if(fiWait.has(t))return fiWait.get(t);
   const p=fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(t.replace(/ /g,"_"))).then(r=>r.ok?r.json():null)
-    .then(j=>{const src=j&&j.thumbnail&&j.thumbnail.source||"";const u=src;fiPut(t,u);return u}).catch(()=>null).finally(()=>fiWait.delete(t));
+    .then(j=>j&&j.thumbnail&&j.thumbnail.source||"").catch(()=>null)
+    .then(u=>u?u:fetch("https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&origin=*&redirects=1&pithumbsize=320&titles="+encodeURIComponent(t)).then(r=>r.json())
+      .then(j=>{const pg=j&&j.query&&j.query.pages;const x=pg&&Object.values(pg)[0];return x&&x.thumbnail&&x.thumbnail.source||""}).catch(()=>u))
+    .then(u=>{if(u!=null)fiPut(t,u);return u}).finally(()=>fiWait.delete(t));
   fiWait.set(t,p);return p}
 
 /* ===== v12: eten met plaatjes, porties, zoek-en-plus, vloeiende overgangen ===== */
