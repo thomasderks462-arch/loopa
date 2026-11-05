@@ -349,6 +349,36 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 .setline{display:flex;gap:12px;font-size:.88rem;padding:3px 2px}
 .setline span:first-child{color:var(--muted);width:18px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}.spin{animation-duration:3s}.resume .dot{animation:none}}
+/* v18 ai */
+.aichip{gap:5px;font-weight:700;color:#fff;background:linear-gradient(135deg,#ff5a1f,#ff9d0a);box-shadow:0 3px 10px rgba(255,106,31,.3)}
+.aichip span{font-size:.95rem}
+.aiv{position:fixed;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column;height:100dvh;transform:translateY(24px);opacity:0;transition:transform .26s cubic-bezier(.2,.8,.2,1),opacity .2s}
+.aiv.in{transform:none;opacity:1}
+.aihead{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top) + 10px) 12px 10px;border-bottom:1px solid var(--line,rgba(27,23,20,.08));background:var(--surface)}
+.aiback{border:0;background:var(--surface-2);color:var(--ink);width:38px;height:38px;border-radius:50%;font-size:1.6rem;line-height:1;cursor:pointer}
+.aititle{flex:1;display:flex;align-items:center;gap:10px}.aititle span:last-child{display:flex;flex-direction:column}.aititle small{color:var(--muted);font-size:.78rem}
+.aistar{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#ff5a1f,#ffa21a);font-size:1.05rem}
+.aistar.big{width:64px;height:64px;border-radius:20px;font-size:2rem;margin:0 auto 6px;box-shadow:0 8px 24px rgba(255,106,31,.35)}
+.aiclear{border:0;background:none;color:var(--muted);font:inherit;font-size:.85rem;cursor:pointer;padding:8px}
+.aimsgs{flex:1;overflow-y:auto;padding:16px 14px 8px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch}
+.aimsg{display:flex;animation:aiin .25s ease both}.aimsg.user{justify-content:flex-end}
+@keyframes aiin{from{opacity:0;transform:translateY(8px)}}
+.aibub{max-width:84%;padding:10px 14px;border-radius:20px;line-height:1.45;font-size:.95rem;word-wrap:break-word}
+.aimsg.user .aibub{background:linear-gradient(135deg,#ff5a1f,#ff8a14);color:#fff;border-bottom-right-radius:6px}
+.aimsg.assistant .aibub{background:var(--surface);color:var(--ink);border-bottom-left-radius:6px;box-shadow:0 1px 2px rgba(27,23,20,.05),0 4px 14px rgba(27,23,20,.05)}
+.aimsg.err .aibub{background:#ffe9ec;color:#b3132f}
+.aili{display:block;padding-left:16px;position:relative;margin:2px 0}.aili::before{content:"";position:absolute;left:4px;top:.6em;width:6px;height:6px;border-radius:50%;background:#ff6a1f}
+.aibub .btn{margin-top:10px;width:100%}
+.aidots{display:inline-flex;gap:4px;padding:4px 0}.aidots i{width:7px;height:7px;border-radius:50%;background:#ff8a3d;animation:aidot 1s infinite ease-in-out}.aidots i:nth-child(2){animation-delay:.15s}.aidots i:nth-child(3){animation-delay:.3s}
+@keyframes aidot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-4px)}}
+.aiwelcome{margin:auto 0;text-align:center;padding:10px 6px}.aiwelcome h2{margin:6px 0 4px;font-size:1.3rem}
+.aisugs{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.aisug{border:0;background:var(--surface);color:var(--ink);font:inherit;font-size:.92rem;text-align:left;padding:12px 14px;border-radius:16px;cursor:pointer;box-shadow:0 1px 2px rgba(27,23,20,.05),0 4px 14px rgba(27,23,20,.05)}
+.aisug::before{content:"✦ ";color:#ff6a1f}
+.aiform{display:flex;gap:8px;align-items:flex-end;padding:10px 12px calc(env(safe-area-inset-bottom) + 10px);background:var(--surface);border-top:1px solid var(--line,rgba(27,23,20,.08))}
+.aiform textarea{flex:1;resize:none;font:inherit;font-size:16px;height:42px;min-height:0;line-height:1.35;box-sizing:border-box;color:var(--ink);background:var(--surface-2);border:0;border-radius:20px;padding:10px 14px;max-height:120px;outline:none}
+.aisend{width:42px;height:42px;border-radius:50%;border:0;flex:none;color:#fff;font-size:1.3rem;font-weight:700;background:linear-gradient(135deg,#ff5a1f,#ff9d0a);cursor:pointer;box-shadow:0 4px 12px rgba(255,106,31,.35)}
+.aiform.busy .aisend{opacity:.45;pointer-events:none}
 /* v17 */
 .fcopy{display:flex;align-items:center;gap:12px;border:0;background:#fff0e6;border-radius:16px;padding:10px 14px;text-align:left;color:var(--ink);cursor:pointer}
 .fcopy>span:first-child{font-size:1.4rem;color:var(--pink);font-weight:800}
@@ -670,6 +700,7 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
       <h1 id="title">Vandaag</h1>
     </div>
     <div style="display:flex;gap:8px">
+      <button class="chip aichip" id="aibtn" type="button" aria-label="Vraag Loopa, je AI-coach"><span aria-hidden="true">✦</span>Coach</button>
       <span class="chip num" id="streakchip" title="Dagen op rij met minstens één gewoonte"><svg style="color:var(--flame)"><use href="#i-flame"/></svg><span id="streaknum">0</span></span>
       <button class="chip" id="gear" aria-label="Gewoontes en doelen"><svg><use href="#i-gear"/></svg></button>
     </div>
@@ -1663,6 +1694,89 @@ function renderSettings(){renderPinUI();renderSeg();renderRemUI();renderIdeas();
 $("addform").addEventListener("submit",e=>{e.preventDefault();const v=$("newhabit").value.trim();if(!v)return;
   state.habits.push({id:"h"+Date.now().toString(36),name:v,part:newPart});$("newhabit").value="";saveHabits();renderSettings()});
 
+/* ===== v18: AI-coach "Vraag Loopa" ===== */
+const AICHAT="loopa-chat";
+let aiHist=[];try{aiHist=JSON.parse(localStorage.getItem(AICHAT)||"[]")}catch(e){aiHist=[]}
+let aiBusy=null;
+function aiSave(){try{localStorage.setItem(AICHAT,JSON.stringify(aiHist.slice(-40)))}catch(e){}}
+function aiContext(){const p=state.profile||{},t=keyOf(new Date()),L=[],r=x=>Math.round(+x||0);
+  const now=new Date();L.push(`Nu: ${now.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}, ${now.toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"})}.`);
+  const pf=[];if(p.name)pf.push("naam "+p.name);if(p.sex)pf.push(p.sex);if(p.age)pf.push(p.age+" jaar");if(p.height)pf.push(p.height+" cm");if(p.weight)pf.push(p.weight+" kg");
+  if(goalKg())pf.push("streefgewicht "+goalKg()+" kg");if(p.act)pf.push("activiteit "+p.act);if(p.eat)pf.push("doel eten: "+p.eat);if(p.goals&&p.goals.length)pf.push("doelen: "+p.goals.join(", "));
+  L.push("Profiel: "+(pf.join(", ")||"nog niet ingevuld")+".");
+  const mg=macroGoals();L.push(`Dagdoelen: ${goalKcal()} kcal, eiwit ${r(mg.p)} g, koolh. ${r(mg.c)} g, vet ${r(mg.f)} g, water ${goalWater()} glazen, slaap ${goalSleep()} uur, sport ${goalSport()} min per week.`);
+  if(state.habits.length)L.push(`Gewoontes: ${state.habits.map(h=>h.name+((day(t).habits||{})[h.id]?" (vandaag gedaan)":"")).join(", ")}. Streak: ${dayStreak()} dagen op rij.`);
+  L.push("Laatste 7 dagen (oud naar nieuw):");
+  for(let i=6;i>=0;i--){const k=addDays(t,-i),d=day(k),f=sumFood(k),fl=food(k),bits=[];
+    bits.push(fl.length?`eten ${r(f.kcal)} kcal (E ${r(f.p)} / K ${r(f.c)} / V ${r(f.f)} g)`:"eten niet ingevuld");
+    if(d.water)bits.push(`water ${d.water} glazen`);const sh=sleepHours(d);if(sh)bits.push(`slaap ${fmtH(sh)} (${d.bed}-${d.wake}${d.sleepQ?", kwaliteit "+d.sleepQ+"/5":""})`);
+    if(d.energy)bits.push(`energie ${d.energy}/5`);if(d.mood)bits.push(`stemming ${d.mood}/5`);
+    (d.sport||[]).forEach(x=>{let s=`${x.type} ${r(x.min)} min`;if(x.gps)s+=` ${(x.gps.dist/1000).toFixed(1)} km`;if(x.workout){s+=` (${x.workout.name||"workout"}: `+(x.workout.ex||[]).slice(0,8).map(e=>{const n=e.name||((typeof exById==="function"&&exById(e.id))||{}).name||"oefening";const st=(e.sets||[]).filter(z=>z&&(z.kg||z.reps)).map(z=>`${z.kg||0}kg×${z.reps||0}`).join(", ");return n+(st?" "+st:"")}).join("; ")+")"}else if(x.note)s+=` (${x.note})`;bits.push(s)});
+    if(state.habits.length)bits.push(`gewoontes ${doneCount(k)}/${state.habits.length}`);
+    L.push(`- ${k===t?"Vandaag":fromKey(k).toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short"})}: ${bits.join("; ")}`)}
+  const tf=food(t);if(tf.length)L.push("Vandaag gegeten: "+tf.map(x=>`${x.name}${x.amount?" "+x.amount:""} [${x.meal}] ${r(x.kcal)} kcal`).join("; ")+".");
+  const ws=bodySorted().filter(x=>x.kg!=null).slice(-6);if(ws.length)L.push("Gewicht: "+ws.map(x=>`${x.date} ${x.kg} kg`).join(", ")+".");
+  try{const fl=forecastLine();if(fl)L.push("Voorspelling: "+fl.replace(/^\S+\s/,""))}catch(e){}
+  return L.join("\n")}
+const AI_RULES=`Je bent Loopa, de vriendelijke coach in de app Loopa. Daarin houdt de gebruiker gewoontes, eten, water, sport, gym, gewicht en slaap bij.
+Antwoord altijd in het Nederlands, persoonlijk en kort: meestal 2 tot 6 zinnen of een kort lijstje. Gebruik de gegevens van de gebruiker hieronder als ze helpen en noem echte getallen. Verzin geen gegevens die er niet staan.
+Geef praktische tips die vandaag nog kunnen. Je bent geen arts: stel geen diagnoses en verwijs bij pijn, klachten, eetproblemen of twijfel vriendelijk naar de huisarts of een diëtist.
+Opmaak: gewone zinnen, **vet** mag, lijstjes met "- ". Geen koppen of tabellen.`;
+async function aiClient(){
+  if(window.claude&&claude.use){const smp=await claude.use("sample");
+    if(smp)return async(msgs,onText,signal)=>{const first={...msgs[0],content:AI_RULES+"\n\nGegevens van de gebruiker:\n"+aiContext()+"\n\nVraag van de gebruiker:\n"+msgs[0].content};
+      const r=await smp([first,...msgs.slice(1)],{onText:x=>onText(x.text),signal,cache:false});return r.text}}
+  let key="";try{key=localStorage.getItem("loopa-apikey")||""}catch(e){}if(!key)return null;
+  return async(msgs,onText,signal)=>{let Anthropic;try{({default:Anthropic}=await import("https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@1.0.0/+esm"))}catch(e){throw{code:"offline"}}
+    const client=new Anthropic({apiKey:key,dangerouslyAllowBrowser:true});
+    try{const st=client.messages.stream({model:"claude-opus-5-5",max_tokens:3000,output_config:{effort:"low"},system:AI_RULES+"\n\nGegevens van de gebruiker:\n"+aiContext(),messages:msgs},{signal});
+      st.on("text",(_,snap)=>onText(snap));const m=await st.finalMessage();if(m.stop_reason==="refusal")throw{code:"refusal"};return m.content.filter(b=>b.type==="text").map(b=>b.text).join("")}
+    catch(err){if(err&&err.code)throw err;if(err instanceof Anthropic.APIUserAbortError)throw{code:"cancelled"};if(err instanceof Anthropic.AuthenticationError)throw{code:"bad_key"};
+      if(err instanceof Anthropic.RateLimitError)throw{code:"rate_limited"};if(err instanceof Anthropic.APIConnectionError)throw{code:"offline"};
+      if(/credit/i.test(err&&err.message||""))throw{code:"no_credit"};throw{code:"failed"}}}}
+function aiMd(t){const esc=String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  return esc.replace(/^#+\s*(.*)$/gm,"<b>$1</b>").replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/^\s*[-*•]\s+(.*)$/gm,'<span class="aili">$1</span>').replace(/\n{2,}/g,"<br><br>").replace(/\n/g,"<br>").replace(/<\/span><br>/g,"</span>")}
+function aiSuggest(){const t=keyOf(new Date()),f=sumFood(t),left=Math.round(goalKcal()-f.kcal),h=new Date().getHours(),out=[];
+  if(h>=15&&left>200)out.push(`Wat kan ik vanavond eten met nog ${left} kcal?`);else out.push("Wat is een goed ontbijt voor mijn doel?");
+  out.push("Hoe ging mijn week?");out.push("Hoe krijg ik genoeg eiwit binnen?");
+  out.push(h>=20?"Tips om vanavond beter te slapen":"Geef me een training van 30 minuten");
+  if(goalKg())out.push(`Hoe haal ik ${goalKg()} kg?`);return out.slice(0,5)}
+function aiOpen(){if(document.querySelector(".aiv"))return;
+  const v=el(`<div class="aiv" role="dialog" aria-label="Vraag Loopa"><div class="aihead"><button class="aiback" type="button" aria-label="Terug">‹</button><div class="aititle"><span class="aistar" aria-hidden="true">✦</span><span><b>Vraag Loopa</b><small>Je persoonlijke coach</small></span></div><button class="aiclear" type="button">Wissen</button></div>
+    <div class="aimsgs" aria-live="polite"></div>
+    <form class="aiform"><textarea rows="1" placeholder="Stel een vraag…" aria-label="Je vraag" maxlength="1500"></textarea><button class="aisend" type="submit" aria-label="Versturen">↑</button></form></div>`);
+  document.body.appendChild(v);document.body.style.overflow="hidden";requestAnimationFrame(()=>v.classList.add("in"));
+  const box=v.querySelector(".aimsgs"),ta=v.querySelector("textarea"),form=v.querySelector("form");
+  const close=()=>{if(aiBusy)aiBusy.abort();v.classList.remove("in");document.body.style.overflow="";setTimeout(()=>v.remove(),260)};
+  v.querySelector(".aiback").onclick=close;
+  v.querySelector(".aiclear").onclick=()=>{if(aiBusy)aiBusy.abort();aiHist=[];aiSave();draw()};
+  ta.addEventListener("input",()=>{ta.style.height="auto";ta.style.height=Math.min(120,ta.scrollHeight)+"px"});
+  ta.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!matchMedia("(pointer:coarse)").matches){e.preventDefault();form.requestSubmit()}});
+  const bubble=(role,html)=>{const b=el(`<div class="aimsg ${role}"><div class="aibub"></div></div>`);b.querySelector(".aibub").innerHTML=html;box.appendChild(b);return b.querySelector(".aibub")};
+  const bottom=()=>{box.scrollTop=box.scrollHeight};
+  function draw(){box.innerHTML="";
+    if(!aiHist.length){const w=el(`<div class="aiwelcome"><span class="aistar big" aria-hidden="true">✦</span><h2>Hoi${state.profile&&state.profile.name?" "+state.profile.name.replace(/[<>&]/g,""):""}! Waar kan ik je mee helpen?</h2><p class="muted small">Ik kijk mee met wat je eet, sport en slaapt in Loopa. Vraag maar raak.</p><div class="aisugs"></div></div>`);
+      aiSuggest().forEach(q=>{const c=el(`<button type="button" class="aisug"></button>`);c.textContent=q;c.onclick=()=>ask(q);w.querySelector(".aisugs").appendChild(c)});box.appendChild(w)}
+    aiHist.forEach(m=>bubble(m.role,m.role==="user"?aiMd(m.content).replace(/<span class="aili">/g,"").replace(/<\/span>/g,""):aiMd(m.content)));bottom()}
+  async function ask(q){q=q.trim();if(!q||aiBusy)return;ta.value="";ta.style.height="auto";
+    const run=await aiClient();
+    if(!run){if(!aiHist.length)box.innerHTML="";bubble("user",aiMd(q));const b=bubble("assistant",`Om met mij te praten heeft Loopa een Claude API-sleutel nodig, dezelfde als voor foto's herkennen. Je stelt hem één keer in onder Gewoontes &amp; doelen.<br><button type="button" class="btn sec aikey">Naar instellingen</button>`);
+      b.querySelector(".aikey").onclick=()=>{close();show("instellingen");setTimeout(()=>{const k=$("apikey");if(k){k.scrollIntoView({block:"center"});k.focus()}},350)};bottom();return}
+    if(!aiHist.length)box.innerHTML="";
+    aiHist.push({role:"user",content:q});aiSave();bubble("user",aiMd(q));
+    const b=bubble("assistant",'<span class="aidots"><i></i><i></i><i></i></span>');bottom();
+    const ctl=new AbortController();aiBusy=ctl;form.classList.add("busy");
+    const msgs=aiHist.slice(-12);while(msgs.length&&msgs[0].role!=="user")msgs.shift();
+    try{const txt=await run(msgs.map(m=>({role:m.role,content:m.content})),t=>{if(t&&t!=="Thinking..."){b.innerHTML=aiMd(t);bottom()}},ctl.signal);
+      aiHist.push({role:"assistant",content:txt||"…"});aiSave();b.innerHTML=aiMd(txt||"…")}
+    catch(err){const code=(err&&err.code)||"failed";if(code==="cancelled"||(err&&err.name==="AbortError")){b.closest(".aimsg").remove();aiHist.pop();aiSave();return}
+      b.parentNode.classList.add("err");b.innerHTML=({offline:"Geen internet. Probeer het zo nog eens.",bad_key:"De API-sleutel klopt niet of is verlopen. Kijk even bij Gewoontes &amp; doelen.",no_credit:"Je API-account heeft geen tegoed meer. Vul het aan op console.anthropic.com.",rate_limited:"Even te veel vragen tegelijk. Wacht een minuutje.",not_granted:"Loopa mag Claude hier niet gebruiken. Geef toestemming en probeer opnieuw.",refusal:"Daar kan ik je niet mee helpen. Probeer een andere vraag."})[code]||"Dat lukte niet. Probeer het nog eens.";
+      aiHist.pop();aiSave()}
+    finally{aiBusy=null;form.classList.remove("busy");bottom()}}
+  form.onsubmit=e=>{e.preventDefault();ask(ta.value)};
+  draw();setTimeout(()=>{if(!matchMedia("(pointer:coarse)").matches)ta.focus()},300)}
+$("aibtn").onclick=aiOpen;
+
 /* ===== v17: eten kopiëren, weekoverzicht eten, gewicht-voorspelling, streak-beloningen ===== */
 function copyMeal(from,m){const src=food(from).filter(x=>x.meal===m);if(!src.length)return;const d=ensure(cur);d.food=d.food||[];
   const ids=[];src.forEach(x=>{const y={...JSON.parse(JSON.stringify(x)),id:uid()};d.food.push(y);ids.push(y.id)});lastFood=ids[0];saveDay(cur);render();
@@ -2099,7 +2213,7 @@ function pinSettings(){const has=!!getPin();
 function renderPinUI(){$("pinbtn").textContent=getPin()?"Pincode wijzigen of uitzetten":"Pincode instellen";$("logoutbtn").hidden=inArtifact()||!$("backup")}
 $("pinbtn").onclick=pinSettings;
 $("logoutbtn").onclick=()=>msgSheet("Uitloggen","Je gegevens staan alleen op deze telefoon. Bij uitloggen download je eerst een back-up, daarna wordt de app leeggemaakt. Weer inloggen doe je met Back-up terugzetten, op het eerste scherm.",
-  [["Back-up downloaden en uitloggen",()=>{$("backup").click();setTimeout(()=>{try{[LS,LSP,LSPIN,"loopa-rem-fired"].forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()},1500)}],["Annuleren",closeSheet]]);
+  [["Back-up downloaden en uitloggen",()=>{$("backup").click();setTimeout(()=>{try{[LS,LSP,LSPIN,"loopa-rem-fired","loopa-chat"].forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()},1500)}],["Annuleren",closeSheet]]);
 $("addhabit").onclick=ideasSheet;
 
 /* ===== v10: draaiwielen, plaatjes bij oefeningen, aanmoediging, gewoonte-ideeën ===== */
