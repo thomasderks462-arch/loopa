@@ -329,12 +329,6 @@
 "by": "Ivar Leidus",
 "src": "https://commons.wikimedia.org/wiki/File:Oranges_-_whole-halved-segment.jpg"
 },
-"Mandarin orange": {
-"f": "mandarin-orange.jpg",
-"lic": "CC BY-SA 3.0",
-"by": "4028mdk09",
-"src": "https://commons.wikimedia.org/wiki/File:Citrus_reticulata_April_2013_Nordbaden.JPG"
-},
 "Kiwifruit": {
 "f": "kiwifruit.jpg",
 "lic": "CC BY-SA 3.0",
@@ -376,12 +370,6 @@
 "lic": "CC BY-SA 3.0",
 "by": "Fred Hsu (Wikipedia:User:Fred Hsu on en.wikipedia)",
 "src": "https://commons.wikimedia.org/wiki/File:Taiwan_2009_Tainan_City_Organic_Farm_Watermelon_FRD_7962.jpg"
-},
-"Avocado": {
-"f": "avocado.jpg",
-"lic": "CC BY-SA 3.0",
-"by": "B.navez",
-"src": "https://commons.wikimedia.org/wiki/File:Persea_americana_fruit_2.JPG"
 },
 "Raisin": {
 "f": "raisin.jpg",
@@ -545,18 +533,6 @@
 "by": "User:MarkusHagenlocher",
 "src": "https://commons.wikimedia.org/wiki/File:Reismelde.jpg"
 },
-"Noodle": {
-"f": "noodle.jpg",
-"lic": "CC BY-SA 4.0",
-"by": "CEphoto, Uwe Aranas",
-"src": "https://commons.wikimedia.org/wiki/File:Dalian_Liaoning_China_Noodlemaker-01.jpg"
-},
-"Chicken as food": {
-"f": "chicken-as-food.jpg",
-"lic": "CC BY-SA 3.0",
-"by": "Tomás Castelazo",
-"src": "https://commons.wikimedia.org/wiki/File:Chickens_in_market.jpg"
-},
 "Veggie burger": {
 "f": "veggie-burger.jpg",
 "lic": "CC BY-SA 4.0",
@@ -610,12 +586,6 @@
 "lic": "CC BY 2.0",
 "by": "Vee Satayamas from Bangkok, Thailand",
 "src": "https://commons.wikimedia.org/wiki/File:Sashimi_-_Maguro_Restaurant,_Bangna,_Bangkok_(44856596864).jpg"
-},
-"Canned tuna": {
-"f": "canned-tuna.jpg",
-"lic": "Public domain",
-"by": "NOAA",
-"src": "https://commons.wikimedia.org/wiki/File:Tuna_assortment.png"
 },
 "Popcorn": {
 "f": "popcorn.jpg",
@@ -712,5 +682,161 @@
 "lic": "CC BY-SA 3.0",
 "by": "Gunawan Kartapranata",
 "src": "https://commons.wikimedia.org/wiki/File:Pecel_Solo.JPG"
+},
+"Clementine": {
+"f": "clementine.jpg",
+"lic": "CC BY-SA 3.0",
+"by": "carol",
+"src": "https://commons.wikimedia.org/wiki/File:Clementines_whole,_peeled,_half_and_sectioned.jpg"
+},
+"Avocado toast": {
+"f": "avocado-toast.jpg",
+"lic": "CC BY 2.0",
+"by": "Bex Walton from London, England",
+"src": "https://commons.wikimedia.org/wiki/File:Avocado_toast_at_Voyager_Espresso_(33134505776).jpg"
+},
+"Instant noodles": {
+"f": "instant-noodles.jpg",
+"lic": "CC BY-SA 3.0",
+"by": "Takeaway",
+"src": "https://commons.wikimedia.org/wiki/File:Mama_instant_noodle_block.jpg"
+},
+"Barbecue chicken": {
+"f": "barbecue-chicken.jpg",
+"lic": "CC BY 2.0",
+"by": "orchidgalore",
+"src": "https://commons.wikimedia.org/wiki/File:Chicken_BBQ.jpg"
+},
+"Tuna salad": {
+"f": "tuna-salad.jpg",
+"lic": "Public domain",
+"by": "U.S. Department of Agriculture",
+"src": "https://commons.wikimedia.org/wiki/File:Tuna_fish_sandwiches_for_the_National_School_Lunch_Program_(1).jpg"
+},
+"Cod as food": {
+"f": "cod-as-food.jpg",
+"lic": "CC BY-SA 3.0",
+"by": "Sakurai Midori",
+"src": "https://commons.wikimedia.org/wiki/File:Preserved_Codfish_Bodara.jpg"
+},
+"Shrimp": {
+"f": "shrimp.jpg",
+"lic": "Public domain",
+"by": "Etrusko25",
+"src": "https://commons.wikimedia.org/wiki/File:Palaemon_serratus_Croazia.jpg"
+},
+"Tofu": {
+"f": "tofu.jpg",
+"lic": "CC BY-SA 3.0",
+"by": "DryPot",
+"src": "https://commons.wikimedia.org/wiki/File:Japanese_SilkyTofu_(Kinugoshi_Tofu).JPG"
+},
+"Tempeh": {
+"f": "tempeh.jpg",
+"lic": "CC BY-SA 2.0",
+"by": "Veganbaking.net from USA",
+"src": "https://commons.wikimedia.org/wiki/File:Tempeh_(8681605421).jpg"
+},
+"Shawarma": {
+"f": "shawarma.jpg",
+"lic": "CC BY-SA 4.0",
+"by": "Vis M",
+"src": "https://commons.wikimedia.org/wiki/File:Shawarma_2.jpg"
+},
+"Kidney bean": {
+"f": "kidney-bean.jpg",
+"lic": "GFDL 1.2",
+"by": "Prathyush Thomas",
+"src": "https://commons.wikimedia.org/wiki/File:Red_Rajma_BNC.jpg"
+},
+"Chickpea": {
+"f": "chickpea.jpg",
+"lic": "GFDL 1.2",
+"by": "Prathyush Thomas",
+"src": "https://commons.wikimedia.org/wiki/File:Chickpea_BNC.jpg"
+},
+"Lentil": {
+"f": "lentil.jpg",
+"lic": "CC BY-SA 2.5",
+"by": "User:Justinc",
+"src": "https://commons.wikimedia.org/wiki/File:3_types_of_lentil.png"
+},
+"Almond": {
+"f": "almond.jpg",
+"lic": "CC BY-SA 4.0",
+"by": "Ivar Leidus",
+"src": "https://commons.wikimedia.org/wiki/File:Almonds_-_in_shell,_shell_cracked_open,_shelled,_blanched.jpg"
+},
+"Cashew": {
+"f": "cashew.jpg",
+"lic": "CC BY-SA 3.0",
+"by": "Abhishek Jacob",
+"src": "https://commons.wikimedia.org/wiki/File:Cashew_apples.jpg"
+},
+"Walnut": {
+"f": "walnut.jpg",
+"lic": "CC BY-SA 4.0",
+"by": "Ivar Leidus",
+"src": "https://commons.wikimedia.org/wiki/File:Walnuts_-_whole_and_open_with_halved_kernel.jpg"
+},
+"Peanut": {
+"f": "peanut.jpg",
+"lic": "Public domain",
+"by": "Franz Eugen Köhler, Köhler's Medizinal-Pflanzen",
+"src": "https://commons.wikimedia.org/wiki/File:Arachis_hypogaea_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-163.jpg"
+},
+"Nut (fruit)": {
+"f": "nut-fruit.jpg",
+"lic": "Public domain",
+"by": "USDA-NRCS PLANTS Database",
+"src": "https://commons.wikimedia.org/wiki/File:Caov2_002_phd.jpg"
+},
+"Chia seed": {
+"f": "chia-seed.jpg",
+"lic": "CC BY-SA 4.0",
+"by": "Keegan Fields",
+"src": "https://commons.wikimedia.org/wiki/File:Seed_of_chia_(Salvia_hispanica)Salvia_hispanica_group.jpg"
+},
+"Potato chip": {
+"f": "potato-chip.jpg",
+"lic": "Public domain",
+"by": "Evan-Amos",
+"src": "https://commons.wikimedia.org/wiki/File:Potato-Chips.jpg"
+},
+"Dark chocolate": {
+"f": "dark-chocolate.jpg",
+"lic": "CC0",
+"by": "Mx. Granger",
+"src": "https://commons.wikimedia.org/wiki/File:Green_and_Black%27s_dark_chocolate_bar_2.jpg"
+},
+"Milk chocolate": {
+"f": "milk-chocolate.jpg",
+"lic": "CC BY-SA 4.0",
+"by": "Ubcule",
+"src": "https://commons.wikimedia.org/wiki/File:Milka_Alpine_Milk_Chocolate_bar_100g_with_chunks_broken_off.jpg"
+},
+"Stroopwafel": {
+"f": "stroopwafel.jpg",
+"lic": "CC BY-SA 3.0",
+"by": "Takeaway",
+"src": "https://commons.wikimedia.org/wiki/File:Stroopwafels_01.jpg"
+},
+"Ontbijtkoek": {
+"f": "ontbijtkoek.jpg",
+"lic": "CC BY-SA 3.0",
+"by": "Takeaway",
+"src": "https://commons.wikimedia.org/wiki/File:Kruidkoek.jpg"
+},
+"Biscuit": {
+"f": "biscuit.jpg",
+"lic": "Public domain",
+"by": "GOLDIEM J",
+"src": "https://commons.wikimedia.org/wiki/File:Bourbon_and_Custard_Cream.jpeg"
+},
+"Ice cream": {
+"f": "ice-cream.jpg",
+"lic": "CC BY 2.0",
+"by": "Steven Depolo",
+"src": "https://commons.wikimedia.org/wiki/File:Vanilla_Ice_Cream_Cone_at_Camp_Manitoulin.jpg"
 }
 }
