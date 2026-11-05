@@ -349,6 +349,129 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 .setline{display:flex;gap:12px;font-size:.88rem;padding:3px 2px}
 .setline span:first-child{color:var(--muted);width:18px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}.spin{animation-duration:3s}.resume .dot{animation:none}}
+/* v12 */
+#view-eten{padding-bottom:70px}
+.fhead{display:flex;align-items:center;gap:14px}
+.fth{position:relative;width:46px;height:46px;border-radius:14px;flex:none;display:grid;place-items:center;overflow:hidden}
+.fth i{font-style:normal;font-size:1.5rem;line-height:1}
+.fth img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff}
+.fth.lg{width:64px;height:64px;border-radius:18px}.fth.lg i{font-size:2.1rem}
+.mealcard{background:var(--surface);border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(27,23,20,.04),0 6px 20px rgba(27,23,20,.05)}
+.mchead{display:flex;align-items:center;gap:12px}
+.mcem{width:42px;height:42px;border-radius:13px;background:var(--surface-2);display:grid;place-items:center;font-size:1.35rem;flex:none}
+.mchead .it{flex:1;display:flex;flex-direction:column;min-width:0}
+.mchead .it b{font-size:1.05rem}
+.mchead small{color:var(--muted)}
+.mealcard .bar{height:6px}
+.mealcard .bar i{background:linear-gradient(90deg,#ff5a1f,#ffa21a)}
+.plusbtn{width:42px;height:42px;border-radius:50%;border:0;background:linear-gradient(135deg,#ff5a1f,#ff9d0a);color:#fff;font-size:1.6rem;font-weight:500;line-height:1;display:grid;place-items:center;flex:none;box-shadow:0 4px 12px rgba(255,106,31,.35);cursor:pointer}
+.fitem{display:flex;align-items:center;gap:12px;border:0;background:var(--surface-2);border-radius:16px;padding:8px 12px 8px 8px;text-align:left;width:100%;color:var(--ink);cursor:pointer}
+.fitem .it,.fmain .it{flex:1;display:flex;flex-direction:column;min-width:0}
+.fitem b,.fmain b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fitem small,.fmain small{color:var(--muted);font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fitem .kc{font-weight:700;font-size:.9rem}
+.fitem.new{animation:fnew .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes fnew{0%{opacity:0;transform:translateY(-8px) scale(.96);background:#ffe2cc}60%{opacity:1;background:#ffe9d9}100%{transform:none}}
+.fempty{border:1.5px dashed var(--line);background:transparent;border-radius:16px;padding:12px;color:var(--muted);font-weight:600;cursor:pointer}
+.fab{position:fixed;right:max(18px,calc(50% - 300px));bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:6;width:62px;height:62px;border-radius:50%;border:0;background:linear-gradient(135deg,#ff5a1f,#ff9d0a);color:#fff;font-size:2.1rem;font-weight:400;display:grid;place-items:center;box-shadow:0 10px 26px rgba(255,106,31,.45);cursor:pointer;transition:transform .35s cubic-bezier(.2,.9,.3,1.3),opacity .25s}
+body:not([data-view="eten"]) .fab{transform:scale(0) rotate(-90deg);opacity:0;pointer-events:none}
+.fsearch{display:flex;align-items:center;gap:8px;background:var(--surface-2);border-radius:16px;padding:0 14px}
+.fsearch input{border:0!important;background:transparent!important;flex:1;min-width:0;padding:14px 0!important;font-size:1rem;outline:none;box-shadow:none!important}
+.factions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.fact{border:0;background:var(--surface-2);border-radius:16px;padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:.74rem;font-weight:600;color:var(--ink);cursor:pointer}
+.fact .ic svg{width:24px;height:24px}
+.flist{display:flex;flex-direction:column;gap:6px;min-height:120px}
+.frow{display:flex;align-items:center;gap:8px;animation:rise .35s cubic-bezier(.2,.8,.2,1) both}
+.fmain{flex:1;min-width:0;display:flex;align-items:center;gap:12px;border:0;background:transparent;text-align:left;padding:6px 0;color:var(--ink);cursor:pointer}
+.fplus{width:38px;height:38px;border-radius:50%;border:0;background:var(--surface-2);color:var(--pink);font-size:1.4rem;font-weight:600;display:grid;place-items:center;flex:none;cursor:pointer;transition:background .2s,color .2s,transform .2s}
+.fplus.ok{background:var(--good);color:#fff;animation:pop .35s}
+.qtybox{display:flex;flex-direction:column;gap:8px}
+.qtyrow{display:flex;align-items:center;gap:8px}
+.qtyrow>.round{width:40px;height:40px;flex:none;background:var(--surface-2)}
+.qtychips{flex:1;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px}
+.qtychips::-webkit-scrollbar{display:none}
+.qchip{flex:none;min-width:46px;height:40px;border-radius:12px;border:0;background:var(--surface-2);font-weight:700;font-size:.95rem;color:var(--ink);cursor:pointer;transition:background .2s,color .2s,transform .2s}
+.qchip.on{background:linear-gradient(135deg,#ff5a1f,#ff9d0a);color:#fff;box-shadow:0 4px 12px rgba(255,106,31,.3)}
+.qtytot{font-weight:700;color:var(--pink);font-size:.9rem}
+/* moderne afwerking en overgangen */
+.card,.tile,.qbtn,.habit,.mealcard,.routine,.excard{border-radius:22px}
+.card,.tile,.stat,.habit,.addbtn,.qbtn,.banner,.routine,.excard,.stepper{box-shadow:0 1px 2px rgba(27,23,20,.04),0 6px 20px rgba(27,23,20,.05)}
+nav.tabs button{position:relative}
+nav.tabs button svg{position:relative;z-index:1;transition:transform .35s cubic-bezier(.2,.9,.3,1.3)}
+nav.tabs button::before{content:"";position:absolute;top:3px;left:50%;width:56px;height:32px;margin-left:-28px;border-radius:999px;background:rgba(255,106,31,.13);transform:scaleX(.3);opacity:0;transition:transform .35s cubic-bezier(.2,.9,.3,1.2),opacity .25s}
+nav.tabs button[aria-selected="true"]::before{transform:none;opacity:1}
+nav.tabs button[aria-selected="true"] svg{transform:translateY(-1px) scale(1.06)}
+.sheet{transition:transform .45s cubic-bezier(.2,.9,.25,1)!important}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes viewIn{from{opacity:0;transform:translateX(var(--dx,22px))}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: no-preference){
+  .view-in{animation:viewIn .4s cubic-bezier(.2,.8,.2,1) both}
+  .view-in.from-l{--dx:-22px}
+  .view-in>*{animation:rise .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 50ms)}
+  .sheet.open .sheet-in>*{animation:rise .42s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 35ms)}
+  button,.tile,.qbtn,.habit,.fitem,.fact,.chipbtn{transition:transform .18s cubic-bezier(.2,.8,.2,1),background-color .2s,color .2s,box-shadow .2s}
+  button:active:not(:disabled),.tile:active{transform:scale(.96)}
+  .fab:active{transform:scale(.9)}
+  .habit .check{transition:all .3s cubic-bezier(.2,.9,.3,1.4)}
+  .bar i{transition:width .7s cubic-bezier(.2,.8,.2,1)}
+  .tiles .tile:hover,.qbtn:hover{box-shadow:0 2px 4px rgba(27,23,20,.05),0 12px 28px rgba(27,23,20,.08)}
+}
+@media (prefers-reduced-motion: reduce){.frow,.fitem.new{animation:none}}
+/* v11 */
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.qbtn{border:0;background:var(--surface);border-radius:18px;padding:12px 10px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;color:var(--ink);min-width:0;box-shadow:0 1px 3px rgba(27,23,20,.06),0 0 0 1px rgba(27,23,20,.03);cursor:pointer}
+.qbtn:active{transform:scale(.97)}
+.qbtn .qe{font-size:1.4rem;line-height:1.2}
+.qbtn b{font-size:.95rem}
+.qbtn small{color:var(--muted);font-size:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.addhabit{border:1.5px dashed var(--line);background:transparent;color:var(--pink);font-weight:700;border-radius:16px;padding:14px;font-size:1rem;cursor:pointer}
+.shoplist{display:flex;flex-direction:column;gap:6px}
+.shopitem{display:flex;align-items:center;gap:12px;background:var(--surface-2);border-radius:14px;padding:12px 14px;font-weight:600}
+.shopitem input{width:22px;height:22px;accent-color:var(--pink);flex:none}
+.shopitem.done span{text-decoration:line-through;color:var(--muted)}
+.shopadd{display:flex;gap:8px;align-items:center}
+.shopadd input{flex:1}
+.shopadd .mini{width:44px;height:44px;background:var(--pink);color:#fff;font-size:1.4rem}
+.pthumbs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.pthumbs::-webkit-scrollbar{display:none}
+.chalrow{background:var(--surface-2);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.ch-top{display:flex;align-items:center;gap:10px}
+.ch-top .em{font-size:1.5rem}
+.ch-top .it{flex:1;display:flex;flex-direction:column;min-width:0}
+.ch-top small{color:var(--muted)}
+.chalrow .bar{background:var(--surface)}
+.badges{display:flex;flex-wrap:wrap;gap:8px}
+.badge{width:84px;background:linear-gradient(160deg,#fff3e8,#ffe2cc);border-radius:16px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.badge span{font-size:1.7rem}
+.badge small{font-size:.68rem;line-height:1.2;color:var(--ink)}
+.calhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.calhead b{font-family:var(--display);font-size:1.1rem;text-transform:capitalize}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cdn{font-size:.7rem;color:var(--muted);text-align:center;font-weight:600;padding-bottom:2px}
+.cday{aspect-ratio:1;border:0;border-radius:10px;background:var(--surface-2);color:var(--ink);font-weight:600;font-size:.85rem;cursor:pointer;padding:0}
+.cday:disabled{opacity:.35;cursor:default}
+.cday.today{box-shadow:0 0 0 2px var(--ink)}
+.restbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.restbtn{border:0;background:var(--surface-2);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:2px;text-align:left;color:var(--ink);cursor:pointer}
+.restbtn .qe{font-size:1.5rem}
+.restbtn small{color:var(--muted)}
+.breath{position:fixed;inset:0;z-index:90;background:#14121a;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:24px}
+.breath .bcirc{width:min(70vw,280px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffb26b,#ff6a1f 60%,#e2500f);transform:scale(.45);box-shadow:0 0 80px rgba(255,106,31,.45)}
+.breath .btxt{font-family:var(--display);font-size:1.4rem;font-weight:700;text-align:center;margin:0;min-height:2em}
+.breath .bleft{color:#bbb;margin:0}
+.breath .bx{position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;background:rgba(255,255,255,.12);color:#fff}
+.lock{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px}
+.lock .logo-big{width:72px;height:72px}
+.lock h2{margin:0}
+.lock p{margin:0}
+.dots{display:flex;gap:14px;margin:8px 0}
+.dots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--ink)}
+.dots i.on{background:var(--ink)}
+.pad{display:grid;grid-template-columns:repeat(3,72px);gap:14px}
+.pk{width:72px;height:72px;border-radius:50%;border:0;background:var(--surface);font-size:1.6rem;font-weight:600;color:var(--ink);box-shadow:0 1px 3px rgba(27,23,20,.08);cursor:pointer}
+.pk:active{background:var(--surface-2)}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
 /* v10 */
 .wheelbox{position:relative;background:var(--surface);border-radius:22px;box-shadow:0 1px 3px rgba(27,23,20,.06),0 0 0 1px rgba(27,23,20,.03)}
 .wheelbox::before{content:"";position:absolute;left:12px;right:12px;top:88px;height:44px;border-radius:12px;background:var(--surface-2);z-index:0}
@@ -499,8 +622,10 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
         <span class="muted small num" id="herosub"></span>
       </div>
     </section>
+    <div class="quick" id="quick"></div>
     <div class="tiles" id="tiles"></div>
     <div id="habits" class="wrap" style="gap:16px"></div>
+    <button class="addhabit" type="button" id="addhabit">+ Gewoonte toevoegen</button>
     <section class="card" aria-labelledby="h-gevoel">
       <div class="card-head"><h2 id="h-gevoel">Hoe voel je je?</h2></div>
       <span class="label">Stemming</span>
@@ -529,6 +654,7 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
       </div>
       <div class="macros" id="macros"></div>
     </section>
+    <div id="foodlists" class="wrap" style="gap:12px"></div>
     <div class="addrow">
       <button class="addbtn" data-add="scan"><span class="ic" style="color:var(--pink)"><svg><use href="#i-barcode"/></svg></span>Barcode</button>
       <button class="addbtn" data-add="qr"><span class="ic" style="color:var(--flame)"><svg><use href="#i-qr"/></svg></span>QR-code</button>
@@ -536,7 +662,6 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
       <button class="addbtn" data-add="hand"><span class="ic" style="color:var(--night)"><svg><use href="#i-pen"/></svg></span>Handmatig</button>
     </div>
     <div id="mealtpl" class="wrap" style="gap:8px"></div>
-    <div id="foodlists" class="wrap" style="gap:16px"></div>
     <section class="card" aria-labelledby="h-drink">
       <div class="card-head"><h2 id="h-drink">Drinken</h2><span class="muted small num" id="watersub"></span></div>
       <div class="counter">
@@ -600,6 +725,11 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
         <div class="scale" id="sleepq" role="group" aria-label="Slaapkwaliteit"></div></div>
     </section>
     <section class="card">
+      <h2>Tot rust komen</h2>
+      <div class="restbtns"><button class="restbtn" type="button" id="breathbtn"><span class="qe" aria-hidden="true">🫁</span><b>Ademhaling</b><small>1 tot 5 minuten</small></button>
+      <button class="restbtn" type="button" id="sndbtn"><span class="qe" aria-hidden="true">🌊</span><b>Slaapgeluid</b><small>ruis, regen of zee</small></button></div>
+    </section>
+    <section class="card">
       <div class="card-head"><h2>Uren slaap</h2><span class="muted small" id="sleepgoal">14 dagen · doel 8 u</span></div>
       <svg class="chart" id="sleepchart" viewBox="0 0 340 150" role="img" aria-label="Slaapuren per nacht"></svg>
     </section>
@@ -630,6 +760,15 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
       <svg class="chart" id="feelchart" viewBox="0 0 340 130" role="img" aria-label="Stemming en energie per dag, 14 dagen"></svg>
       <span class="label">Wat helpt jou</span>
       <div id="insights" class="wrap" style="gap:8px"></div>
+    </section>
+    <section class="card" aria-label="Maandoverzicht">
+      <div class="calhead"><button class="mini" type="button" id="calprev" aria-label="Vorige maand">‹</button><b id="calttl"></b><button class="mini" type="button" id="calnext" aria-label="Volgende maand">›</button></div>
+      <div class="calgrid" id="calgrid"></div>
+      <span class="muted small" id="calsub"></span>
+    </section>
+    <section class="card">
+      <div class="card-head"><h2>Uitdagingen</h2><span class="muted small">badges verdienen</span></div>
+      <div class="wrap" id="chal" style="gap:10px"></div>
     </section>
     <section class="card">
       <div class="card-head"><h2>Niveau</h2><span class="muted small num" id="lvl-xp"></span></div>
@@ -674,6 +813,12 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
       <span class="muted small" id="goalnote"></span>
       <button class="btn" type="button" id="bodyprof">Lichaam en eetdoel</button>
       <button class="btn" type="button" id="redo" style="background:var(--surface-2);color:var(--ink)">Vragenlijst opnieuw doen</button>
+    </section>
+    <section class="card">
+      <h2>Privacy</h2>
+      <span class="muted small">Met een pincode kan niemand anders zomaar in je Loopa kijken.</span>
+      <button class="btn sec" type="button" id="pinbtn">Pincode instellen</button>
+      <button class="btn sec" type="button" id="logoutbtn" style="color:var(--danger)">Uitloggen</button>
     </section>
     <section class="card">
       <h2>Foto's herkennen</h2>
@@ -770,7 +915,7 @@ function saveLocal(){try{const{photos,...rest}=state;localStorage.setItem(LS,JSO
   const pk=(photos||[]).map(p=>p.id).join();if(pk!==photoKey){localStorage.setItem(LSP,JSON.stringify(photos||[]));photoKey=pk}}catch(e){}}
 function loadLocal(){try{const s=JSON.parse(localStorage.getItem(LS)||"null");if(s&&s.days){state=s;state.products=state.products||{}}}catch(e){}
   try{const p=JSON.parse(localStorage.getItem(LSP)||"null");if(Array.isArray(p)&&p.length){state.photos=p;photoKey=p.map(x=>x.id).join()}}catch(e){}migrate()}
-function migrate(){state.body=state.body||[];state.meals=state.meals||[];state.photos=state.photos||[];state.products=state.products||{};Object.values(state.days).forEach(d=>{if(d.meals&&typeof d.meals==="object"){d.food=d.food||[];Object.entries(d.meals).forEach(([m,t])=>{if(typeof t==="string"&&t.trim())d.food.push({id:uid(),name:t.trim(),meal:m,src:"hand",kcal:null})});delete d.meals}})}
+function migrate(){state.shop=state.shop||[];state.challenges=state.challenges||[];state.badges=state.badges||[];state.body=state.body||[];state.meals=state.meals||[];state.photos=state.photos||[];state.products=state.products||{};Object.values(state.days).forEach(d=>{if(d.meals&&typeof d.meals==="object"){d.food=d.food||[];Object.entries(d.meals).forEach(([m,t])=>{if(typeof t==="string"&&t.trim())d.food.push({id:uid(),name:t.trim(),meal:m,src:"hand",kcal:null})});delete d.meals}})}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 const timers={};
 function persist(docId,data){saveLocal();if(!col)return;clearTimeout(timers[docId]);setSync("Opslaan…");
@@ -816,7 +961,7 @@ function setRing(id,f,color){const el=$(id);el.setAttribute("stroke-dasharray",(
 function renderDag(){
   const dd=day(cur),h=dd.habits||{},n=state.habits.length,done=doneCount(cur),f=n?done/n:0;
   setRing("bigarc",f,f>=1?"var(--good)":"var(--pink)");
-  $("pct").textContent=Math.round(f*100)+"%";
+  countTo($("pct"),Math.round(f*100),"%");
   $("herotitle").textContent=!n?"Nog geen gewoontes":f>=1?"Alles gedaan!":done?"Goed bezig":"Aan de slag";
   $("herosub").textContent=n?`${done} van ${n} gewoontes gedaan`:"Voeg ze toe via de knop rechtsboven";
   const t=sumFood(cur),sh=sleepHours(dd),sm=sportMin(cur);
@@ -839,7 +984,7 @@ function renderDag(){
     box.appendChild(g)});
   scale("mood",["😞","😕","😐","🙂","😄"],dd.mood,v=>{ensure(cur).mood=v;saveDay(cur);render()});
   scale("energy",["🪫","🥱","😐","🙂","⚡"],dd.energy,v=>{ensure(cur).energy=v;saveDay(cur);render()});
-  renderBanners();
+  renderBanners();renderQuick();
   if(document.activeElement!==$("notes"))$("notes").value=dd.notes||"";
 }
 function scale(id,faces,val,set){const el=$(id);el.innerHTML="";faces.forEach((f,i)=>{const b=document.createElement("button");
@@ -854,7 +999,7 @@ function setProfile(k,v){state.profile=state.profile||{};state.profile[k]=v;save
 function food(k){return day(k).food||[]}
 function sumFood(k){const t={kcal:0,p:0,c:0,f:0};food(k).forEach(x=>{t.kcal+=+x.kcal||0;t.p+=+x.p||0;t.c+=+x.c||0;t.f+=+x.f||0});return t}
 function sportMin(k){return (day(k).sport||[]).reduce((a,x)=>a+(+x.min||0),0)}
-function guessMeal(){const h=new Date().getHours();return h<11?"ontbijt":h<15?"lunch":h<17?"snack":h<21?"diner":"snack"}
+function guessMeal(){if(forceMeal)return forceMeal;const h=new Date().getHours();return h<11?"ontbijt":h<15?"lunch":h<17?"snack":h<21?"diner":"snack"}
 const SRC={scan:"Barcode",qr:"QR-code",foto:"Foto",hand:"Handmatig",label:"Etiket"};
 const r0=v=>v==null||v===""?"":Math.round(+v);
 
@@ -862,27 +1007,25 @@ const r0=v=>v==null||v===""?"":Math.round(+v);
 function renderEten(){
   const t=sumFood(cur),g=goalKcal(),f=t.kcal/g;
   setRing("kcalarc",f,f>1.05?"var(--pink)":"var(--flame)");
-  $("kcalnum").textContent=Math.round(t.kcal);
+  countTo($("kcalnum"),Math.round(t.kcal),"");
   $("kcalsub").textContent=t.kcal>g?`${Math.round(t.kcal-g)} kcal boven je doel van ${g}`:`nog ${Math.round(g-t.kcal)} kcal tot je doel van ${g}`;
   const mg=macroGoals();
   const pr=state.profile||{},nb=$("eatnudge");nb.innerHTML="";nb.hidden=!!(pr.weight&&pr.height&&pr.age);
   if(!nb.hidden){const b=el(`<div class="banner"><span class="em" aria-hidden="true">🎯</span><button class="it" type="button"><b>Maak je eetschema persoonlijk</b><small>Vul je lengte, gewicht en doel in, dan rekent Loopa uit hoeveel je per maaltijd nodig hebt.</small></button></div>`);b.querySelector(".it").onclick=bodyProfileSheet;nb.appendChild(b)}
   $("macros").innerHTML=[["Eiwit",t.p,mg.p,"var(--pink)"],["Koolhydraten",t.c,mg.c,"var(--flame)"],["Vet",t.f,mg.f,"var(--night)"]]
     .map(([l,v,gl,c])=>`<div class="macro"><div class="mrow"><span>${l}</span><span class="num muted">${Math.round(v)} / ${Math.round(gl)} g</span></div><div class="bar"><i style="width:${Math.min(100,v/gl*100)}%;background:${c}"></i></div></div>`).join("");
-  const box=$("foodlists");box.innerHTML="";
-  MEALS.forEach(([m,l])=>{const items=food(cur).filter(x=>x.meal===m),sum=items.reduce((a,x)=>a+(+x.kcal||0),0);
-    const g=document.createElement("div");g.className="mealgroup";
-    g.innerHTML=`<div class="mealhead"><span class="label">${l}</span><span class="muted small num">${Math.round(sum)} <span class="goal">/ ${Math.round(goalKcal()*MEALSPLIT[m]/10)*10} kcal</span></span>${items.length?`<button class="mini star" aria-label="${l} bewaren als vaste maaltijd">☆</button>`:""}<button class="mini plus" aria-label="${l} toevoegen">+</button></div>`;
-    g.querySelector(".plus").onclick=()=>foodForm({meal:m,src:"hand"},{isNew:true});
+  const box=$("foodlists");box.innerHTML="";const MEM={ontbijt:"🌅",lunch:"🥪",diner:"🍽️",snack:"🍎"};
+  MEALS.forEach(([m,l])=>{const items=food(cur).filter(x=>x.meal===m),sum=items.reduce((a,x)=>a+(+x.kcal||0),0),goal=Math.round(goalKcal()*MEALSPLIT[m]/10)*10;
+    const g=el(`<section class="mealcard"><div class="mchead"><span class="mcem" aria-hidden="true">${MEM[m]}</span><div class="it"><b>${l}</b><small class="num">${Math.round(sum)} / ${goal} kcal</small></div>${items.length?`<button class="mini star" type="button" aria-label="${l} bewaren als vaste maaltijd">☆</button>`:""}<button class="plusbtn plus" type="button" aria-label="${l} toevoegen">+</button></div><div class="bar"><i style="width:${Math.min(100,sum/goal*100)}%"></i></div></section>`);
+    g.querySelector(".plus").onclick=()=>foodPicker(m);
     const st=g.querySelector(".star");if(st)st.onclick=()=>saveTplSheet(m);
-    if(!items.length){const e=document.createElement("div");e.className="emptyline";e.textContent="Nog niets";g.appendChild(e)}
-    items.forEach(x=>{const b=document.createElement("button");b.className="item";
-      b.innerHTML=`<span class="it"><b></b><small></small></span><span class="kc num"></span>`;
+    if(!items.length){const e=el(`<button class="fempty" type="button"></button>`);e.textContent="+ "+l+" toevoegen";e.onclick=()=>foodPicker(m);g.appendChild(e)}
+    items.forEach(x=>{const b=el(`<button class="fitem${x.id===lastFood?" new":""}" type="button">${foodThumb(x)}<span class="it"><b></b><small class="num"></small></span><span class="kc num"></span></button>`);
       b.querySelector("b").textContent=x.name||"Zonder naam";
-      b.querySelector("small").textContent=[x.amount,SRC[x.src]].filter(Boolean).join(" · ");
+      b.querySelector("small").textContent=[x.qty&&x.qty!==1?fmtQty(x.qty):null,x.amount,SRC[x.src]&&x.src!=="hand"?SRC[x.src]:null].filter(Boolean).join(" · ");
       b.querySelector(".kc").textContent=x.kcal!=null&&x.kcal!==""?Math.round(x.kcal)+" kcal":"–";
       b.onclick=()=>foodForm(x,{isNew:false});g.appendChild(b)});
-    box.appendChild(g)});
+    fixFoodImgs(g);box.appendChild(g)});lastFood=null;
   const w=day(cur).water||0;$("wcount").textContent=w;$("watersub").textContent=`${w} van ${goalWater()} glazen water`;
   renderTpl();$("w-rem").checked=rem().water;
   $("glasses").innerHTML=Array.from({length:Math.max(goalWater(),w)},(_,i)=>'<span class="'+(i<w?"full":"")+'"></span>').join("");
@@ -897,6 +1040,7 @@ $("kcalgoal").onclick=()=>goalSheet("Dagdoel calorieën","kcal per dag",goalKcal
 /* ---- sheet ---- */
 function openSheet(build){const s=$("sheetin");s.className="sheet-in";s.innerHTML='<div class="grab"></div>';build(s);
   $("sheetbg").hidden=false;$("sheet").hidden=false;$("sheet").scrollTop=0;document.body.style.overflow="hidden";
+  [...s.children].forEach((c,i)=>c.style.setProperty("--i",Math.min(i,10)));
   requestAnimationFrame(()=>requestAnimationFrame(()=>{$("sheet").classList.add("open");$("sheetbg").classList.add("open")}))}
 function closeSheet(){$("sheet").classList.remove("open");$("sheetbg").classList.remove("open");
   setTimeout(()=>{if(!$("sheet").classList.contains("open")){$("sheet").hidden=true;$("sheetbg").hidden=true;document.body.style.overflow=""}},300)}
@@ -919,11 +1063,11 @@ function goalSheet(title,unit,val,min,max,step,save){openSheet(s=>{s.appendChild
   const ok=el(`<button class="btn" type="button">Opslaan</button>`);ok.onclick=()=>{save(val);closeSheet();render()};s.appendChild(ok)})}
 
 /* ---- eten toevoegen of aanpassen ---- */
-function recentFoods(){const seen=new Map();Object.keys(state.days).sort().reverse().forEach(k=>food(k).forEach(x=>{if(x.name&&!seen.has(x.name))seen.set(x.name,x)}));return [...seen.values()].slice(0,8)}
+function recentFoods(){const seen=new Map();Object.keys(state.days).sort().reverse().forEach(k=>food(k).forEach(x=>{if(x.name&&!seen.has(x.name))seen.set(x.name,x)}));return [...seen.values()].slice(0,8).map(perPortion)}
 function foodForm(entry,opts){
-  const e={name:"",amount:"",kcal:"",p:"",c:"",f:"",meal:guessMeal(),src:"hand",...entry};
+  const e={name:"",amount:"",kcal:"",p:"",c:"",f:"",meal:guessMeal(),src:"hand",...entry};if(e.base)Object.assign(e,e.base);
   openSheet(s=>{
-    s.appendChild(el(`<h2>${opts.isNew?"Eten toevoegen":"Eten aanpassen"}</h2>`));
+    {const hd=el(`<div class="fhead">${foodThumb(e,true)}<h2>${opts.isNew?"Eten toevoegen":"Eten aanpassen"}</h2></div>`);fixFoodImgs(hd);s.appendChild(hd)}
     if(opts.unknown){const n=el(`<div class="notebox"><b>Dit product ken ik nog niet.</b> Vul het één keer in, dan herkent de app het bij de volgende scan. Of maak een foto van het etiket, dan leest Claude de voedingswaarden voor je.</div>`);s.appendChild(n);
       const lb=el(`<button class="btn sec" type="button">${icon("i-camera","width:18px;height:18px;vertical-align:-3px;margin-right:6px")}Foto van het etiket</button>`);
       lb.onclick=()=>{pendingForm={entry:{...e,...read()},opts};pickFile("label")};s.appendChild(lb)}
@@ -946,6 +1090,7 @@ function foodForm(entry,opts){
     const g3=el(`<div class="grid3"></div>`);
     [["p","Eiwit (g)"],["c","Koolh. (g)"],["f","Vet (g)"]].forEach(([k,l])=>g3.appendChild(field(l,`<input type="number" id="f-${k}" inputmode="decimal" min="0" max="1000">`)));
     s.append(fName,fAmt,fK,g3);
+    const qb=qtyBox(s,e.qty||1,()=>{const v=$("f-kcal")&&$("f-kcal").value;return v===""||v==null?null:+v});s.appendChild(qb);
     let meal=e.meal;s.appendChild(el(`<span class="label">Maaltijd</span>`));
     s.appendChild(segment(MEALS.map(([v,l])=>[v,l==="Avondeten"?"Avond":l==="Tussendoor"?"Snack":l]),meal,v=>meal=v));
     let remember=null;
@@ -962,6 +1107,8 @@ function foodForm(entry,opts){
     const ok=el(`<button class="btn" type="button">${opts.isNew?"Toevoegen":"Opslaan"}</button>`);
     ok.onclick=()=>{const v=read();if(!v.name){$("f-name").focus();$("f-name").placeholder="Geef het eerst een naam";return}
       const d=ensure(cur);d.food=d.food||[];const item={...e,...v,id:e.id||uid(),src:e.src,...(opts.gtin?{gtin:opts.gtin}:{})};
+      {const qty=qb.get(),mul=n=>n==null?null:Math.round(n*qty*10)/10;item.base={amount:v.amount,kcal:v.kcal,p:v.p,c:v.c,f:v.f};item.qty=qty;
+        item.kcal=v.kcal==null?null:Math.round(v.kcal*qty);item.p=mul(v.p);item.c=mul(v.c);item.f=mul(v.f);if(opts.img&&!item.img)item.img=opts.img;delete item.tag;delete item.g;delete item.unit;lastFood=item.id;forceMeal=null}
       const i=d.food.findIndex(x=>x.id===item.id);if(i>=0)d.food[i]=item;else d.food.push(item);
       if(opts.gtin&&$("f-rem")&&$("f-rem").checked){state.products[opts.gtin]=pc?{name:v.name,per100:pc,serving:+gramsInp.value||100,img:opts.img||null}:{name:v.name,amount:v.amount,kcal:v.kcal,p:v.p,c:v.c,f:v.f};saveProducts()}
       saveDay(cur);closeSheet();if(view!=="eten")show("eten");else render()};
@@ -1150,7 +1297,8 @@ function renderGymCard(){const box=$("gymcard");box.innerHTML="";
   rs.forEach(r=>{const c=el(`<div class="routine"><b></b><small></small><div class="btnrow"><button class="btn" type="button">Start</button><button class="btn sec" type="button" aria-label="Schema aanpassen">Aanpassen</button></div></div>`);
     c.querySelector("b").textContent=r.name;c.querySelector("small").textContent=r.ex.map(e=>exById(e.ex).name).join(", ");
     const[s1,s2]=c.querySelectorAll("button");s1.onclick=()=>startWorkout(r);s2.onclick=()=>routineEditor(r);grid.appendChild(c)});
-  box.appendChild(grid)}
+  box.appendChild(grid);
+  const pr=el(`<button class="btn sec" type="button">📋 Kant-en-klare schema's</button>`);pr.onclick=presetSheet;box.appendChild(pr)}
 
 /* workout starten en bijhouden */
 function startWorkout(r){
@@ -1374,13 +1522,13 @@ $("restorefile").addEventListener("change",async e=>{const f=e.target.files[0];i
   if(!data||typeof data.days!=="object"){msgSheet("Dit is geen Loopa-back-up","Kies het bestand dat je eerder met Back-up downloaden hebt bewaard.");return}
   const n=Object.keys(data.days).length;
   msgSheet("Back-up terugzetten?",`Deze back-up bevat ${n} dagen. Alles wat nu in de app staat wordt vervangen.`,[["Terugzetten",()=>{
-    state={habits:[],days:{},profile:null,products:{},routines:[],customEx:[],active:null,...data};migrate();saveLocal();closeSheet();show("dag")}],["Annuleren",closeSheet]])});
+    state={habits:[],days:{},profile:null,products:{},routines:[],customEx:[],active:null,...data};migrate();saveLocal();closeSheet();if(!$("onb").hidden)closeOnb();show("dag")}],["Annuleren",closeSheet]])});
 
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
 
 /* ---- Slaap ---- */
-function renderSlaap(){const dd=day(cur);
+function renderSlaap(){const dd=day(cur);renderRestCard();
   $("bed").value=dd.bed||"";$("wake").value=dd.wake||"";renderTimeBtns();
   const sh=sleepHours(dd);$("sleephrs").textContent=fmtH(sh);
   $("sleepnote").textContent=sh==null?"vul je tijden in":sh>=goalSleep()?"geslapen, doel gehaald":"geslapen, doel is "+goalSleep()+" uur";
@@ -1401,7 +1549,7 @@ function renderSleepChart(){
 
 /* ---- Overzicht ---- */
 function renderOverview(){
-  renderBody();renderFeel();$("rapsub").textContent=weekLabel(reportWeek());
+  renderMonth();renderChallenges();renderBody();renderFeel();$("rapsub").textContent=weekLabel(reportWeek());
   const today=keyOf(new Date()),last=n=>Array.from({length:n},(_,i)=>addDays(today,i-n+1));
   const w7=last(7),avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
   const sl=avg(w7.map(k=>sleepHours(day(k))).filter(x=>x!=null));$("s-sleep").textContent=sl==null?"–":fmtH(sl);
@@ -1426,7 +1574,7 @@ function renderOverview(){
 /* gewoontes beheren */
 function renderSeg(){const s=$("partseg");s.innerHTML="";PARTS.forEach(([p,l])=>{const b=document.createElement("button");b.type="button";
   b.textContent=l;b.setAttribute("aria-pressed",p===newPart);b.onclick=()=>{newPart=p;renderSeg()};s.appendChild(b)})}
-function renderSettings(){renderSeg();renderRemUI();renderIdeas();$("rem-cheer").checked=cheerOn();const l=$("editlist");l.innerHTML="";
+function renderSettings(){renderPinUI();renderSeg();renderRemUI();renderIdeas();$("rem-cheer").checked=cheerOn();const l=$("editlist");l.innerHTML="";
   if(!state.habits.length)l.innerHTML='<p class="empty">Nog geen gewoontes.</p>';
   state.habits.forEach((x,i)=>{const r=document.createElement("div");r.className="edit-item";
     r.innerHTML='<div style="flex:1;min-width:0;display:flex;flex-direction:column"><span class="n"></span><span class="p"></span></div><button class="btn-del" type="button">Verwijder</button>';
@@ -1439,6 +1587,275 @@ function renderSettings(){renderSeg();renderRemUI();renderIdeas();$("rem-cheer")
 }
 $("addform").addEventListener("submit",e=>{e.preventDefault();const v=$("newhabit").value.trim();if(!v)return;
   state.habits.push({id:"h"+Date.now().toString(36),name:v,part:newPart});$("newhabit").value="";saveHabits();renderSettings()});
+
+/* ===== v12: eten met plaatjes, porties, zoek-en-plus, vloeiende overgangen ===== */
+let forceMeal=null,lastFood=null;
+const FOODEM=[[/eiwitshake|shake|smoothie/,"🥤"],[/pindakaas|pinda|noten|amandel|walnoot|cashew|hazelno/,"🥜"],[/appelmoes/,"🍎"],[/yoghurt|kwark|skyr|vla|pap\b|muesli|granola|havermout|cornflakes|cruesli|ontbijtgranen/,"🥣"],
+ [/chocomel|melk|latte|cappuccino/,"🥛"],[/koffie|espresso/,"☕"],[/thee/,"🍵"],[/pannenkoek|poffertje/,"🥞"],[/wafel|stroopwafel/,"🧇"],[/croissant/,"🥐"],
+ [/brood|boterham|bolletje|toast|beschuit|cracker|knack|wrap|pita|stokbrood|broodje|tosti/,"🍞"],[/kaas/,"🧀"],[/\bei\b|eieren|omelet|eitje/,"🥚"],[/banaan/,"🍌"],[/appel/,"🍎"],[/peer\b|peren/,"🍐"],
+ [/sinaas|mandarijn|clementine|jus d/,"🍊"],[/aardbei/,"🍓"],[/druif|druiven/,"🍇"],[/kiwi/,"🥝"],[/ananas/,"🍍"],[/mango/,"🥭"],[/bes\b|bessen|framboz/,"🫐"],[/meloen/,"🍉"],[/avocado/,"🥑"],
+ [/tomaat|tomaten/,"🍅"],[/komkommer/,"🥒"],[/wortel/,"🥕"],[/mais/,"🌽"],[/broccoli|bloemkool|spinazie|\bsla\b|salade|groente|boontjes|sperzie|paprika|courgette|andijvie|boerenkool|zuurkool|stamppot/,"🥗"],
+ [/friet|patat/,"🍟"],[/aardappel|krieltjes/,"🥔"],[/sushi/,"🍣"],[/noedel|ramen|bami/,"🍜"],[/rijst|nasi|risotto/,"🍚"],[/pasta|spaghetti|macaroni|lasagne|penne|tagliatelle/,"🍝"],[/pizza/,"🍕"],
+ [/burger/,"🍔"],[/kebab|shoarma|doner|gyros/,"🥙"],[/burrito|taco|wrap/,"🌯"],[/kip|kalkoen|chicken/,"🍗"],[/bacon|spek/,"🥓"],[/worst|frikandel|knakworst|hotdog/,"🌭"],
+ [/gehakt|biefstuk|steak|vlees|rund|varken|ham\b|filet|schnitzel|karbonade/,"🥩"],[/garnaal|garnalen/,"🍤"],[/vis\b|zalm|tonijn|kabeljauw|haring|makreel|vissti|lekkerbek|kibbeling/,"🐟"],
+ [/bonen|linzen|kikkererwt|tofu|tempeh|hummus/,"🫘"],[/soep/,"🍲"],[/chocola|nutella|hagelslag|bonbon/,"🍫"],[/koek|biscuit|cookie|ontbijtkoek|speculaas/,"🍪"],[/taart|cake|gebak|muffin|brownie|donut/,"🍰"],
+ [/\bijs\b|ijsje|magnum|sorbet/,"🍦"],[/snoep|drop|winegum|zuurtje/,"🍬"],[/popcorn/,"🍿"],[/chips|zoutje|pretzel/,"🥨"],[/jam|honing|stroop/,"🍯"],[/boter|margarine/,"🧈"],[/olie/,"🫒"],
+ [/cola|frisdrank|fanta|sinas|ice tea|energy|red bull|limonade|7up|sprite/,"🥤"],[/\bsap\b|sapje|jus/,"🧃"],[/bier/,"🍺"],[/wijn/,"🍷"],[/water/,"💧"],[/mayo|ketchup|saus|dressing/,"🥫"]];
+const FOODBG=["#fff1e6","#eaf7ee","#fff6d9","#eef0ff","#ffeef0","#eef8f8"];
+function foodEmoji(name){const n=norm(name);for(const[r,e]of FOODEM)if(r.test(n))return e;return "🍽️"}
+function foodThumb(x,big){const em=foodEmoji(x.name||""),bg=FOODBG[[...em].reduce((a,c)=>a+c.codePointAt(0),0)%FOODBG.length];
+  return `<span class="fth${big?" lg":""}" style="background:${bg}" aria-hidden="true"><i>${em}</i>${x.img&&/^https:\/\//.test(x.img)?`<img alt="" loading="lazy" src="${x.img.replace(/"/g,"")}">`:""}</span>`}
+function fixFoodImgs(root){root.querySelectorAll(".fth img").forEach(i=>{i.onerror=()=>i.remove();if(i.complete&&!i.naturalWidth)i.remove()})}
+const fmtQty=q=>(q===.5?"½":String(q).replace(".",","))+"×";
+const perPortion=x=>x.base?{...x,...x.base}:x;
+const SHORTMEAL=l=>l==="Avondeten"?"Avond":l==="Tussendoor"?"Snack":l;
+function quickAdd(x,meal,qty){qty=qty||1;const d=ensure(cur);d.food=d.food||[];const b=x.base||x,r=v=>v==null||v===""?null:+v,m=v=>r(v)==null?null:Math.round(r(v)*qty*10)/10;
+  const item={id:uid(),name:x.name,amount:b.amount||"",kcal:r(b.kcal)==null?null:Math.round(r(b.kcal)*qty),p:m(b.p),c:m(b.c),f:m(b.f),meal,src:"hand",qty,base:{amount:b.amount||"",kcal:r(b.kcal),p:r(b.p),c:r(b.c),f:r(b.f)},...(x.img?{img:x.img}:{})};
+  d.food.push(item);lastFood=item.id;saveDay(cur);render();return item}
+function foodPicker(meal){meal=meal||guessMeal();let q="",offT=null;
+  openSheet(s=>{s.classList.add("picker");
+    s.appendChild(el(`<h2>Eten toevoegen</h2>`));
+    s.appendChild(segment(MEALS.map(([v,l])=>[v,SHORTMEAL(l)]),meal,v=>meal=v));
+    const sw=el(`<label class="fsearch"><span aria-hidden="true">🔍</span><input type="search" placeholder="Zoek eten, bv. yoghurt" aria-label="Zoek eten" autocomplete="off" enterkeyhint="search"></label>`),inp=sw.querySelector("input");s.appendChild(sw);
+    const acts=el(`<div class="factions"></div>`);
+    [["scan","i-barcode","Barcode","var(--pink)"],["foto","i-camera","Foto","var(--good)"],["hand","i-pen","Zelf invullen","var(--night)"],["qr","i-qr","QR-code","var(--flame)"]].forEach(([m,ic,l,c])=>{
+      const b=el(`<button class="fact" type="button"><span class="ic" style="color:${c}">${icon(ic)}</span><span></span></button>`);b.lastChild.textContent=l;
+      b.onclick=()=>{forceMeal=meal;if(m==="hand")foodForm({meal,src:"hand",name:q},{isNew:true});else{closeSheet();pickFile(m)}};acts.appendChild(b)});
+    s.appendChild(acts);
+    const list=el(`<div class="flist"></div>`);s.appendChild(list);
+    const row=x=>{const r=el(`<div class="frow">${""}<button class="fmain" type="button">${foodThumb(x)}<span class="it"><b></b><small class="num"></small></span></button><button class="fplus" type="button" aria-label="Toevoegen">+</button></div>`);
+      r.querySelector("b").textContent=x.name;r.querySelector("small").textContent=[x.amount,x.kcal!=null&&x.kcal!==""?Math.round(x.kcal)+" kcal":null,x.tag&&x.tag!=="Standaard"?x.tag:null].filter(Boolean).join(" · ");
+      r.querySelector(".fmain").onclick=()=>{forceMeal=meal;foodForm({...x,meal,src:"hand",tag:undefined},{isNew:true,picked:true})};
+      const pl=r.querySelector(".fplus");pl.onclick=()=>{if(pl.classList.contains("ok"))return;quickAdd(x,meal);pl.classList.add("ok");pl.textContent="✓";pl.setAttribute("aria-label","Toegevoegd");
+        toast(`${x.name} toegevoegd aan ${SHORTMEAL(MEALS.find(m=>m[0]===meal)[1]).toLowerCase()}`,"Ongedaan",()=>{const d=ensure(cur);d.food=(d.food||[]).filter(y=>y.id!==lastFood);saveDay(cur);render();pl.classList.remove("ok");pl.textContent="+"});
+        setTimeout(()=>{pl.classList.remove("ok");pl.textContent="+";pl.setAttribute("aria-label","Nog een keer toevoegen")},1600)};
+      fixFoodImgs(r);return r};
+    const sect=(t,items)=>{if(!items.length)return;list.appendChild(el(`<span class="label">${t}</span>`));items.forEach(x=>list.appendChild(row(x)))};
+    const draw=extra=>{list.innerHTML="";
+      if(!q){const rc=recentFoods().map(perPortion);sect("Eerder gegeten",rc);
+        const ts=state.meals||[];if(ts.length){list.appendChild(el(`<span class="label">Vaste maaltijden</span>`));ts.forEach(t=>{const kc=t.items.reduce((a,x)=>a+(+x.kcal||0),0);
+          const r=el(`<div class="frow"><button class="fmain" type="button"><span class="fth" style="background:#fff1e6" aria-hidden="true"><i>⭐</i></span><span class="it"><b></b><small class="num"></small></span></button><button class="fplus" type="button" aria-label="Hele maaltijd toevoegen">+</button></div>`);
+          r.querySelector("b").textContent=t.name;r.querySelector("small").textContent=`${t.items.length} dingen · ${Math.round(kc)} kcal`;
+          const add=()=>{t.items.forEach(x=>quickAdd(x,meal,x.base?(x.qty||1):1));toast(t.name+" toegevoegd");closeSheet()};r.querySelector(".fmain").onclick=add;r.querySelector(".fplus").onclick=add;list.appendChild(r)})}
+        if(!rc.length&&!ts.length)sect("Populair",FOODS.filter(x=>/Banaan|Appel|Griekse yoghurt|Volkoren brood|Ei|Kipfilet|Rijst|Havermout/.test(x.name)).slice(0,8));return}
+      const res=foodSearch(q).slice(0,extra?6:14).concat(extra||[]);
+      if(!res.length)list.appendChild(el(`<div class="emptyline">Niets gevonden.</div>`));else res.forEach(x=>list.appendChild(row(x)));
+      const own=el(`<button class="btn sec" type="button"></button>`);own.textContent=`"${q}" zelf invullen`;own.onclick=()=>{forceMeal=meal;foodForm({name:q,meal,src:"hand"},{isNew:true})};list.appendChild(own)};
+    inp.addEventListener("input",()=>{q=inp.value.trim();draw();clearTimeout(offT);
+      if(typeof offSearch==="function"&&q.length>=3)offT=setTimeout(async()=>{const qq=q;let r=[];try{r=await offSearch(qq)}catch(e){}if(qq===q&&r.length)draw(r)},600)});
+    draw()})}
+
+/* porties in het formulier */
+function qtyBox(s,start,getK){let qty=start||1;const box=el(`<div class="qtybox"><span class="label">Hoeveel porties</span><div class="qtyrow"><button class="round" type="button" aria-label="Minder">−</button><div class="qtychips"></div><button class="round" type="button" aria-label="Meer">+</button></div><div class="qtytot num"></div></div>`);
+  const chips=box.querySelector(".qtychips"),tot=box.querySelector(".qtytot"),[mi,pl]=box.querySelectorAll(".qtyrow>.round");
+  const opts=[.5,1,2,3,4,5,6];
+  const draw=()=>{chips.innerHTML="";const list=opts.includes(qty)?opts:opts.concat(qty).sort((a,b)=>a-b);
+    list.forEach(v=>{const b=el(`<button class="qchip${v===qty?" on":""}" type="button"></button>`);b.textContent=fmtQty(v);b.onclick=()=>{qty=v;draw()};chips.appendChild(b)});
+    const on=chips.querySelector(".on");if(on)on.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"});upd()};
+  const upd=()=>{const k=getK();tot.textContent=k==null?`${fmtQty(qty)} portie`:qty===1?`Totaal ${Math.round(k)} kcal`:`${fmtQty(qty)} ${Math.round(k)} kcal = ${Math.round(k*qty)} kcal totaal`};
+  mi.onclick=()=>{qty=qty<=1?.5:qty-1;draw()};pl.onclick=()=>{qty=qty<1?1:Math.min(50,qty+1);draw()};
+  const h=()=>{if(!box.isConnected){document.removeEventListener("input",h,true);document.removeEventListener("click",hc,true);return}upd()},hc=()=>setTimeout(h);
+  document.addEventListener("input",h,true);document.addEventListener("click",hc,true);
+  setTimeout(draw);box.get=()=>qty;return box}
+
+/* ---- vloeiende overgangen ---- */
+const reduceMotion=()=>window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+function countTo(node,v,suf){if(!node)return;const from=node._v==null?v:node._v;node._v=v;
+  if(from===v||reduceMotion()){node.textContent=v+suf;return}cancelAnimationFrame(node._raf);const t0=performance.now(),d=550;
+  const step=t=>{const k=Math.min(1,(t-t0)/d),e=1-Math.pow(1-k,3);node.textContent=Math.round(from+(v-from)*e)+suf;if(k<1)node._raf=requestAnimationFrame(step)};node._raf=requestAnimationFrame(step)}
+let prevView="dag";
+function animateView(v){const order=VIEWS,dir=order.indexOf(v)-order.indexOf(prevView);prevView=v;const node=$("view-"+v);if(!node||reduceMotion())return;
+  [...node.children].forEach((c,i)=>c.style.setProperty("--i",Math.min(i,8)));
+  node.classList.remove("view-in","from-l");void node.offsetWidth;node.classList.add("view-in");if(dir<0)node.classList.add("from-l");
+  clearTimeout(node._t);node._t=setTimeout(()=>node.classList.remove("view-in","from-l"),900)}
+
+/* ===== v11: snelknoppen, boodschappen, schema's, uitdagingen, maand, rust, pincode ===== */
+function saveShop(){persist("shop",{items:state.shop||[]})}
+function saveChal(){persist("challenges",{list:state.challenges||[],badges:state.badges||[]})}
+
+/* ---- snelknoppen op Vandaag ---- */
+const PART_ORDER={ochtend:0,middag:1,avond:2,dag:3};
+function nextHabit(){const h=day(cur).habits||{},hr=new Date().getHours(),now=hr<12?"ochtend":hr<18?"middag":"avond";
+  const open=state.habits.filter(x=>!h[x.id]);if(!open.length)return null;
+  return open.slice().sort((a,b)=>{const pa=partOf(a)===now?-1:PART_ORDER[partOf(a)],pb=partOf(b)===now?-1:PART_ORDER[partOf(b)];return pa-pb})[0]}
+function renderQuick(){const box=$("quick"),dd=day(cur),nh=nextHabit(),faces=["😞","😕","😐","🙂","😄"];box.innerHTML="";
+  const mk=(em,top,sub,fn,label)=>{const b=el(`<button class="qbtn" type="button"><span class="qe" aria-hidden="true"></span><b></b><small></small></button>`);
+    b.querySelector(".qe").textContent=em;b.querySelector("b").textContent=top;b.querySelector("small").textContent=sub;b.setAttribute("aria-label",label);b.onclick=fn;box.appendChild(b)};
+  mk("💧",`${dd.water||0}/${goalWater()}`,"+1 glas",()=>$("wplus").click(),"Glas water erbij");
+  mk(dd.mood?faces[dd.mood-1]:"🙂",dd.mood?"Stemming":"Hoe gaat het?",dd.mood?"aanpassen":"tik om in te vullen",moodSheet,"Stemming en energie invullen");
+  if(nh)mk(nh.em||"✅","Volgende",nh.name,()=>{const e=ensure(cur);e.habits=e.habits||{};e.habits[nh.id]=true;lastTog=nh.id;saveDay(cur);render();lastTog=null;cheerHabit()},"Afvinken: "+nh.name);
+  else mk("🎉","Alles gedaan",state.habits.length?"goed bezig!":"voeg gewoontes toe",()=>{if(!state.habits.length)ideasSheet()},"Alles gedaan")}
+function moodSheet(){openSheet(s=>{s.appendChild(el(`<h2>Hoe voel je je?</h2>`));
+  s.appendChild(el(`<span class="label">Stemming</span>`));s.appendChild(el(`<div class="scale" id="q-mood" role="group" aria-label="Stemming"></div>`));
+  s.appendChild(el(`<span class="label">Energie</span>`));s.appendChild(el(`<div class="scale" id="q-energy" role="group" aria-label="Energie"></div>`));
+  const draw=()=>{const dd=day(cur);scale("q-mood",["😞","😕","😐","🙂","😄"],dd.mood,v=>{ensure(cur).mood=v;saveDay(cur);draw();render()});
+    scale("q-energy",["🪫","🥱","😐","🙂","⚡"],dd.energy,v=>{ensure(cur).energy=v;saveDay(cur);draw();render()})};draw();
+  const ok=el(`<button class="btn" type="button">Klaar</button>`);ok.onclick=closeSheet;s.appendChild(ok)})}
+function ideasSheet(){let part="ochtend";
+  openSheet(s=>{s.appendChild(el(`<h2>Gewoonte toevoegen</h2>`));s.appendChild(el(`<span class="label">Tik op een idee</span>`));
+    const c=el(`<div class="chips"></div>`);s.appendChild(c);
+    const draw=()=>{c.innerHTML="";const have=new Set(state.habits.map(h=>h.name.toLowerCase()));
+      HABIT_IDEAS.forEach(([em,n,p])=>{const on=have.has(n.toLowerCase()),b=el(`<button class="chipbtn${on?" on":""}" type="button"></button>`);b.textContent=em+" "+n+(on?" ✓":"");
+        b.onclick=()=>{if(on){toast(n+" staat al in je lijst");return}state.habits.push({id:"h"+uid(),name:n,part:p,em});saveHabits();draw();render();toast(`${em} ${n} staat nu bij ${PARTS.find(x=>x[0]===p)[1].toLowerCase()}`)};c.appendChild(b)})};draw();
+    s.appendChild(el(`<span class="label">Of maak je eigen</span>`));
+    const inp=el(`<input type="text" maxlength="60" placeholder="bv. 10 min mediteren" aria-label="Eigen gewoonte">`);s.appendChild(inp);
+    s.appendChild(segment(PARTS.map(p=>[p[0],p[1]]),part,v=>part=v));
+    const ok=el(`<button class="btn" type="button">Toevoegen</button>`);ok.onclick=()=>{const v=inp.value.trim();if(!v){inp.focus();return}state.habits.push({id:"h"+uid(),name:v,part});saveHabits();inp.value="";draw();render();toast(v+" toegevoegd")};s.appendChild(ok)})}
+
+/* ---- boodschappenlijst ---- */
+function shopSheet(){openSheet(s=>{s.appendChild(el(`<h2>Boodschappenlijst</h2>`));
+  const list=el(`<div class="shoplist"></div>`),add=el(`<form class="shopadd"><input type="text" maxlength="60" placeholder="Iets toevoegen" aria-label="Boodschap toevoegen"><button class="mini plus" type="submit" aria-label="Toevoegen">+</button></form>`);
+  const draw=()=>{list.innerHTML="";const it=state.shop||[];
+    if(!it.length)list.appendChild(el(`<div class="emptyline">Je lijst is leeg. Voeg iets toe, of maak hem uit je vaste maaltijden.</div>`));
+    it.slice().sort((a,b)=>a.done-b.done).forEach(x=>{const r=el(`<label class="shopitem${x.done?" done":""}"><input type="checkbox"><span></span></label>`);r.querySelector("span").textContent=(x.n>1?x.n+"× ":"")+x.name;
+      const cb=r.querySelector("input");cb.checked=!!x.done;cb.onchange=()=>{x.done=cb.checked;saveShop();draw()};list.appendChild(r)})};
+  add.onsubmit=e=>{e.preventDefault();const i=add.querySelector("input"),v=i.value.trim();if(!v)return;addShop(v);i.value="";draw()};
+  s.append(add,list);draw();
+  const row=el(`<div class="btnrow"></div>`),fromT=el(`<button class="btn" type="button">Uit vaste maaltijden</button>`),clr=el(`<button class="btn sec" type="button">Afgevinkt weghalen</button>`);
+  fromT.onclick=()=>shopFromMeals();clr.onclick=()=>{state.shop=(state.shop||[]).filter(x=>!x.done);saveShop();draw()};row.append(fromT,clr);s.appendChild(row);
+  const share=el(`<button class="linkbtn" type="button" style="align-self:center;padding:8px">Lijst delen of kopiëren</button>`);
+  share.onclick=async()=>{const txt="Boodschappen:\n"+(state.shop||[]).filter(x=>!x.done).map(x=>"- "+(x.n>1?x.n+"× ":"")+x.name).join("\n");
+    try{if(navigator.share){await navigator.share({text:txt});return}}catch(e){if(e&&e.name==="AbortError")return}
+    try{await navigator.clipboard.writeText(txt);toast("Lijst gekopieerd")}catch(e){msgSheet("Kopiëren lukte niet","Je browser staat kopiëren hier niet toe.")}};s.appendChild(share)})}
+function addShop(name,n){state.shop=state.shop||[];const ex=state.shop.find(x=>!x.done&&x.name.toLowerCase()===name.toLowerCase());if(ex)ex.n=(ex.n||1)+(n||1);else state.shop.push({id:uid(),name,n:n||1,done:false});saveShop()}
+function shopFromMeals(){const ts=state.meals||[];if(!ts.length){msgSheet("Nog geen vaste maaltijden","Bewaar eerst een maaltijd met ☆ bij Eten. Daarna kun je er hier een boodschappenlijst van maken.",[["Terug",shopSheet]]);return}
+  const cnt={};openSheet(s=>{s.appendChild(el(`<h2>Hoe vaak eet je dit deze week?</h2>`));
+    ts.forEach(t=>{cnt[t.id]=0;const r=el(`<div class="item" style="background:var(--surface-2)"><span class="it"><b></b><small></small></span><div class="counter" style="flex-wrap:nowrap;gap:8px"><button class="round" type="button" aria-label="Minder" style="width:34px;height:34px;background:var(--surface)">−</button><span class="num" style="min-width:2ch;text-align:center;font-weight:700">0</span><button class="round" type="button" aria-label="Meer" style="width:34px;height:34px;background:var(--surface)">+</button></div></div>`);
+      r.querySelector("b").textContent=t.name;r.querySelector("small").textContent=t.items.map(x=>x.name).join(", ");const[mi,pl]=r.querySelectorAll("button"),v=r.querySelector(".num");
+      mi.onclick=()=>{cnt[t.id]=Math.max(0,cnt[t.id]-1);v.textContent=cnt[t.id]};pl.onclick=()=>{cnt[t.id]++;v.textContent=cnt[t.id]};s.appendChild(r)});
+    const ok=el(`<button class="btn" type="button">Op de lijst zetten</button>`);ok.onclick=()=>{let k=0;ts.forEach(t=>{if(cnt[t.id])t.items.forEach(x=>{addShop(x.name,cnt[t.id]);k++})});if(k)toast(k+" dingen op je lijst gezet");shopSheet()};s.appendChild(ok);
+    const back=el(`<button class="btn sec" type="button">Terug</button>`);back.onclick=shopSheet;s.appendChild(back)})}
+
+/* ---- kant-en-klare trainingsschema's ---- */
+const PRESETS=[
+  ["Full body A","Beginner, 2 à 3 keer per week afwisselen met B",["squat","bench-press","bent-over-row","overhead-press","plank"]],
+  ["Full body B","Beginner, afwisselen met A",["deadlift","incline-dumbbell-press","lat-pulldown","lunge","hanging-leg-raise"]],
+  ["Push","Borst, schouders en triceps",["bench-press","overhead-press","incline-dumbbell-press","lateral-raise","triceps-pushdown","overhead-cable-extension"]],
+  ["Pull","Rug en biceps",["deadlift","pull-up","seated-cable-row","face-pull","barbell-curl","hammer-curl"]],
+  ["Legs","Benen en billen",["squat","romanian-deadlift","leg-press","lying-leg-curl","hip-thrust","standing-calf-raise"]],
+  ["Upper","Bovenlichaam",["bench-press","bent-over-row","dumbbell-shoulder-press","lat-pulldown","dumbbell-curl","triceps-pushdown"]],
+  ["Lower","Onderlichaam",["squat","romanian-deadlift","bulgarian-split-squat","leg-extension","seated-calf-raise"]],
+  ["Thuis zonder gewichten","Alleen je eigen lichaam",["push-up","glute-bridge","lunge","bench-dip","mountain-climber","plank","burpee"]]];
+function presetSheet(){openSheet(s=>{s.classList.add("tall");s.appendChild(el(`<h2>Kant-en-klare schema's</h2>`));
+  s.appendChild(el(`<span class="muted small">Begin je net? Doe Full body A en B om en om. Al ervaren? Probeer Push, Pull en Legs.</span>`));
+  PRESETS.forEach(([n,sub,ids])=>{const c=el(`<div class="routine" style="background:var(--surface-2)"><b></b><small class="muted"></small><div class="pthumbs"></div><small></small><div class="btnrow"><button class="btn" type="button">Start</button><button class="btn sec" type="button" style="background:var(--surface)">Bewaren</button></div></div>`);
+    c.querySelector("b").textContent=n;c.querySelectorAll("small")[0].textContent=sub;c.querySelectorAll("small")[1].textContent=ids.map(i=>exById(i).name).join(", ");
+    c.querySelector(".pthumbs").innerHTML=ids.map(i=>exThumb(i)).join("");fixImgs(c);
+    const r={id:null,name:n,ex:ids.map(i=>({ex:i,sets:3}))},[st,sv]=c.querySelectorAll(".btnrow button");
+    st.onclick=()=>{closeSheet();if(state.active){msgSheet("Er loopt al een workout","Rond die eerst af of annuleer hem.");return}setTimeout(()=>startWorkout(r),320)};
+    sv.onclick=()=>{state.routines=state.routines||[];if(state.routines.some(x=>x.name===n)){toast(n+" staat al bij je schema's");return}state.routines.push({...JSON.parse(JSON.stringify(r)),id:uid()});saveGym();render();toast(n+" bewaard bij je schema's")};
+    s.appendChild(c)})})}
+
+/* ---- uitdagingen ---- */
+const CHALLENGES=[
+  {id:"vroeg",em:"⏰",name:"7 dagen vroeg op",days:7,q:"Vandaag vroeg opgestaan"},
+  {id:"slaap",em:"😴",name:"7 nachten genoeg slaap",days:7,test:k=>{const h=sleepHours(day(k));return h!=null&&h>=goalSleep()-0.5}},
+  {id:"water",em:"💧",name:"14 dagen je waterdoel",days:14,test:k=>(day(k).water||0)>=goalWater()},
+  {id:"stappen",em:"👟",name:"14 dagen 8.000 stappen",days:14,test:k=>(day(k).steps||0)>=8000},
+  {id:"alles",em:"✅",name:"21 dagen al je gewoontes",days:21,test:k=>state.habits.length>0&&doneCount(k)>=state.habits.length},
+  {id:"lezen",em:"📖",name:"30 dagen lezen",days:30,q:"Vandaag gelezen"},
+  {id:"fris",em:"🥤",name:"30 dagen geen frisdrank",days:30,q:"Vandaag geen frisdrank"},
+  {id:"suiker",em:"🍬",name:"14 dagen geen snoep",days:14,q:"Vandaag geen snoep"}];
+const chalDef=id=>CHALLENGES.find(c=>c.id===id);
+function chalOk(c,k){const d=chalDef(c.cid);return d.test?!!d.test(k):(c.done||[]).includes(k)}
+function chalStreak(c){const t=keyOf(new Date());let k=chalOk(c,t)?t:addDays(t,-1),n=0;while(k>=c.start&&chalOk(c,k)){n++;k=addDays(k,-1)}return n}
+function checkChallenges(){let changed=false;(state.challenges||[]).slice().forEach(c=>{const d=chalDef(c.cid);if(!d)return;if(chalStreak(c)>=d.days){state.challenges=state.challenges.filter(x=>x!==c);state.badges=state.badges||[];state.badges.push({cid:c.cid,date:keyOf(new Date())});changed=true;cheer(`🏅 Uitdaging gehaald: ${d.name}!`,true)}});if(changed)saveChal()}
+function renderChallenges(){checkChallenges();const box=$("chal");box.innerHTML="";const act=state.challenges||[],t=keyOf(new Date());
+  if(!act.length)box.appendChild(el(`<div class="emptyline">Nog geen uitdaging. Kies er een en haal je eerste badge.</div>`));
+  act.forEach(c=>{const d=chalDef(c.cid);if(!d)return;const n=chalStreak(c),r=el(`<div class="chalrow"><div class="ch-top"><span class="em" aria-hidden="true"></span><span class="it"><b></b><small class="num"></small></span><button class="mini" type="button" aria-label="Uitdaging stoppen">×</button></div><div class="bar"><i></i></div></div>`);
+    r.querySelector(".em").textContent=d.em;r.querySelector("b").textContent=d.name;
+    const missed=n===0&&c.start<addDays(t,-1);r.querySelector("small").textContent=`Dag ${n} van ${d.days}`+(missed?" · opnieuw begonnen, je kunt het!":d.test?" · gaat vanzelf":"");
+    r.querySelector(".bar i").style.width=Math.min(100,n/d.days*100)+"%";
+    const x=r.querySelector(".mini");x.onclick=()=>{if(!x.dataset.c){x.dataset.c=1;x.textContent="?";x.style.color="var(--danger)";return}state.challenges=state.challenges.filter(y=>y!==c);saveChal();render()};
+    if(!d.test){const on=(c.done||[]).includes(t),b=el(`<button class="btn ${on?"sec":""}" type="button"></button>`);b.textContent=on?"✓ "+d.q:d.q+"?";
+      b.onclick=()=>{c.done=c.done||[];if(on)c.done=c.done.filter(k=>k!==t);else{c.done.push(t);cheer(CHEERS[Math.floor(Math.random()*CHEERS.length)])}saveChal();render()};r.appendChild(b)}
+    box.appendChild(r)});
+  const add=el(`<button class="btn sec" type="button">Nieuwe uitdaging kiezen</button>`);add.onclick=chalPicker;box.appendChild(add);
+  const bd=state.badges||[];if(bd.length){box.appendChild(el(`<span class="label">Je badges</span>`));const row=el(`<div class="badges"></div>`);
+    bd.forEach(b=>{const d=chalDef(b.cid);if(!d)return;const e=el(`<div class="badge"><span aria-hidden="true"></span><small></small></div>`);e.firstChild.textContent=d.em;e.lastChild.textContent=d.name;e.title="Gehaald op "+b.date;row.appendChild(e)});box.appendChild(row)}}
+function chalPicker(){openSheet(s=>{s.appendChild(el(`<h2>Kies een uitdaging</h2>`));
+  s.appendChild(el(`<span class="muted small">Haal je het aantal dagen op rij, dan krijg je een badge. Mis je een dag, dan begin je gewoon opnieuw.</span>`));
+  CHALLENGES.forEach(d=>{const active=(state.challenges||[]).some(c=>c.cid===d.id),done=(state.badges||[]).filter(b=>b.cid===d.id).length;
+    const b=el(`<button class="item" type="button" style="background:var(--surface-2)"><span class="em" aria-hidden="true"></span><span class="it"><b></b><small></small></span><span class="kc"></span></button>`);
+    b.querySelector(".em").textContent=d.em;b.querySelector("b").textContent=d.name;b.querySelector("small").textContent=(d.test?"Loopa houdt het zelf bij":"Elke dag zelf afvinken")+(done?` · ${done}× gehaald`:"");b.querySelector(".kc").textContent=active?"bezig":"";
+    b.onclick=()=>{if(active){toast("Daar ben je al mee bezig");return}state.challenges=state.challenges||[];state.challenges.push({id:uid(),cid:d.id,start:keyOf(new Date()),done:[]});saveChal();closeSheet();render();toast(`${d.em} Uitdaging gestart. Succes!`)};s.appendChild(b)})})}
+
+/* ---- maandoverzicht ---- */
+let calMonth=null;
+function monthStats(y,m){const n=state.habits.length;if(!n)return null;let tot=0,dn=0,days=0;const last=new Date(y,m+1,0).getDate(),today=keyOf(new Date());
+  for(let d=1;d<=last;d++){const k=keyOf(new Date(y,m,d));if(k>today)break;if(state.days[k]){tot+=n;dn+=doneCount(k);days++}}return days?{f:dn/tot,days}:null}
+function renderMonth(){const now=new Date();if(!calMonth)calMonth=[now.getFullYear(),now.getMonth()];const[y,m]=calMonth,first=new Date(y,m,1),off=(first.getDay()+6)%7,last=new Date(y,m+1,0).getDate(),today=keyOf(now),n=state.habits.length;
+  $("calttl").textContent=first.toLocaleDateString("nl-NL",{month:"long",year:"numeric"});$("calnext").disabled=y===now.getFullYear()&&m===now.getMonth();
+  const g=$("calgrid");g.innerHTML=["ma","di","wo","do","vr","za","zo"].map(d=>`<span class="cdn">${d}</span>`).join("");
+  for(let i=0;i<off;i++)g.appendChild(el(`<span></span>`));
+  for(let d=1;d<=last;d++){const k=keyOf(new Date(y,m,d)),f=n&&state.days[k]?doneCount(k)/n:0,b=el(`<button class="cday num" type="button"></button>`);b.textContent=d;
+    if(k>today)b.disabled=true;else if(f>0){b.style.background=`rgba(255,106,31,${0.18+0.82*f})`;if(f>=.6)b.style.color="#fff"}
+    if(k===today)b.classList.add("today");b.setAttribute("aria-label",fromKey(k).toLocaleDateString("nl-NL",{day:"numeric",month:"long"})+(n?`, ${Math.round(f*100)}% van je gewoontes`:""));
+    b.onclick=()=>{cur=k;show("dag")};g.appendChild(b)}
+  const st=monthStats(y,m);let best=null;for(let i=0;i<12;i++){const dt=new Date(now.getFullYear(),now.getMonth()-i,1),s2=monthStats(dt.getFullYear(),dt.getMonth());if(s2&&s2.days>=5&&(!best||s2.f>best.f))best={...s2,dt}}
+  $("calsub").textContent=st?`Deze maand ${Math.round(st.f*100)}% van je gewoontes gedaan.`+(best?` Beste maand: ${best.dt.toLocaleDateString("nl-NL",{month:"long"})} (${Math.round(best.f*100)}%).`:""):"Nog niets ingevuld in deze maand."}
+$("calprev").onclick=()=>{const[y,m]=calMonth;calMonth=m?[y,m-1]:[y-1,11];renderMonth()};
+$("calnext").onclick=()=>{const[y,m]=calMonth;calMonth=m===11?[y+1,0]:[y,m+1];renderMonth()};
+
+/* ---- ademhaling ---- */
+const BREATHS={"478":["4-7-8, om in slaap te vallen",[["in",4,"Adem in door je neus"],["hold",7,"Houd vast"],["out",8,"Adem langzaam uit door je mond"]]],
+  box:["Box, om rustig te worden",[["in",4,"Adem in"],["hold",4,"Houd vast"],["out",4,"Adem uit"],["hold2",4,"Houd vast"]]]};
+let breathT=null;
+function breathSheet(){let kind="478",min=3;openSheet(s=>{s.appendChild(el(`<h2>Ademhaling</h2>`));
+  s.appendChild(el(`<span class="muted small">Ga rustig zitten of liggen. Volg de cirkel: als hij groter wordt adem je in, als hij kleiner wordt adem je uit.</span>`));
+  s.appendChild(el(`<span class="label">Soort</span>`));s.appendChild(segment([["478","4-7-8 slapen"],["box","Box rust"]],kind,v=>kind=v,"seg3"));
+  s.appendChild(el(`<span class="label">Hoe lang</span>`));s.appendChild(segment([[1,"1 min"],[3,"3 min"],[5,"5 min"]],min,v=>min=v,"seg3"));
+  const ok=el(`<button class="btn" type="button">Start</button>`);ok.onclick=()=>{closeSheet();setTimeout(()=>startBreath(kind,min),300)};s.appendChild(ok)})}
+function startBreath(kind,min){const ov=el(`<div class="breath" role="dialog" aria-modal="true" aria-label="Ademhaling"><button class="round bx" type="button" aria-label="Stoppen">×</button><div class="bcirc"></div><p class="btxt" aria-live="polite"></p><p class="muted small bleft num"></p></div>`);
+  document.body.appendChild(ov);document.body.style.overflow="hidden";const c=ov.querySelector(".bcirc"),t=ov.querySelector(".btxt"),left=ov.querySelector(".bleft"),ph=BREATHS[kind][1],end=Date.now()+min*60000;let i=0;
+  const stop=()=>{clearTimeout(breathT);ov.remove();document.body.style.overflow=""};ov.querySelector(".bx").onclick=stop;
+  const step=()=>{if(Date.now()>=end){t.textContent="Klaar. Goed gedaan 🌙";c.style.transition="transform 1.5s ease";c.style.transform="scale(.6)";left.textContent="";breathT=setTimeout(stop,2500);return}
+    const[k,sec,txt]=ph[i%ph.length];i++;t.textContent=txt;c.style.transition=`transform ${sec}s ease-in-out`;c.style.transform=k==="in"?"scale(1)":k==="out"?"scale(.45)":c.style.transform;
+    left.textContent="Nog "+fmtClock((end-Date.now())/1000);if(navigator.vibrate)try{navigator.vibrate(30)}catch(e){}breathT=setTimeout(step,sec*1000)};
+  c.style.transform="scale(.45)";breathT=setTimeout(step,600)}
+
+/* ---- slaapgeluid ---- */
+let snd=null;
+function noiseBuffer(ctx,type){const len=ctx.sampleRate*4,buf=ctx.createBuffer(1,len,ctx.sampleRate),d=buf.getChannelData(0);let last=0;
+  for(let i=0;i<len;i++){const w=Math.random()*2-1;if(type==="bruin"){last=(last+0.02*w)/1.02;d[i]=last*3.5}else d[i]=w*0.4}return buf}
+function startSound(type,min){stopSound();const AC=window.AudioContext||window.webkitAudioContext;if(!AC){msgSheet("Geluid lukt hier niet","Je browser ondersteunt dit niet.");return}
+  const ctx=new AC(),src=ctx.createBufferSource(),gain=ctx.createGain(),filt=ctx.createBiquadFilter();src.buffer=noiseBuffer(ctx,type==="regen"?"wit":"bruin");src.loop=true;
+  filt.type="lowpass";filt.frequency.value=type==="regen"?2600:type==="zee"?900:1200;src.connect(filt);filt.connect(gain);gain.connect(ctx.destination);gain.gain.value=0;
+  gain.gain.linearRampToValueAtTime(type==="regen"?.18:.5,ctx.currentTime+2);
+  let lfo=null;if(type==="zee"){lfo=ctx.createOscillator();const lg=ctx.createGain();lfo.frequency.value=0.09;lg.gain.value=.25;lfo.connect(lg);lg.connect(gain.gain);lfo.start()}
+  src.start();const until=Date.now()+min*60000;snd={ctx,gain,until,type,timer:setTimeout(()=>{gain.gain.linearRampToValueAtTime(0,ctx.currentTime+20);setTimeout(stopSound,21000)},Math.max(0,min*60000-20000))}}
+function stopSound(){if(!snd)return;clearTimeout(snd.timer);try{snd.ctx.close()}catch(e){}snd=null;if(view==="slaap")renderRestCard()}
+function soundSheet(){let type="bruin",min=30;openSheet(s=>{s.appendChild(el(`<h2>Slaapgeluid</h2>`));
+  s.appendChild(el(`<span class="muted small">Een rustig geluid helpt veel mensen sneller in slaap te vallen. Het geluid wordt aan het eind vanzelf zachter en stopt dan. Houd Loopa open.</span>`));
+  s.appendChild(el(`<span class="label">Geluid</span>`));s.appendChild(segment([["bruin","Zacht ruis"],["regen","Regen"],["zee","Zee"]],type,v=>type=v,"seg3"));
+  s.appendChild(el(`<span class="label">Stopt na</span>`));s.appendChild(segment([[15,"15 min"],[30,"30 min"],[60,"60 min"]],min,v=>min=v,"seg3"));
+  const ok=el(`<button class="btn" type="button">Afspelen</button>`);ok.onclick=()=>{startSound(type,min);closeSheet();renderRestCard();toast("Slaap lekker 🌙")};s.appendChild(ok)})}
+function renderRestCard(){const b=$("sndbtn");if(!b)return;b.querySelector("b").textContent=snd?"Geluid stoppen":"Slaapgeluid";b.querySelector("small").textContent=snd?"speelt nog "+Math.max(1,Math.round((snd.until-Date.now())/60000))+" min":"ruis, regen of zee";}
+$("breathbtn").onclick=breathSheet;$("sndbtn").onclick=()=>{if(snd)stopSound();else soundSheet()};
+
+/* ---- pincode ---- */
+const LSPIN="loopa-pin";
+async function pinHash(p){try{const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("loopa:"+p));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}catch(e){let h=0;for(const ch of "loopa:"+p)h=(h*31+ch.charCodeAt(0))|0;return "s"+h}}
+function getPin(){try{return localStorage.getItem(LSPIN)}catch(e){return null}}
+function pinPad(title,sub,onDone,cancel){const ov=el(`<div class="lock" role="dialog" aria-modal="true" aria-label="Pincode"><svg class="logo-big" aria-hidden="true"><use href="#logo"/></svg><h2></h2><p class="muted small"></p><div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="pad"></div>${cancel?'<button class="linkbtn pcancel" type="button">Annuleren</button>':""}</div>`);
+  ov.querySelector("h2").textContent=title;ov.querySelector("p").textContent=sub;let v="";const dots=ov.querySelectorAll(".dots i"),pad=ov.querySelector(".pad");
+  const upd=()=>dots.forEach((d,i)=>d.classList.toggle("on",i<v.length));
+  const press=k=>{if(k==="⌫")v=v.slice(0,-1);else if(v.length<4)v+=k;upd();if(v.length===4){const val=v;setTimeout(async()=>{const r=await onDone(val);if(r===false){ov.classList.add("shake");setTimeout(()=>ov.classList.remove("shake"),400);v="";upd()}else ov.remove()},120)}};
+  ["1","2","3","4","5","6","7","8","9","","0","⌫"].forEach(k=>{const b=el(`<button type="button" class="pk num"></button>`);b.textContent=k;if(!k)b.style.visibility="hidden";b.setAttribute("aria-label",k==="⌫"?"Wissen":k);b.onclick=()=>press(k);pad.appendChild(b)});
+  if(cancel)ov.querySelector(".pcancel").onclick=()=>{ov.remove();cancel()};
+  const kd=e=>{if(!document.body.contains(ov)){document.removeEventListener("keydown",kd);return}if(/^\d$/.test(e.key))press(e.key);else if(e.key==="Backspace")press("⌫")};document.addEventListener("keydown",kd);
+  document.body.appendChild(ov);return ov}
+function lockApp(){const h=getPin();if(!h||document.querySelector(".lock"))return;pinPad("Loopa is vergrendeld","Vul je pincode in",async p=>(await pinHash(p))===h)}
+let hiddenAt=0;document.addEventListener("visibilitychange",()=>{if(document.hidden)hiddenAt=Date.now();else if(hiddenAt&&Date.now()-hiddenAt>120000)lockApp()});
+function pinSettings(){const has=!!getPin();
+  if(!has){pinPad("Kies een pincode","4 cijfers",async p=>{setTimeout(()=>pinPad("Nog een keer","Vul dezelfde pincode in",async q=>{if(q!==p)return false;try{localStorage.setItem(LSPIN,await pinHash(p))}catch(e){}renderPinUI();toast("🔒 Pincode staat aan");return true},()=>{}),50);return true},()=>{});return}
+  msgSheet("Pincode","Je pincode staat aan. Na 2 minuten weg vraagt Loopa er weer om.",[["Pincode wijzigen",()=>{closeSheet();pinPad("Huidige pincode","Vul je pincode in",async p=>{if((await pinHash(p))!==getPin())return false;try{localStorage.removeItem(LSPIN)}catch(e){}setTimeout(pinSettings,50);return true},()=>{})}],
+    ["Pincode uitzetten",()=>{closeSheet();pinPad("Pincode uitzetten","Vul je pincode in",async p=>{if((await pinHash(p))!==getPin())return false;try{localStorage.removeItem(LSPIN)}catch(e){}renderPinUI();toast("Pincode staat uit");return true},()=>{})}],["Sluiten",closeSheet]])}
+function renderPinUI(){$("pinbtn").textContent=getPin()?"Pincode wijzigen of uitzetten":"Pincode instellen";$("logoutbtn").hidden=inArtifact()||!$("backup")}
+$("pinbtn").onclick=pinSettings;
+$("logoutbtn").onclick=()=>msgSheet("Uitloggen","Je gegevens staan alleen op deze telefoon. Bij uitloggen download je eerst een back-up, daarna wordt de app leeggemaakt. Weer inloggen doe je met Back-up terugzetten, op het eerste scherm.",
+  [["Back-up downloaden en uitloggen",()=>{$("backup").click();setTimeout(()=>{try{[LS,LSP,LSPIN,"loopa-rem-fired"].forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()},1500)}],["Annuleren",closeSheet]]);
+$("addhabit").onclick=ideasSheet;
 
 /* ===== v10: draaiwielen, plaatjes bij oefeningen, aanmoediging, gewoonte-ideeën ===== */
 /* draaiwiel */
@@ -1503,7 +1920,7 @@ const HABIT_IDEAS=[["📖","10 pagina's lezen","avond"],["🥗","Gezond eten","d
   ["🏋️","Sporten","middag"],["💊","Vitamines nemen","ochtend"],["📵","Geen telefoon in bed","avond"],["📝","Dagboek schrijven","avond"],["🧹","10 min opruimen","avond"],["🍎","Stuk fruit eten","middag"]];
 function renderIdeas(){const box=$("habitideas");box.innerHTML="";const have=new Set(state.habits.map(h=>h.name.toLowerCase()));
   HABIT_IDEAS.forEach(([em,n,p])=>{const on=have.has(n.toLowerCase()),b=el(`<button class="chipbtn${on?" on":""}" type="button"></button>`);b.textContent=em+" "+n+(on?" ✓":"");b.setAttribute("aria-pressed",on);
-    b.onclick=()=>{if(on){toast(n+" staat al in je lijst");return}state.habits.push({id:"h"+uid(),name:n,part:p,em});saveHabits();renderSettings();toast(`${em} ${n} toegevoegd aan ${PARTS.find(x=>x[0]===p)[1].toLowerCase()}`)};box.appendChild(b)})}
+    b.onclick=()=>{if(on){toast(n+" staat al in je lijst");return}state.habits.push({id:"h"+uid(),name:n,part:p,em});saveHabits();renderSettings();toast(`${em} ${n} staat nu op Vandaag`,"Bekijk",()=>show("dag"))};box.appendChild(b)})}
 
 /* ===== v9: lichaamsgegevens, eetdoel en suggesties bij typen ===== */
 const ACTS=[["zit","Vooral zittend","🪑","Kantoorwerk, weinig beweging",1.2],["licht","Licht actief","🚶","Veel lopen, of 1 à 2 keer per week sporten",1.375],
@@ -1708,15 +2125,15 @@ Ketchup|1 eetlepel|15|110|1.3|25|0.2
 Pindasaus|1 portie|50|280|7|15|21`;
 const FOODS=FOODRAW.split("\n").map(l=>{const[n,por,g,k,p,c,f]=l.split("|"),m=+g/100,ml=/glas|kop|flesje|shake/.test(por);
   return{name:n,amount:`${por} (${g} ${ml?"ml":"g"})`,g:+g,unit:ml?"ml":"g",kcal:Math.round(+k*m),p:Math.round(+p*m*10)/10,c:Math.round(+c*m*10)/10,f:Math.round(+f*m*10)/10,tag:"Standaard"}});
-const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").trim();
+const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
 function lev(a,b){const d=Array.from({length:a.length+1},(_,i)=>[i]);for(let j=1;j<=b.length;j++)d[0][j]=j;
   for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[a.length][b.length]}
 function matchScore(n,q){if(n.startsWith(q))return 4;const ws=n.split(/[\s\-(),/]+/).filter(Boolean);if(ws.some(w=>w.startsWith(q)))return 3;if(n.includes(q))return 2;
   const qw=q.split(/\s+/).pop();if(qw.length>=4&&ws.some(w=>w.length>=3&&lev(w.slice(0,qw.length),qw)<=(qw.length>=6?2:1)))return 1;return 0}
 function foodSearch(q){const nq=norm(q),seen=new Set(),cands=[];if(!nq)return[];
-  Object.keys(state.days).sort().reverse().forEach(k=>food(k).forEach(x=>{const nn=norm(x.name);if(x.name&&!seen.has(nn)){seen.add(nn);cands.push({name:x.name,amount:x.amount,kcal:x.kcal,p:x.p,c:x.c,f:x.f,tag:"Eerder gegeten"})}}));
+  Object.keys(state.days).sort().reverse().forEach(k=>food(k).forEach(x=>{const nn=norm(x.name);if(x.name&&!seen.has(nn)){seen.add(nn);{const b=perPortion(x);cands.push({name:x.name,amount:b.amount,kcal:b.kcal,p:b.p,c:b.c,f:b.f,img:x.img,tag:"Eerder gegeten"})}}}));
   Object.values(state.products||{}).forEach(p=>{const nn=norm(p.name);if(!p.name||seen.has(nn))return;seen.add(nn);const pc=p.per100,g=p.serving||100,sc=v=>v==null?null:Math.round(v*g/10)/10;
-    cands.push(pc?{name:p.name,amount:g+" g",g,unit:"g",kcal:pc.kcal==null?null:Math.round(pc.kcal*g/100),p:sc(pc.p),c:sc(pc.c),f:sc(pc.f),tag:"Gescand"}:{name:p.name,amount:p.amount,kcal:p.kcal,p:p.p,c:p.c,f:p.f,tag:"Gescand"})});
+    cands.push(pc?{name:p.name,amount:g+" g",g,unit:"g",kcal:pc.kcal==null?null:Math.round(pc.kcal*g/100),p:sc(pc.p),c:sc(pc.c),f:sc(pc.f),tag:"Gescand",img:p.img}:{name:p.name,amount:p.amount,kcal:p.kcal,p:p.p,c:p.c,f:p.f,tag:"Gescand"})});
   FOODS.forEach(x=>{if(!seen.has(norm(x.name)))cands.push(x)});
   return cands.map((x,i)=>({x,i,s:matchScore(norm(x.name),nq)+(x.tag==="Standaard"?0:.5)})).filter(o=>o.s>=1).sort((a,b)=>b.s-a.s||a.i-b.i).map(o=>o.x)}
 function attachSuggest(fill,read){const inp=$("f-name");if(!inp)return;inp.setAttribute("autocomplete","off");
@@ -1727,7 +2144,7 @@ function attachSuggest(fill,read){const inp=$("f-name");if(!inp)return;inp.setAt
       b.querySelector("b").textContent=x.name;b.querySelector("small").textContent=[x.tag,x.amount,x.kcal!=null&&x.kcal!==""?Math.round(x.kcal)+" kcal":null].filter(Boolean).join(" · ");
       b.onpointerdown=ev=>ev.preventDefault();b.onclick=()=>{const keep=read();base={...x};fill({...x,meal:keep.meal});box.hidden=true;drawPor(1)};box.appendChild(b)});
     box.hidden=!list.length};
-  const drawPor=cur=>{por.innerHTML="";if(!base)return;
+  const drawPor=cur=>{por.innerHTML="";return;
     [[.5,"½ portie"],[1,"1 portie"],[1.5,"1½ portie"],[2,"2 porties"]].forEach(([m,l])=>{const b=el(`<button class="chipbtn${m===cur?" on":""}" type="button"></button>`);b.textContent=l;
       b.onclick=()=>{const keep=read(),k=v=>v==null||v===""?null:Math.round(v*m*10)/10;
         fill({name:keep.name,amount:m===1?base.amount:base.g?`${Math.round(base.g*m)} ${base.unit||"g"}`:`${l} (${base.amount||"portie"})`,kcal:k(base.kcal),p:k(base.p),c:k(base.c),f:k(base.f),meal:keep.meal});drawPor(m)};por.appendChild(b)});
@@ -1834,7 +2251,8 @@ $("fileBody").addEventListener("change",async e=>{const f=e.target.files[0];if(!
 const mealName=m=>(MEALS.find(x=>x[0]===m)||[0,m])[1];
 function renderTpl(){const box=$("mealtpl");box.innerHTML="";const ts=state.meals||[];
   const head=el(`<div class="mealhead"><span class="label">Vaste maaltijden</span></div>`);
-  if(ts.length){const b=el(`<button class="linkbtn" type="button">Beheren</button>`);b.onclick=manageTpl;head.appendChild(b)}box.appendChild(head);
+  {const w=el(`<span style="display:flex;gap:14px"></span>`),sb=el(`<button class="linkbtn" type="button">🛒 Boodschappen</button>`);sb.onclick=shopSheet;w.appendChild(sb);
+  if(ts.length){const b=el(`<button class="linkbtn" type="button">Beheren</button>`);b.onclick=manageTpl;w.appendChild(b)}head.appendChild(w)}box.appendChild(head);
   if(!ts.length){box.appendChild(el(`<div class="emptyline">Eet je vaak hetzelfde? Tik op ☆ bij een maaltijd hieronder om hem te bewaren. Daarna zet je hem hier met één tik in je dag.</div>`));return}
   const row=el(`<div class="tplrow"></div>`);
   ts.forEach(t=>{const k=t.items.reduce((a,x)=>a+(+x.kcal||0),0),b=el(`<button class="tpl" type="button"><b></b><small class="num"></small></button>`);
@@ -2031,7 +2449,7 @@ const VIEWS=["dag","eten","sport","slaap","overzicht","instellingen"],DAYVIEWS=[
 document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>show(b.dataset.view));
 $("gear").onclick=()=>show("instellingen");
 function show(v){view=v;document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.view===v));
-  VIEWS.forEach(n=>$("view-"+n).hidden=n!==v);render();window.scrollTo(0,0)}
+  VIEWS.forEach(n=>$("view-"+n).hidden=n!==v);render();window.scrollTo(0,0);document.body.dataset.view=v;animateView(v)}
 
 /* doelen uit de vragenlijst */
 function goalSleep(){return (state.profile&&state.profile.sleepGoal)||8}
@@ -2104,7 +2522,8 @@ function renderOnbInner(){
   next.textContent="Verder";
   if(st.id==="welcome"){box.className="onb-in welcome";
     box.innerHTML=`<svg class="logo-big" role="img" aria-label="Loopa logo"><use href="#logo"/></svg><h1>Loopa</h1><p class="lead" style="margin:0;max-width:30ch">Bouw gewoontes die blijven hangen. Beter slapen, gezonder eten en elke dag een beetje sterker.</p><p class="muted small">Een paar vragen, minder dan een minuut.</p>`;
-    next.textContent="Beginnen";return}
+    next.textContent="Beginnen";
+    if($("restore")){const r=el(`<button class="linkbtn" type="button" style="padding:8px">Ik heb al een back-up (inloggen)</button>`);r.onclick=()=>$("restore").click();box.appendChild(r)}return}
   box.className="onb-in";
   if(st.id==="name"){const i=document.createElement("input");i.type="text";i.id="onbname";i.maxLength=30;i.placeholder="Je voornaam";i.value=a.name;i.autocomplete="given-name";
     i.style.fontSize="1.2rem";i.style.padding="16px";i.oninput=()=>{a.name=i.value.trim()};i.onkeydown=e=>{if(e.key==="Enter")go()};box.appendChild(i);setTimeout(()=>i.focus(),50)}
@@ -2161,7 +2580,7 @@ $("redo").onclick=()=>openOnb();
 $("bodyprof").onclick=bodyProfileSheet;
 $("rem-cheer").onchange=e=>{setProfile("cheer",e.target.checked);if(e.target.checked)cheer("Aanmoedigingen staan aan 🙌")};
 
-loadLocal();render();setSync("Opgeslagen op dit apparaat.");startRem();
+loadLocal();render();setSync("Opgeslagen op dit apparaat.");startRem();lockApp();document.body.dataset.view=view;
 if(!state.profile)openOnb();
 
 /* account-opslag */
@@ -2177,11 +2596,11 @@ if(!state.profile)openOnb();
       await col.doc("config").set({habits:state.habits,profile:state.profile||null});
       for(const k of Object.keys(state.days))await col.doc("d-"+k).set({date:k,...state.days[k]});
       if(Object.keys(state.products||{}).length)saveProducts();if((state.routines||[]).length||(state.customEx||[]).length)saveGym();if(state.active)saveActive();
-      if(state.body.length)saveBody();if(state.meals.length)saveMeals();state.photos.forEach(savePhoto);
+      if(state.body.length)saveBody();if(state.meals.length)saveMeals();if((state.shop||[]).length)saveShop();if((state.challenges||[]).length||(state.badges||[]).length)saveChal();state.photos.forEach(savePhoto);
     }else{
-      const days={};let habits=null,profile=null,products=null,gym=null,active,body=null,meals=null;const photos=[];
-      snap.docs.forEach(s=>{const v=s.data()||{};if(s.id==="config"){habits=v.habits;profile=v.profile||null}else if(s.id==="products"){products=v.items||{}}else if(s.id==="gym"){gym=v}else if(s.id==="active"){active=v.w||null}else if(s.id==="body"){body=v.items||[]}else if(s.id==="meals"){meals=v.items||[]}else if(s.id.startsWith("p-")&&v.photo){photos.push(v.photo)}else if(v.date){const{date,...rest}=v;days[date]=rest}});
-      const localProf=state.profile;state={habits:habits||state.habits,days,profile:profile||localProf,products:products||state.products||{},routines:gym?gym.routines||[]:state.routines||[],customEx:gym?gym.customEx||[]:state.customEx||[],active:active!==undefined?active:state.active||null,body:body||state.body||[],meals:meals||state.meals||[],photos:photos.length?photos:(state.photos||[])};migrate();saveLocal();if(!profile&&localProf)saveHabits();
+      const days={};let habits=null,profile=null,products=null,gym=null,active,body=null,meals=null,shop=null,chal=null;const photos=[];
+      snap.docs.forEach(s=>{const v=s.data()||{};if(s.id==="config"){habits=v.habits;profile=v.profile||null}else if(s.id==="products"){products=v.items||{}}else if(s.id==="gym"){gym=v}else if(s.id==="active"){active=v.w||null}else if(s.id==="body"){body=v.items||[]}else if(s.id==="meals"){meals=v.items||[]}else if(s.id==="shop"){shop=v.items||[]}else if(s.id==="challenges"){chal=v}else if(s.id.startsWith("p-")&&v.photo){photos.push(v.photo)}else if(v.date){const{date,...rest}=v;days[date]=rest}});
+      const localProf=state.profile;state={habits:habits||state.habits,days,profile:profile||localProf,products:products||state.products||{},routines:gym?gym.routines||[]:state.routines||[],customEx:gym?gym.customEx||[]:state.customEx||[],active:active!==undefined?active:state.active||null,body:body||state.body||[],meals:meals||state.meals||[],photos:photos.length?photos:(state.photos||[]),shop:shop||state.shop||[],challenges:chal?chal.list||[]:state.challenges||[],badges:chal?chal.badges||[]:state.badges||[]};migrate();saveLocal();if(!profile&&localProf)saveHabits();
     }
     setSync("Alles is opgeslagen in je account.");
     render();
