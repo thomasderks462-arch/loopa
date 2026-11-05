@@ -349,6 +349,8 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 .setline{display:flex;gap:12px;font-size:.88rem;padding:3px 2px}
 .setline span:first-child{color:var(--muted);width:18px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}.spin{animation-duration:3s}.resume .dot{animation:none}}
+/* v13 */
+.fth img.ph{object-fit:cover;background:transparent;transition:opacity .35s}
 /* v12 */
 #view-eten{padding-bottom:70px}
 .fhead{display:flex;align-items:center;gap:14px}
@@ -1429,11 +1431,11 @@ window.LOOPA_LOCAL_EX=true;
 const offCache=new Map();
 async function offSearch(q){const key=q.toLowerCase();if(offCache.has(key))return offCache.get(key);
   const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),6000);
-  try{const r=await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=8&lc=nl&cc=nl&fields=product_name,product_name_nl,brands,nutriments,code`,{signal:ctl.signal});
+  try{const r=await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=8&lc=nl&cc=nl&fields=product_name,product_name_nl,brands,nutriments,code,image_front_small_url`,{signal:ctl.signal});
     const j=await r.json(),num=v=>v==null||v===""||isNaN(+v)?null:+v,out=[];
     (j.products||[]).forEach(P=>{const n=P.nutriments||{};let kcal=num(n["energy-kcal_100g"]);if(kcal==null&&num(n["energy_100g"])!=null)kcal=num(n["energy_100g"])/4.184;
       const nm=(P.product_name_nl||P.product_name||"").trim();if(!nm||kcal==null)return;const br=(P.brands||"").split(",")[0].trim();
-      out.push({name:br&&!nm.toLowerCase().includes(br.toLowerCase())?nm+" · "+br:nm,amount:"100 g",g:100,unit:"g",kcal:Math.round(kcal),p:num(n.proteins_100g),c:num(n.carbohydrates_100g),f:num(n.fat_100g),tag:"Online"})});
+      out.push({name:br&&!nm.toLowerCase().includes(br.toLowerCase())?nm+" · "+br:nm,amount:"100 g",g:100,unit:"g",kcal:Math.round(kcal),p:num(n.proteins_100g),c:num(n.carbohydrates_100g),f:num(n.fat_100g),img:P.image_front_small_url||undefined,tag:"Online"})});
     const res=out.slice(0,4);offCache.set(key,res);return res}catch(e){return[]}finally{clearTimeout(t)}}
 
 /* ---- live scannen met de camera ---- */
@@ -1588,6 +1590,35 @@ function renderSettings(){renderPinUI();renderSeg();renderRemUI();renderIdeas();
 $("addform").addEventListener("submit",e=>{e.preventDefault();const v=$("newhabit").value.trim();if(!v)return;
   state.habits.push({id:"h"+Date.now().toString(36),name:v,part:newPart});$("newhabit").value="";saveHabits();renderSettings()});
 
+/* ===== v13: echte foto's bij eten (hoofdfoto van het Wikipedia-artikel) ===== */
+const FOODWIKI=[[/griekse yoghurt|skyr/,"Strained yogurt"],[/yoghurt/,"Yogurt"],[/kwark/,"Quark (dairy product)"],[/vla/,"Custard"],[/karnemelk/,"Buttermilk"],[/chocolademelk|chocomel/,"Chocolate milk"],
+ [/havermelk/,"Oat milk"],[/sojamelk/,"Soy milk"],[/cappuccino/,"Cappuccino"],[/koffie/,"Coffee"],[/thee\b/,"Tea"],[/melk/,"Milk"],[/smeerkaas/,"Processed cheese"],[/mozzarella/,"Mozzarella"],[/feta/,"Feta"],
+ [/huttenkase|cottage/,"Cottage cheese"],[/tosti/,"Toast sandwich"],[/broodje kaas/,"Cheese sandwich"],[/kaas/,"Gouda cheese"],[/roomboter|\bboter/,"Butter"],[/halvarine|margarine/,"Margarine"],
+ [/omelet/,"Omelette"],[/gebakken ei/,"Fried egg"],[/\bei\b|eieren|eitje/,"Boiled egg"],[/krentenbol/,"Currant bun"],[/croissant/,"Croissant"],[/beschuit/,"Beschuit"],[/knackebrod|cracker/,"Crispbread"],
+ [/rijstwafel/,"Rice cake"],[/wrap/,"Wrap (food)"],[/pita/,"Pita"],[/bolletje|broodje/,"Bread roll"],[/wit brood/,"White bread"],[/brood/,"Whole wheat bread"],[/havermout|pap\b/,"Porridge"],[/cruesli|muesli\b/,"Muesli"],
+ [/cornflakes/,"Corn flakes"],[/granola/,"Granola"],[/mueslireep|proteinereep|reep/,"Granola bar"],[/pindakaas/,"Peanut butter"],[/hagelslag/,"Hagelslag"],[/appelstroop/,"Apple butter"],[/\bjam\b/,"Fruit preserves"],[/hummus/,"Hummus"],
+ [/salami/,"Salami"],[/\bham\b/,"Ham"],[/chocopasta|nutella/,"Chocolate spread"],[/honing/,"Honey"],[/appeltaart/,"Dutch apple pie"],[/appelsap/,"Apple juice"],[/appelmoes/,"Applesauce"],[/appel/,"Apple"],
+ [/banaan/,"Banana"],[/peer\b|peren/,"Pear"],[/sinaasappelsap|jus d/,"Orange juice"],[/sinaasappel/,"Orange (fruit)"],[/mandarijn/,"Mandarin orange"],[/kiwi/,"Kiwifruit"],[/aardbei/,"Strawberry"],[/blauwe bes/,"Blueberry"],
+ [/druif|druiven/,"Grape"],[/mango/,"Mango"],[/ananas/,"Pineapple"],[/watermeloen|meloen/,"Watermelon"],[/avocado/,"Avocado"],[/rozijn/,"Raisin"],[/broccoli/,"Broccoli"],[/sperzie|boontjes/,"Green bean"],
+ [/spinazie/,"Spinach"],[/wortel/,"Carrot"],[/komkommer/,"Cucumber"],[/tomaat|tomaten/,"Tomato"],[/paprika/,"Bell pepper"],[/salade met kip/,"Chicken salad"],[/\bsla\b|salade/,"Salad"],[/champignon/,"Agaricus bisporus"],
+ [/bloemkool/,"Cauliflower"],[/\bui\b|uien/,"Onion"],[/doperwt/,"Pea"],[/rode kool/,"Red cabbage"],[/courgette/,"Zucchini"],[/zilvervliesrijst/,"Brown rice"],[/nasi/,"Nasi goreng"],[/rijst/,"Cooked rice"],
+ [/spaghetti bolognese|bolognese/,"Spaghetti alla bolognese"],[/pasta|spaghetti|macaroni|penne/,"Pasta"],[/zoete aardappel/,"Sweet potato"],[/friet|patat/,"French fries"],[/kapsalon/,"Kapsalon"],
+ [/stamppot|boerenkool/,"Stamppot"],[/aardappel|krieltje/,"Potato"],[/couscous/,"Couscous"],[/quinoa/,"Quinoa"],[/noedel|mie\b|bami/,"Noodle"],[/kippendij|kipfilet|kip\b/,"Chicken as food"],
+ [/vegaburger/,"Veggie burger"],[/hamburger|burger/,"Hamburger"],[/gehakt/,"Ground beef"],[/biefstuk|steak/,"Steak"],[/varkenshaas/,"Pork tenderloin"],[/rookworst/,"Rookworst"],[/frikandel/,"Frikandel"],
+ [/kroket/,"Kroket"],[/zalm/,"Salmon as food"],[/tonijn/,"Canned tuna"],[/kabeljauw/,"Cod as food"],[/garnaal|garnalen/,"Shrimp"],[/tofu/,"Tofu"],[/tempeh/,"Tempeh"],[/shoarma|kebab|doner/,"Shawarma"],
+ [/kidneybonen/,"Kidney bean"],[/kikkererwt/,"Chickpea"],[/linzen/,"Lentil"],[/amandel/,"Almond"],[/cashew/,"Cashew"],[/walnoot|walnoten/,"Walnut"],[/pinda/,"Peanut"],[/noten/,"Nut (fruit)"],
+ [/chiazaad|chia/,"Chia seed"],[/chips/,"Potato chip"],[/pure chocolade/,"Dark chocolate"],[/chocola/,"Milk chocolate"],[/stroopwafel/,"Stroopwafel"],[/ontbijtkoek/,"Ontbijtkoek"],[/koek|biscuit|cookie/,"Biscuit"],
+ [/\bijs\b|ijsje/,"Ice cream"],[/popcorn/,"Popcorn"],[/pizza/,"Pizza"],[/poffertje/,"Poffertjes"],[/pannenkoek/,"Pancake"],[/sushi/,"Sushi"],[/soep/,"Vegetable soup"],[/cola/,"Cola"],[/bier/,"Beer"],
+ [/wijn/,"Wine"],[/shake/,"Protein shake"],[/smoothie/,"Smoothie"],[/sportdrank/,"Sports drink"],[/olijfolie|olie\b/,"Olive oil"],[/mayo/,"Mayonnaise"],[/ketchup/,"Ketchup"],[/pindasaus|satesaus/,"Peanut sauce"]];
+function foodWiki(name){const n=norm(name);for(const[r,t]of FOODWIKI)if(r.test(n))return t;return null}
+const LSFI="loopa-foodimg";let fiCache=null;const fiWait=new Map();
+function fiGet(){if(!fiCache){try{fiCache=JSON.parse(localStorage.getItem(LSFI)||"{}")}catch(e){fiCache={}}}return fiCache}
+function fiPut(t,u){const c=fiGet();c[t]=u;try{localStorage.setItem(LSFI,JSON.stringify(c))}catch(e){}}
+function wikiPhoto(t){const c=fiGet();if(t in c)return Promise.resolve(c[t]);if(fiWait.has(t))return fiWait.get(t);
+  const p=fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(t.replace(/ /g,"_"))).then(r=>r.ok?r.json():null)
+    .then(j=>{const src=j&&j.thumbnail&&j.thumbnail.source||"";const u=src;fiPut(t,u);return u}).catch(()=>null).finally(()=>fiWait.delete(t));
+  fiWait.set(t,p);return p}
+
 /* ===== v12: eten met plaatjes, porties, zoek-en-plus, vloeiende overgangen ===== */
 let forceMeal=null,lastFood=null;
 const FOODEM=[[/eiwitshake|shake|smoothie/,"🥤"],[/pindakaas|pinda|noten|amandel|walnoot|cashew|hazelno/,"🥜"],[/appelmoes/,"🍎"],[/yoghurt|kwark|skyr|vla|pap\b|muesli|granola|havermout|cornflakes|cruesli|ontbijtgranen/,"🥣"],
@@ -1603,9 +1634,12 @@ const FOODEM=[[/eiwitshake|shake|smoothie/,"🥤"],[/pindakaas|pinda|noten|amand
  [/cola|frisdrank|fanta|sinas|ice tea|energy|red bull|limonade|7up|sprite/,"🥤"],[/\bsap\b|sapje|jus/,"🧃"],[/bier/,"🍺"],[/wijn/,"🍷"],[/water/,"💧"],[/mayo|ketchup|saus|dressing/,"🥫"]];
 const FOODBG=["#fff1e6","#eaf7ee","#fff6d9","#eef0ff","#ffeef0","#eef8f8"];
 function foodEmoji(name){const n=norm(name);for(const[r,e]of FOODEM)if(r.test(n))return e;return "🍽️"}
-function foodThumb(x,big){const em=foodEmoji(x.name||""),bg=FOODBG[[...em].reduce((a,c)=>a+c.codePointAt(0),0)%FOODBG.length];
-  return `<span class="fth${big?" lg":""}" style="background:${bg}" aria-hidden="true"><i>${em}</i>${x.img&&/^https:\/\//.test(x.img)?`<img alt="" loading="lazy" src="${x.img.replace(/"/g,"")}">`:""}</span>`}
-function fixFoodImgs(root){root.querySelectorAll(".fth img").forEach(i=>{i.onerror=()=>i.remove();if(i.complete&&!i.naturalWidth)i.remove()})}
+function foodThumb(x,big){let wt;const em=foodEmoji(x.name||""),bg=FOODBG[[...em].reduce((a,c)=>a+c.codePointAt(0),0)%FOODBG.length];
+  return `<span class="fth${big?" lg":""}" style="background:${bg}" aria-hidden="true"><i>${em}</i>${x.img&&/^https:\/\//.test(x.img)?`<img alt="" loading="lazy" src="${x.img.replace(/"/g,"")}">`:(wt=foodWiki(x.name||""))?`<img class="ph" alt="" data-wt="${wt}">`:""}</span>`}
+function fixFoodImgs(root){root.querySelectorAll(".fth img").forEach(i=>{i.onerror=()=>i.remove();
+  if(i.dataset.wt){const t=i.dataset.wt,c=fiGet();i.removeAttribute("data-wt");i.style.opacity=0;i.onload=()=>{i.style.opacity=1};
+    if(t in c){if(c[t])i.src=c[t];else i.remove()}else wikiPhoto(t).then(u=>{if(u)i.src=u;else i.remove()});return}
+  if(i.complete&&!i.naturalWidth)i.remove()})}
 const fmtQty=q=>(q===.5?"½":String(q).replace(".",","))+"×";
 const perPortion=x=>x.base?{...x,...x.base}:x;
 const SHORTMEAL=l=>l==="Avondeten"?"Avond":l==="Tussendoor"?"Snack":l;
@@ -1622,7 +1656,7 @@ function foodPicker(meal){meal=meal||guessMeal();let q="",offT=null;
       const b=el(`<button class="fact" type="button"><span class="ic" style="color:${c}">${icon(ic)}</span><span></span></button>`);b.lastChild.textContent=l;
       b.onclick=()=>{forceMeal=meal;if(m==="hand")foodForm({meal,src:"hand",name:q},{isNew:true});else{closeSheet();pickFile(m)}};acts.appendChild(b)});
     s.appendChild(acts);
-    const list=el(`<div class="flist"></div>`);s.appendChild(list);
+    const list=el(`<div class="flist"></div>`);s.appendChild(list);s.appendChild(el(`<span class="muted small" style="text-align:center;font-size:.72rem">Foto's: Wikipedia (CC) en Open Food Facts</span>`));
     const row=x=>{const r=el(`<div class="frow">${""}<button class="fmain" type="button">${foodThumb(x)}<span class="it"><b></b><small class="num"></small></span></button><button class="fplus" type="button" aria-label="Toevoegen">+</button></div>`);
       r.querySelector("b").textContent=x.name;r.querySelector("small").textContent=[x.amount,x.kcal!=null&&x.kcal!==""?Math.round(x.kcal)+" kcal":null,x.tag&&x.tag!=="Standaard"?x.tag:null].filter(Boolean).join(" · ");
       r.querySelector(".fmain").onclick=()=>{forceMeal=meal;foodForm({...x,meal,src:"hand",tag:undefined},{isNew:true,picked:true})};
