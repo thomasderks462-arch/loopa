@@ -349,6 +349,35 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 .setline{display:flex;gap:12px;font-size:.88rem;padding:3px 2px}
 .setline span:first-child{color:var(--muted);width:18px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}.spin{animation-duration:3s}.resume .dot{animation:none}}
+/* v10 */
+.wheelbox{position:relative;background:var(--surface);border-radius:22px;box-shadow:0 1px 3px rgba(27,23,20,.06),0 0 0 1px rgba(27,23,20,.03)}
+.wheelbox::before{content:"";position:absolute;left:12px;right:12px;top:88px;height:44px;border-radius:12px;background:var(--surface-2);z-index:0}
+.wheel{position:relative;z-index:1;height:220px;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none;outline-offset:-2px;
+  -webkit-mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent);mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent)}
+.wheel::-webkit-scrollbar{display:none}
+.wheel .pad{height:88px}
+.wheel .wi{height:44px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-family:var(--display);font-size:1.35rem;font-weight:700;color:var(--muted);cursor:pointer;user-select:none}
+.wheel .wi.on{color:var(--ink);font-size:1.75rem}
+.wheelbox .wu{position:absolute;right:26px;top:88px;height:44px;display:flex;align-items:center;color:var(--muted);font-weight:600;z-index:2;pointer-events:none}
+.timewheels{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
+.timewheels .colon{font-family:var(--display);font-size:2rem}
+.timebtn{border:0;background:var(--surface-2);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;text-align:left;color:var(--ink)}
+.timebtn b{font-family:var(--display);font-size:1.6rem;font-weight:800}
+.timebtn.empty b{color:var(--muted)}
+.exth{width:44px;height:44px;border-radius:10px;object-fit:cover;flex:none;background:#fff;display:grid;place-items:center;font-size:1.2rem;border:1px solid var(--line)}
+.exth.ph{background:var(--surface-2)}
+.exth.lg{width:54px;height:54px}
+.exthbtn{border:0;padding:0;background:none;border-radius:12px;flex:none;display:block}
+.exanim{position:relative;aspect-ratio:3/2;border-radius:16px;overflow:hidden;background:#fff;border:1px solid var(--line)}
+.exanim img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.exanim img+img{animation:exswap 1.8s steps(1) infinite}
+@keyframes exswap{0%{opacity:0}50%{opacity:1}}
+@media (prefers-reduced-motion: reduce){.exanim img+img{animation:none;opacity:0}}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden}
+.confetti i{position:absolute;top:-14px;width:8px;height:13px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(600deg)}}
+.habit .hem{font-size:1.25rem;flex:none}
+#habitideas .chipbtn{flex:none}
 /* v9 thema */
 .card,.tile,.stat,.habit,.item,.opt,.chip,.tpl,.banner,.addbtn,.routine,.resume,.excard,.mealgroup .item,.stepper{box-shadow:0 1px 3px rgba(27,23,20,.06),0 0 0 1px rgba(27,23,20,.03)}
 .sheet .item,.sheet .stat,.sheet .excard,.rstat{box-shadow:none}
@@ -516,6 +545,7 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
         <button class="round" id="wplus" aria-label="Glas erbij">+</button>
         <div class="glasses" id="glasses"></div>
       </div>
+      <label class="check-row" style="font-size:.85rem"><input type="checkbox" id="w-rem">Herinner me als ik achterloop met water</label>
     </section>
   </div>
 
@@ -561,8 +591,9 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
     <section class="card" aria-labelledby="h-slaap">
       <div class="card-head"><h2 id="h-slaap">Afgelopen nacht</h2></div>
       <div class="row">
-        <label class="field"><span class="label">Naar bed</span><input type="time" id="bed"></label>
-        <label class="field"><span class="label">Opgestaan</span><input type="time" id="wake"></label>
+        <button class="timebtn" id="bedbtn" type="button"><span class="label">Naar bed</span><b class="num">--:--</b></button>
+        <button class="timebtn" id="wakebtn" type="button"><span class="label">Opgestaan</span><b class="num">--:--</b></button>
+        <input type="time" id="bed" hidden><input type="time" id="wake" hidden>
       </div>
       <div class="sleep-total"><span class="big num" id="sleephrs">–</span><span class="muted small" id="sleepnote">vul je tijden in</span></div>
       <div class="field"><span class="label">Hoe uitgerust voel je je?</span>
@@ -621,6 +652,8 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
         <div class="seg" id="partseg" role="group" aria-label="Moment van de dag"></div>
         <button class="btn" type="submit">Toevoegen</button>
       </form>
+      <span class="label">Ideeën, tik om toe te voegen</span>
+      <div class="chips" id="habitideas"></div>
     </section>
     <section class="card">
       <h2>Mijn gewoontes</h2>
@@ -631,6 +664,7 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
       <h2>Herinneringen</h2>
       <div class="remrow"><label class="check-row"><input type="checkbox" id="rem-water">Water drinken</label><span class="muted small">als je achterloopt</span></div>
       <div class="remrow"><label class="check-row"><input type="checkbox" id="rem-habits">Gewoontes afvinken</label><input type="time" id="rem-habits-at" aria-label="Tijd voor gewoontes"></div>
+      <div class="remrow"><label class="check-row"><input type="checkbox" id="rem-cheer">Aanmoedigingen als het goed gaat</label></div>
       <div class="remrow"><label class="check-row"><input type="checkbox" id="rem-bed">Bedtijd</label><input type="time" id="rem-bed-at" aria-label="Bedtijd"></div>
       <span class="muted small" id="remnote"></span>
       <div class="btnrow" id="rembtns"><button class="btn sec" type="button" id="rem-notif">Meldingen aanzetten</button><button class="btn sec" type="button" id="rem-ics">In mijn agenda zetten</button></div>
@@ -798,9 +832,9 @@ function renderDag(){
     g.innerHTML=`<div class="group-title">${icon(ic)}<span class="label">${label}</span></div>`;
     list.forEach(x=>{const on=!!h[x.id],s=habitStreak(x.id);
       const b=document.createElement("button");b.className="habit";b.setAttribute("aria-pressed",on);
-      b.innerHTML=`<span class="name"></span>${s>1?`<span class="streak num">${icon("i-flame")}${s}</span>`:""}<span class="check${on&&x.id===lastTog?" pop":""}">${icon("i-check")}</span>`;
+      b.innerHTML=`${x.em?`<span class="hem" aria-hidden="true">${x.em}</span>`:""}<span class="name"></span>${s>1?`<span class="streak num">${icon("i-flame")}${s}</span>`:""}<span class="check${on&&x.id===lastTog?" pop":""}">${icon("i-check")}</span>`;
       b.querySelector(".name").textContent=x.name;
-      b.onclick=()=>{const e=ensure(cur);e.habits=e.habits||{};e.habits[x.id]=!e.habits[x.id];lastTog=x.id;saveDay(cur);render();lastTog=null};
+      b.onclick=()=>{const e=ensure(cur);e.habits=e.habits||{};e.habits[x.id]=!e.habits[x.id];lastTog=x.id;saveDay(cur);render();lastTog=null;if(e.habits[x.id])cheerHabit()};
       g.appendChild(b)});
     box.appendChild(g)});
   scale("mood",["😞","😕","😐","🙂","😄"],dd.mood,v=>{ensure(cur).mood=v;saveDay(cur);render()});
@@ -850,10 +884,11 @@ function renderEten(){
       b.onclick=()=>foodForm(x,{isNew:false});g.appendChild(b)});
     box.appendChild(g)});
   const w=day(cur).water||0;$("wcount").textContent=w;$("watersub").textContent=`${w} van ${goalWater()} glazen water`;
-  renderTpl();
+  renderTpl();$("w-rem").checked=rem().water;
   $("glasses").innerHTML=Array.from({length:Math.max(goalWater(),w)},(_,i)=>'<span class="'+(i<w?"full":"")+'"></span>').join("");
 }
-$("wplus").onclick=()=>{const e=ensure(cur);e.water=(e.water||0)+1;saveDay(cur);render()};
+$("wplus").onclick=()=>{const e=ensure(cur);e.water=(e.water||0)+1;saveDay(cur);render();if(e.water===goalWater())cheer("💧 Waterdoel gehaald, goed zo!",true)};
+$("w-rem").onchange=e=>{setRem("water",e.target.checked);if(e.target.checked){if(canNotify()&&Notification.permission==="default")Notification.requestPermission().catch(()=>{});toast("Water-herinnering staat aan")}};
 $("wminus").onclick=()=>{const e=ensure(cur);e.water=Math.max(0,(e.water||0)-1);saveDay(cur);render()};
 document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{const m=b.dataset.add;
   if(m==="hand")foodForm({meal:guessMeal(),src:"hand"},{isNew:true});else pickFile(m)});
@@ -1134,9 +1169,9 @@ function drawWorkout(){const a=state.active;if(!a)return;
   const box=$("wk-list");box.innerHTML="";
   if(!a.ex.length)box.appendChild(el(`<div class="emptyline" style="text-align:center;padding:24px">Voeg je eerste oefening toe</div>`));
   a.ex.forEach((e,ei)=>{const x=exById(e.ex),cols=COLS[x.t],prev=lastSets(e.ex);
-    const card=el(`<section class="excard"><div class="exhead"><div class="it"><b></b><small></small></div><button class="mini" type="button" aria-label="Oefening verwijderen">×</button></div>
+    const card=el(`<section class="excard"><div class="exhead"><button class="exthbtn" type="button" aria-label="Plaatje bekijken">${exThumb(e.ex,"lg")}</button><div class="it"><b></b><small></small></div><button class="mini" type="button" aria-label="Oefening verwijderen">×</button></div>
       <div class="setgrid sethdr"><span>Set</span><span>Vorige</span><span>${cols[0]}</span><span>${cols[1]}</span><span>✓</span></div></section>`);
-    card.querySelector("b").textContent=x.name;card.querySelector("small").textContent=mLabel(x.m)+" · "+EQUIP[x.e];
+    card.querySelector("b").textContent=x.name;card.querySelector("small").textContent=mLabel(x.m)+" · "+EQUIP[x.e];fixImgs(card);card.querySelector(".exthbtn").onclick=()=>exInfo(e.ex);
     const rm=card.querySelector(".mini");rm.onclick=()=>{if(!rm.dataset.c){rm.dataset.c=1;rm.textContent="?";rm.style.color="var(--pink)";setTimeout(()=>{rm.textContent="×";delete rm.dataset.c;rm.style.color=""},2500);return}a.ex.splice(ei,1);saveActive();drawWorkout()};
     e.sets.forEach((s,si)=>{const pv=prev&&prev[si],row=el(`<div class="setgrid setrow${s.done?" done":""}"><span class="sn num">${si+1}</span><span class="pv num"></span>
       <input type="number" inputmode="decimal" min="0" step="0.5" aria-label="${cols[0]} set ${si+1}"><input type="number" inputmode="numeric" min="0" aria-label="${cols[1]} set ${si+1}"><button class="tick" type="button" aria-label="Set ${si+1} klaar">${icon("i-check")}</button></div>`);
@@ -1172,7 +1207,7 @@ function finishWorkout(){const a=state.active;if(!a)return;const vs=volume(a);
     ok.onclick=()=>{const ex=a.ex.map(e=>({ex:e.ex,sets:e.sets.filter(x=>x.done).map(x=>({kg:x.kg===""?null:+x.kg,reps:+x.reps||0,done:true}))})).filter(e=>e.sets.length);
       const d=ensure(a.day);d.sport=d.sport||[];d.sport.push({id:a.id,type:"fitness",min,int:"gemiddeld",note:a.name,workout:{name:a.name,ex}});saveDay(a.day);
       if(asRoutine&&!a.routine){state.routines=state.routines||[];state.routines.push({id:uid(),name:a.name==="Workout"?"Schema "+(state.routines.length+1):a.name,ex:ex.map(e=>({ex:e.ex,sets:e.sets.length}))});saveGym()}
-      state.active=null;saveActive();closeSheet();cur=a.day;closeWorkout();show("sport")};
+      state.active=null;saveActive();closeSheet();cur=a.day;closeWorkout();show("sport");cheer(prs.length?"🏆 Nieuw record! Sterk gedaan.":"💪 Workout opgeslagen. Sterk gedaan!",prs.length>0)};
     s.appendChild(ok)})}
 
 /* oefening kiezen */
@@ -1188,8 +1223,8 @@ function exercisePicker(onDone){const chosen=[];let q="",mf=null;
     function draw(){list.innerHTML="";const ql=q.toLowerCase();
       const rows=allEx().filter(x=>(!mf||x.m===mf)&&(!ql||x.name.toLowerCase().includes(ql)||mLabel(x.m).toLowerCase().includes(ql)||EQUIP[x.e].toLowerCase().includes(ql)));
       if(!rows.length)list.appendChild(el(`<div class="emptyline">Niets gevonden. Maak een eigen oefening.</div>`));
-      rows.forEach(x=>{const on=chosen.includes(x.id),b=el(`<button class="exrow" type="button"><span class="it"><b></b><small></small></span><span class="tick2">${icon("i-check")}</span></button>`);
-        b.setAttribute("aria-pressed",on);b.querySelector("b").textContent=x.name;b.querySelector("small").textContent=mLabel(x.m)+" · "+EQUIP[x.e];
+      rows.forEach(x=>{const on=chosen.includes(x.id),b=el(`<button class="exrow" type="button">${exThumb(x.id)}<span class="it"><b></b><small></small></span><span class="tick2">${icon("i-check")}</span></button>`);
+        b.setAttribute("aria-pressed",on);fixImgs(b);b.querySelector("b").textContent=x.name;b.querySelector("small").textContent=mLabel(x.m)+" · "+EQUIP[x.e];
         b.onclick=()=>{const i=chosen.indexOf(x.id);if(i>=0)chosen.splice(i,1);else chosen.push(x.id);b.setAttribute("aria-pressed",i<0);upd()};list.appendChild(b)})}
     inp.oninput=()=>{q=inp.value.trim();draw()};draw()})}
 function customExercise(onDone){let m="borst",e="ma",t="w";
@@ -1229,7 +1264,7 @@ function routineEditor(r,draft){const x=draft||(r?JSON.parse(JSON.stringify(r)):
 function workoutDetail(w){const wo=w.workout;
   openSheet(s=>{const h=el("<h2></h2>");h.textContent=wo.name;s.appendChild(h);const vs=volume(wo);
     s.appendChild(el(`<span class="muted small num">${w.min} min · ${vs.n} sets · ${vs.v.toLocaleString("nl-NL")} kg volume</span>`));
-    wo.ex.forEach(e=>{const x=exById(e.ex),c=el(`<div class="excard" style="background:var(--surface-2)"><div class="exhead"><div class="it"><b></b><small></small></div></div></div>`);
+    wo.ex.forEach(e=>{const x=exById(e.ex),c=el(`<div class="excard" style="background:var(--surface-2)"><div class="exhead">${exThumb(e.ex)}<div class="it"><b></b><small></small></div></div></div>`);
       c.querySelector("b").textContent=x.name;c.querySelector("small").textContent=mLabel(x.m);
       e.sets.forEach((st,i)=>{const r=el(`<div class="setline num"><span>${i+1}</span><span></span></div>`);r.lastChild.textContent=`${st.kg??"–"} ${COLS[x.t][0]} × ${st.reps} ${COLS[x.t][1].toLowerCase()}`;c.appendChild(r)});s.appendChild(c)});
     const row=el(`<div class="btnrow"></div>`);
@@ -1241,6 +1276,7 @@ function workoutDetail(w){const wo=w.workout;
     row.append(del,again);s.appendChild(row)})}
 
 
+window.LOOPA_LOCAL_EX=true;
 /* online zoeken in Open Food Facts bij handmatig invoeren */
 const offCache=new Map();
 async function offSearch(q){const key=q.toLowerCase();if(offCache.has(key))return offCache.get(key);
@@ -1345,7 +1381,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceW
 
 /* ---- Slaap ---- */
 function renderSlaap(){const dd=day(cur);
-  $("bed").value=dd.bed||"";$("wake").value=dd.wake||"";
+  $("bed").value=dd.bed||"";$("wake").value=dd.wake||"";renderTimeBtns();
   const sh=sleepHours(dd);$("sleephrs").textContent=fmtH(sh);
   $("sleepnote").textContent=sh==null?"vul je tijden in":sh>=goalSleep()?"geslapen, doel gehaald":"geslapen, doel is "+goalSleep()+" uur";
   scale("sleepq",["😫","😕","😐","🙂","😄"],dd.sleepQ,v=>{ensure(cur).sleepQ=v;saveDay(cur);render()});
@@ -1390,7 +1426,7 @@ function renderOverview(){
 /* gewoontes beheren */
 function renderSeg(){const s=$("partseg");s.innerHTML="";PARTS.forEach(([p,l])=>{const b=document.createElement("button");b.type="button";
   b.textContent=l;b.setAttribute("aria-pressed",p===newPart);b.onclick=()=>{newPart=p;renderSeg()};s.appendChild(b)})}
-function renderSettings(){renderSeg();renderRemUI();const l=$("editlist");l.innerHTML="";
+function renderSettings(){renderSeg();renderRemUI();renderIdeas();$("rem-cheer").checked=cheerOn();const l=$("editlist");l.innerHTML="";
   if(!state.habits.length)l.innerHTML='<p class="empty">Nog geen gewoontes.</p>';
   state.habits.forEach((x,i)=>{const r=document.createElement("div");r.className="edit-item";
     r.innerHTML='<div style="flex:1;min-width:0;display:flex;flex-direction:column"><span class="n"></span><span class="p"></span></div><button class="btn-del" type="button">Verwijder</button>';
@@ -1403,6 +1439,71 @@ function renderSettings(){renderSeg();renderRemUI();const l=$("editlist");l.inne
 }
 $("addform").addEventListener("submit",e=>{e.preventDefault();const v=$("newhabit").value.trim();if(!v)return;
   state.habits.push({id:"h"+Date.now().toString(36),name:v,part:newPart});$("newhabit").value="";saveHabits();renderSettings()});
+
+/* ===== v10: draaiwielen, plaatjes bij oefeningen, aanmoediging, gewoonte-ideeën ===== */
+/* draaiwiel */
+function wheel(vals,start,fmt,label,unit,onChange){
+  const box=el(`<div class="wheelbox"><div class="wheel" role="listbox" tabindex="0"></div><span class="wu"></span></div>`),w=box.firstChild;
+  w.setAttribute("aria-label",label);box.lastChild.textContent=unit||"";
+  w.appendChild(el(`<div class="pad"></div>`));
+  vals.forEach((v,i)=>{const d=el(`<div class="wi num" role="option" aria-selected="false"></div>`);d.textContent=fmt(v);d.onclick=()=>w.scrollTo({top:i*44,behavior:"smooth"});w.appendChild(d)});
+  w.appendChild(el(`<div class="pad"></div>`));
+  const items=w.querySelectorAll(".wi");let cur=-1,raf=0;
+  const mark=()=>{raf=0;const i=Math.max(0,Math.min(vals.length-1,Math.round(w.scrollTop/44)));if(i===cur)return;
+    if(cur>=0){items[cur].classList.remove("on");items[cur].setAttribute("aria-selected","false")}
+    items[i].classList.add("on");items[i].setAttribute("aria-selected","true");cur=i;onChange(vals[i]);
+    if(w.dataset.ready&&navigator.vibrate)try{navigator.vibrate(3)}catch(e){}};
+  w.addEventListener("scroll",()=>{if(!raf)raf=requestAnimationFrame(mark)},{passive:true});
+  w.addEventListener("keydown",e=>{if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();w.scrollTo({top:Math.max(0,cur+(e.key==="ArrowDown"?1:-1))*44,behavior:"smooth"})}});
+  const set=()=>{w.scrollTop=Math.max(0,start)*44;mark();setTimeout(()=>{w.dataset.ready=1},200)};
+  requestAnimationFrame(()=>requestAnimationFrame(set));
+  return box}
+function numWheel(min,max,step,val,unit,label,onChange){const vals=[];for(let v=min;v<=max+1e-9;v=Math.round((v+step)*100)/100)vals.push(v);
+  let start=vals.findIndex(v=>v>=val-1e-9);if(start<0)start=vals.length-1;
+  return wheel(vals,start,v=>String(v).replace(".",","),label,unit,onChange)}
+function timeSheet(title,val,def,onSave,onClear){let[h,m]=(val||def).split(":").map(Number);m=Math.round(m/5)*5%60;
+  openSheet(s=>{s.appendChild(el(`<h2></h2>`)).textContent=title;
+    const row=el(`<div class="timewheels"></div>`),H=Array.from({length:24},(_,i)=>i),M=Array.from({length:12},(_,i)=>i*5),p=v=>String(v).padStart(2,"0");
+    row.appendChild(wheel(H,h,p,"Uur","",v=>h=v));row.appendChild(el(`<b class="colon">:</b>`));row.appendChild(wheel(M,M.indexOf(m),p,"Minuten","",v=>m=v));s.appendChild(row);
+    const ok=el(`<button class="btn" type="button">Opslaan</button>`);ok.onclick=()=>{onSave(p(h)+":"+p(m));closeSheet();render()};s.appendChild(ok);
+    if(val&&onClear){const c=el(`<button class="linkbtn" type="button" style="align-self:center;padding:8px">Wissen</button>`);c.onclick=()=>{onClear();closeSheet();render()};s.appendChild(c)}})}
+function renderTimeBtns(){const dd=day(cur);
+  [["bed","Naar bed","23:00"],["wake","Opgestaan","07:00"]].forEach(([k,l,def])=>{const b=$(k+"btn");b.querySelector("b").textContent=dd[k]||"--:--";b.classList.toggle("empty",!dd[k]);
+    b.onclick=()=>timeSheet(l,dd[k],k==="bed"?(rem().bedAt||def):def,v=>{ensure(cur)[k]=v;saveDay(cur)},()=>{delete ensure(cur)[k];saveDay(cur)})})}
+
+/* plaatjes bij oefeningen (bron: Free Exercise DB, publiek domein) */
+const EXIMG={"bench-press":"Barbell_Bench_Press_-_Medium_Grip","incline-bench-press":"Barbell_Incline_Bench_Press_-_Medium_Grip","decline-bench-press":"Decline_Barbell_Bench_Press","dumbbell-bench-press":"Dumbbell_Bench_Press","incline-dumbbell-press":"Incline_Dumbbell_Press","dumbbell-fly":"Dumbbell_Flyes","incline-dumbbell-fly":"Incline_Dumbbell_Flyes","chest-press":"Leverage_Chest_Press","incline-chest-press":"Leverage_Incline_Chest_Press","pec-deck":"Butterfly","cable-crossover":"Cable_Crossover","low-cable-fly":"Low_Cable_Crossover","push-up":"Pushups","chest-dip":"Dips_-_Chest_Version","smith-bench-press":"Smith_Machine_Bench_Press","smith-incline-press":"Smith_Machine_Incline_Bench_Press","dumbbell-pullover":"Bent-Arm_Dumbbell_Pullover","deadlift":"Barbell_Deadlift","bent-over-row":"Bent_Over_Barbell_Row","pendlay-row":"Bent_Over_Barbell_Row","t-bar-row":"T-Bar_Row_with_Handle","dumbbell-row":"One-Arm_Dumbbell_Row","pull-up":"Pullups","chin-up":"Chin-Up","lat-pulldown":"Wide-Grip_Lat_Pulldown","close-grip-lat-pulldown":"Close-Grip_Front_Lat_Pulldown","seated-cable-row":"Seated_Cable_Rows","machine-row":"Leverage_Iso_Row","straight-arm-pulldown":"Straight-Arm_Pulldown","rack-pull":"Rack_Pulls","back-extension":"Hyperextensions_Back_Extensions","inverted-row":"Inverted_Row","assisted-pull-up":"Band_Assisted_Pull-Up","barbell-shrug":"Barbell_Shrug","dumbbell-shrug":"Dumbbell_Shrug","overhead-press":"Standing_Military_Press","dumbbell-shoulder-press":"Dumbbell_Shoulder_Press","arnold-press":"Arnold_Dumbbell_Press","machine-shoulder-press":"Machine_Shoulder_Military_Press","lateral-raise":"Side_Lateral_Raise","cable-lateral-raise":"Cable_Seated_Lateral_Raise","machine-lateral-raise":"Side_Lateral_Raise","front-raise":"Front_Dumbbell_Raise","rear-delt-fly":"Reverse_Flyes","reverse-pec-deck":"Reverse_Machine_Flyes","face-pull":"Face_Pull","upright-row":"Upright_Barbell_Row","smith-shoulder-press":"Smith_Machine_Overhead_Shoulder_Press","barbell-curl":"Barbell_Curl","ez-bar-curl":"EZ-Bar_Curl","dumbbell-curl":"Dumbbell_Bicep_Curl","hammer-curl":"Hammer_Curls","incline-dumbbell-curl":"Incline_Dumbbell_Curl","preacher-curl":"Preacher_Curl","concentration-curl":"Concentration_Curls","cable-curl":"Standing_Biceps_Cable_Curl","spider-curl":"Spider_Curl","bayesian-cable-curl":"Standing_One-Arm_Cable_Curl","triceps-pushdown":"Triceps_Pushdown","rope-pushdown":"Triceps_Pushdown_-_Rope_Attachment","overhead-cable-extension":"Cable_Rope_Overhead_Triceps_Extension","skull-crusher":"EZ-Bar_Skullcrusher","dumbbell-overhead-extension":"Standing_Dumbbell_Triceps_Extension","close-grip-bench-press":"Close-Grip_Barbell_Bench_Press","triceps-dip":"Dips_-_Triceps_Version","bench-dip":"Bench_Dips","triceps-kickback":"Tricep_Dumbbell_Kickback","machine-triceps-extension":"Machine_Triceps_Extension","squat":"Barbell_Squat","front-squat":"Front_Barbell_Squat","goblet-squat":"Goblet_Squat","hack-squat":"Hack_Squat","leg-press":"Leg_Press","leg-extension":"Leg_Extensions","bulgarian-split-squat":"Split_Squat_with_Dumbbells","lunge":"Dumbbell_Lunges","walking-lunge":"Bodyweight_Walking_Lunge","smith-squat":"Smith_Machine_Squat","step-up":"Dumbbell_Step_Ups","pendulum-squat":"Hack_Squat","sissy-squat":"Weighted_Sissy_Squat","romanian-deadlift":"Romanian_Deadlift","dumbbell-romanian-deadlift":"Stiff-Legged_Dumbbell_Deadlift","lying-leg-curl":"Lying_Leg_Curls","seated-leg-curl":"Seated_Leg_Curl","good-morning":"Good_Morning","nordic-curl":"Natural_Glute_Ham_Raise","stiff-leg-deadlift":"Stiff-Legged_Barbell_Deadlift","hip-thrust":"Barbell_Hip_Thrust","machine-hip-thrust":"Smith_Machine_Hip_Raise","glute-bridge":"Barbell_Glute_Bridge","cable-kickback":"One-Legged_Cable_Kickback","hip-abduction":"Thigh_Abductor","hip-adduction":"Thigh_Adductor","sumo-deadlift":"Sumo_Deadlift","kettlebell-swing":"One-Arm_Kettlebell_Swings","standing-calf-raise":"Standing_Calf_Raises","seated-calf-raise":"Seated_Calf_Raise","leg-press-calf-raise":"Calf_Press_On_The_Leg_Press_Machine","single-leg-calf-raise":"Standing_Dumbbell_Calf_Raise","crunch":"Crunches","cable-crunch":"Cable_Crunch","hanging-leg-raise":"Hanging_Leg_Raise","lying-leg-raise":"Flat_Bench_Lying_Leg_Raise","plank":"Plank","side-plank":"Side_Bridge","russian-twist":"Russian_Twist","ab-wheel-rollout":"Ab_Roller","bicycle-crunch":"Air_Bike","sit-up":"Sit-Up","mountain-climber":"Mountain_Climbers","dead-bug":"Dead_Bug","pallof-press":"Pallof_Press","decline-crunch":"Decline_Crunch","wrist-curl":"Seated_Dumbbell_Palms-Up_Wrist_Curl","reverse-wrist-curl":"Seated_Dumbbell_Palms-Down_Wrist_Curl","farmer-s-walk":"Farmers_Walk","reverse-curl":"Reverse_Barbell_Curl","dead-hang":"One_Handed_Hang","clean-and-press":"Clean_and_Press","power-clean":"Power_Clean","thruster":"Kettlebell_Thruster","snatch":"Snatch","turkish-get-up":"Kettlebell_Turkish_Get-Up_Squat_style","sled-push":"Sled_Push","battle-ropes":"Battling_Ropes","loopband":"Jogging_Treadmill","hometrainer":"Bicycling_Stationary","crosstrainer":"Elliptical_Trainer","roeitrainer":"Rowing_Stationary","traploper":"Stairmaster","touwtjespringen":"Rope_Jumping"};
+function exImg(id,i){if(!EXIMG[id])return null;return window.LOOPA_LOCAL_EX?`ex/${id}-${i||0}.jpg`:`https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/${EXIMG[id]}/${i||0}.jpg`}
+function exThumb(id,cls){const u=exImg(id,0),x=exById(id);return u?`<img class="exth ${cls||""}" src="${u}" alt="" loading="lazy">`:`<span class="exth ph ${cls||""}" aria-hidden="true">${x.t==="c"?"🏃":"🏋️"}</span>`}
+function fixImgs(root){root.querySelectorAll("img.exth,.exanim img").forEach(i=>{i.onerror=()=>{if(i.closest(".exanim")){i.closest(".exanim").remove();return}const s=document.createElement("span");s.className=i.className+" ph";s.textContent="🏋️";i.replaceWith(s)}})}
+function exInfo(id){const x=exById(id),a=exImg(id,0),b=exImg(id,1);
+  openSheet(s=>{s.appendChild(el(`<h2></h2>`)).textContent=x.name;
+    s.appendChild(el(`<span class="muted small"></span>`)).textContent=mLabel(x.m)+" · "+EQUIP[x.e];
+    if(a){const f=el(`<div class="exanim"><img alt=""><img alt=""></div>`),[i1,i2]=f.querySelectorAll("img");i1.src=a;i2.src=b;i1.alt="Begin- en eindhouding van "+x.name;fixImgs(f);s.appendChild(f);
+      s.appendChild(el(`<span class="muted small">De foto wisselt tussen de begin- en eindhouding.</span>`))}
+    else s.appendChild(el(`<div class="notebox">Voor deze oefening is nog geen plaatje.</div>`));
+    const ls=lastSets(id);if(ls)s.appendChild(el(`<div class="notebox"></div>`)).textContent="Vorige keer: "+ls.map(t=>prLine(x,t)).join(", ");
+    const c=el(`<button class="btn sec" type="button">Sluiten</button>`);c.onclick=closeSheet;s.appendChild(c)})}
+
+/* aanmoediging */
+const CHEERS=["Lekker bezig! 💪","Goed zo! ✨","Weer eentje erbij! 🙌","Top gedaan! 🔥","Zo bouw je een gewoonte! 🌱","Je doet het goed! 👏","Nice, door zo! ⚡"];
+function cheerOn(){return !(state.profile&&state.profile.cheer===false)}
+function cheer(t,big){if(!cheerOn())return;toast(t);if(big)confetti()}
+function cheerHabit(){const n=state.habits.length,d=doneCount(cur);if(!n)return;
+  if(d===n){const s=dayStreak();cheer(cur===keyOf(new Date())&&[3,5,7,14,21,30,50,100].includes(s)?`🔥 ${s} dagen op rij! Alles gedaan vandaag.`:"🎉 Alles gedaan vandaag! Trots op je.",true)}
+  else cheer(CHEERS[Math.floor(Math.random()*CHEERS.length)]+` Nog ${n-d} te gaan.`)}
+function confetti(){if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;const box=document.createElement("div");box.className="confetti";box.setAttribute("aria-hidden","true");
+  const cs=["#ff6a1f","#ffa21a","#1b1714","#1faa55","#5866f0"];
+  for(let i=0;i<44;i++){const s=document.createElement("i");s.style.left=Math.random()*100+"%";s.style.background=cs[i%cs.length];s.style.animationDelay=Math.random()*.35+"s";s.style.animationDuration=(1.4+Math.random())+"s";box.appendChild(s)}
+  document.body.appendChild(box);setTimeout(()=>box.remove(),2900)}
+
+/* gewoonte-ideeën */
+const HABIT_IDEAS=[["📖","10 pagina's lezen","avond"],["🥗","Gezond eten","dag"],["🚿","Douchen","ochtend"],["👕","Aankleden","ochtend"],["⏰","Vroeg opstaan","ochtend"],
+  ["🛏️","Bed opmaken","ochtend"],["🦷","Tanden poetsen","avond"],["💧","2 liter water","dag"],["🧘","10 min mediteren","ochtend"],["🚶","Wandeling maken","middag"],
+  ["🏋️","Sporten","middag"],["💊","Vitamines nemen","ochtend"],["📵","Geen telefoon in bed","avond"],["📝","Dagboek schrijven","avond"],["🧹","10 min opruimen","avond"],["🍎","Stuk fruit eten","middag"]];
+function renderIdeas(){const box=$("habitideas");box.innerHTML="";const have=new Set(state.habits.map(h=>h.name.toLowerCase()));
+  HABIT_IDEAS.forEach(([em,n,p])=>{const on=have.has(n.toLowerCase()),b=el(`<button class="chipbtn${on?" on":""}" type="button"></button>`);b.textContent=em+" "+n+(on?" ✓":"");b.setAttribute("aria-pressed",on);
+    b.onclick=()=>{if(on){toast(n+" staat al in je lijst");return}state.habits.push({id:"h"+uid(),name:n,part:p,em});saveHabits();renderSettings();toast(`${em} ${n} toegevoegd aan ${PARTS.find(x=>x[0]===p)[1].toLowerCase()}`)};box.appendChild(b)})}
 
 /* ===== v9: lichaamsgegevens, eetdoel en suggesties bij typen ===== */
 const ACTS=[["zit","Vooral zittend","🪑","Kantoorwerk, weinig beweging",1.2],["licht","Licht actief","🚶","Veel lopen, of 1 à 2 keer per week sporten",1.375],
@@ -1941,12 +2042,12 @@ const GOALS=[["slaap","Beter slapen","😴"],["eten","Gezonder eten","🥗"],["b
   ["scherm","Minder schermtijd","📵"],["rust","Meer rust in mijn hoofd","🧘"],["focus","Meer gedaan krijgen","🎯"]];
 const CATALOG={
   slaap:[["Naar bed voor 23:00","avond"],["Geen scherm na 22:30","avond"],["Geen koffie na 15:00","middag"]],
-  eten:[["Groente bij elke maaltijd","dag"],["Rustig ontbijten","ochtend"],["Geen frisdrank","dag"]],
+  eten:[["Gezond eten","dag"],["Groente bij elke maaltijd","dag"],["Rustig ontbijten","ochtend"],["Geen frisdrank","dag"]],
   bewegen:[["30 min bewegen","middag"],["8.000 stappen","dag"],["5 min rekken","ochtend"]],
-  energie:[["Glas water na het opstaan","ochtend"],["10 min naar buiten","middag"]],
+  energie:[["Glas water na het opstaan","ochtend"],["Vroeg opstaan","ochtend"],["Douchen","ochtend"],["Aankleden","ochtend"],["10 min naar buiten","middag"]],
   scherm:[["Telefoon weg tijdens het eten","dag"],["Eerste uur geen telefoon","ochtend"]],
   rust:[["5 min ademhalen","ochtend"],["3 dingen opschrijven waar je blij mee bent","avond"]],
-  focus:[["Dagplanning maken","ochtend"],["15 min lezen","avond"]]};
+  focus:[["Dagplanning maken","ochtend"],["10 pagina's lezen","avond"]]};
 const onb={step:0,a:{name:"",goals:[],block:null,sex:null,age:null,height:null,weight:null,act:null,eat:null,goalKg:null,sleepNow:null,sleepGoal:8,water:8,energy:null,picked:null},timer:null};
 function suggestions(){const out=[],seen=new Set(),gs=onb.a.goals.length?onb.a.goals:["energie","slaap","bewegen"];
   gs.forEach(g=>(CATALOG[g]||[]).forEach(([n,p],i)=>{if(!seen.has(n)){seen.add(n);out.push({name:n,part:(g==="bewegen"&&i===0&&onb.a.energy)?onb.a.energy:p,goal:g})}}));return out}
@@ -1961,7 +2062,7 @@ const STEPS=[
     ["motivatie","Na een paar dagen zakt mijn motivatie in","📉","Reeksen en punten houden je scherp"],["start","Ik weet niet waar ik moet beginnen","🧭","We starten met een paar makkelijke"]]},
   {id:"sex",title:"Wat is je geslacht?",lead:"Daarmee berekenen we hoeveel energie je lichaam per dag nodig heeft.",single:"sex",opts:[["man","Man","👨"],["vrouw","Vrouw","👩"],["x","Anders, of zeg ik liever niet","🙂"]]},
   {id:"age",title:"Hoe oud ben je?",lead:"Je verbruik verandert met je leeftijd.",num:"age",min:14,max:99,step:1,unit:"jaar",def:()=>25},
-  {id:"height",title:"Hoe lang ben je?",lead:"Tik op het getal om het te typen.",num:"height",min:120,max:230,step:1,unit:"centimeter",def:a=>a.sex==="vrouw"?168:a.sex==="man"?182:175},
+  {id:"height",title:"Hoe lang ben je?",lead:"Draai aan het wiel.",num:"height",min:120,max:230,step:1,unit:"centimeter",def:a=>a.sex==="vrouw"?168:a.sex==="man"?182:175},
   {id:"weight",title:"Wat weeg je nu?",lead:"Je kunt je gewicht later bijhouden bij Overzicht.",num:"weight",min:30,max:300,step:0.5,unit:"kilo",def:a=>a.sex==="vrouw"?68:a.sex==="man"?82:75},
   {id:"act",title:"Hoe actief ben je op een gewone dag?",lead:"Reken je sport mee.",single:"act",opts:ACTS.map(x=>[x[0],x[1],x[2],x[3]])},
   {id:"eat",title:"Wat is je doel met eten?",lead:"Hierop stemmen we je calorieën en eiwit af.",single:"eat",opts:EATS},
@@ -2019,14 +2120,7 @@ function renderOnbInner(){
     w.innerHTML=`<button class="round" type="button" aria-label="Minder">−</button><div class="val num"><span></span><span class="unit"></span></div><button class="round" type="button" aria-label="Meer">+</button>`;
     const show=()=>{w.querySelector(".val span").textContent=a[k]};w.querySelector(".unit").textContent=st.unit;show();
     const[mi,pl]=w.querySelectorAll("button");mi.onclick=()=>{a[k]=Math.max(st.min,a[k]-1);show()};pl.onclick=()=>{a[k]=Math.min(st.max,a[k]+1);show()};box.appendChild(w)}
-  if(st.num){const k=st.num,sp=st.step||1;if(a[k]==null)a[k]=st.def(a);const w=document.createElement("div");w.className="stepper";
-    w.innerHTML=`<button class="round" type="button" aria-label="Minder">−</button><div class="val num"><input type="number" class="bignum"><span class="unit"></span></div><button class="round" type="button" aria-label="Meer">+</button>`;
-    const inp=w.querySelector("input");inp.min=st.min;inp.max=st.max;inp.step=sp;inp.inputMode=sp<1?"decimal":"numeric";inp.value=a[k];inp.setAttribute("aria-label",st.title);w.querySelector(".unit").textContent=st.unit;
-    const clamp=v=>Math.min(st.max,Math.max(st.min,Math.round(v/sp)*sp));
-    inp.oninput=()=>{const v=parseFloat(String(inp.value).replace(",","."));if(!isNaN(v))a[k]=v;next.disabled=isNaN(v)||v<st.min||v>st.max};
-    inp.onchange=()=>{a[k]=clamp(+a[k]||st.def(a));inp.value=a[k];next.disabled=false};inp.onkeydown=e=>{if(e.key==="Enter"){inp.blur();go()}};
-    const[mi,pl]=w.querySelectorAll("button");mi.onclick=()=>{a[k]=clamp((+a[k]||0)-sp);inp.value=a[k];next.disabled=false};pl.onclick=()=>{a[k]=clamp((+a[k]||0)+sp);inp.value=a[k];next.disabled=false};
-    box.appendChild(w)}
+  if(st.num){const k=st.num;if(a[k]==null)a[k]=st.def(a);box.appendChild(numWheel(st.min,st.max,st.step||1,a[k],st.unit,st.title,v=>{a[k]=v}));next.disabled=false}
   if(st.id==="habits"){if(!a.picked)a.picked=defaultPicks();const o=document.createElement("div");o.className="opts";
     suggestions().forEach(s=>{const pl=PARTS.find(p=>p[0]===s.part)[1],b=optBtn(s.name,s.name,"",pl,a.picked.includes(s.name));
       b.querySelector(".em").innerHTML=icon(PARTS.find(p=>p[0]===s.part)[2],"width:20px;height:20px;color:var(--muted)");
@@ -2059,12 +2153,13 @@ function finishOnb(){const a=onb.a,sug=suggestions().filter(s=>a.picked.includes
   // bestaande gewoontes met dezelfde naam houden hun vinkjes
   const keep=new Map(state.habits.map(h=>[h.name,h]));
   const order={ochtend:0,middag:1,avond:2,dag:3};
-  state.habits=sug.map((s,i)=>{const old=keep.get(s.name);return{id:old?old.id:"h"+Date.now().toString(36)+i,name:s.name,part:s.part}}).sort((x,y)=>order[x.part]-order[y.part]);
+  state.habits=sug.map((s,i)=>{const old=keep.get(s.name),idea=HABIT_IDEAS.find(h=>h[1]===s.name);return{id:old?old.id:"h"+Date.now().toString(36)+i,name:s.name,part:s.part,...(old&&old.em?{em:old.em}:idea?{em:idea[0]}:{})}}).sort((x,y)=>order[x.part]-order[y.part]);
   state.profile={...(state.profile||{}),name:a.name,goals:a.goals.slice(),block:a.block,sleepNow:a.sleepNow,sleepGoal:a.sleepGoal,water:a.water,energy:a.energy,done:keyOf(new Date())};
   if(a.weight&&a.height&&a.age)applyNutrition({sex:a.sex,age:a.age,height:a.height,weight:a.weight,act:a.act,eat:a.eat,goalKg:a.goalKg});
   saveHabits();closeOnb();show("dag")}
 $("redo").onclick=()=>openOnb();
 $("bodyprof").onclick=bodyProfileSheet;
+$("rem-cheer").onchange=e=>{setProfile("cheer",e.target.checked);if(e.target.checked)cheer("Aanmoedigingen staan aan 🙌")};
 
 loadLocal();render();setSync("Opgeslagen op dit apparaat.");startRem();
 if(!state.profile)openOnb();
