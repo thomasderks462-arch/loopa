@@ -1261,11 +1261,14 @@ function foodForm(entry,opts){
       rc.forEach(x=>{const b=el(`<button class="chipbtn" type="button"></button>`);b.textContent=x.name;
         b.onclick=()=>{const keep=read();fill({...x,meal:keep.meal})};c.appendChild(b)});
       s.appendChild(el(`<span class="label">Eerder gegeten</span>`));s.appendChild(c)}}
-    let gIn=null,gpc=null;
-    if(!opts.per100){const pg=gramsOf(e);if(pg&&pg.g>0&&e.kcal!==""&&e.kcal!=null){const k=100/pg.g,sc=v=>v===""||v==null?null:+v*k;
+    let gIn=null,gpc=null,gWrap=null,gSeg=null,gPg=null,gMode="g";const amt0=String(e.amount||"");
+    if(!opts.per100){const pg=gramsOf(e);gPg=pg;if(pg&&pg.g>0&&e.kcal!==""&&e.kcal!=null){
+      gMode=/^\s*\d+(?:[.,]\d+)?\s*(g|ml)\s*$/i.test(amt0)?"g":"st";gWrap=el(`<div class="gwrap" style="display:flex;flex-direction:column;gap:10px"></div>`);
+      gSeg=segment([["st","Aantal"],["g",pg.u==="ml"?"Milliliter":"Gram"]],gMode,v=>{gMode=v;gApply&&gApply()});s.appendChild(gSeg);s.appendChild(gWrap);const k=100/pg.g,sc=v=>v===""||v==null?null:+v*k;
       gpc={kcal:+e.kcal*k,p:sc(e.p),c:sc(e.c),f:sc(e.f),u:pg.u};
-      const gf=field(pg.u==="ml"?"Hoeveel ml":"Hoeveel gram",`<input type="number" id="f-grams" inputmode="decimal" min="0" max="5000">`);s.appendChild(gf);gIn=gf.querySelector("input");gIn.value=Math.round(pg.g);
-      const qc=el(`<div class="chips"></div>`);(pg.u==="ml"?[100,200,250,330,500]:[50,100,150,200,250]).concat(Math.round(pg.g)).filter((v,i,a)=>a.indexOf(v)===i).sort((a,b)=>a-b).forEach(g=>{const b=el(`<button class="chipbtn" type="button">${g} ${pg.u}</button>`);b.onclick=()=>{gIn.value=g;gIn.oninput()};qc.appendChild(b)});s.appendChild(qc)}}
+      const gf=field(pg.u==="ml"?"Hoeveel ml":"Hoeveel gram",`<input type="number" id="f-grams" inputmode="decimal" min="0" max="5000">`);gWrap.appendChild(gf);gIn=gf.querySelector("input");gIn.value=Math.round(pg.g);
+      const qc=el(`<div class="chips"></div>`);(pg.u==="ml"?[100,200,250,330,500]:[50,100,150,200,250]).concat(Math.round(pg.g)).filter((v,i,a)=>a.indexOf(v)===i).sort((a,b)=>a-b).forEach(g=>{const b=el(`<button class="chipbtn" type="button">${g} ${pg.u}</button>`);b.onclick=()=>{gIn.value=g;gIn.oninput()};qc.appendChild(b)});gWrap.appendChild(qc)}}
+    let gApply=null;
     let gramsInp=null;const pc=opts.per100;
     if(pc){const card=el(`<div class="prodcard">${opts.img?'<img alt="">':""}<div class="it"><b></b><small class="num"></small><small class="src">Bron: Open Food Facts</small></div></div>`);
       if(opts.img)card.querySelector("img").src=opts.img;card.querySelector("b").textContent=e.name;
@@ -1291,7 +1294,12 @@ function foodForm(entry,opts){
     if(opts.isNew&&!opts.gtin)attachSuggest(fill,read);
     if(gIn){gIn.oninput=()=>{const g=+gIn.value||0,r1=v=>v==null?"":Math.round(v*g/10)/10;$("f-kcal").value=Math.round(gpc.kcal*g/100);
       ["p","c","f"].forEach(k=>$("f-"+k).value=r1(gpc[k]));$("f-amount").value=g+" "+gpc.u;
-      $("f-kcal").dispatchEvent(new Event("input",{bubbles:true}))};if(!((e.qty||1)>1))qb.hidden=true;
+      $("f-kcal").dispatchEvent(new Event("input",{bubbles:true}))};gWrap.after(qb);const qlab=qb.querySelector(".label");
+      gApply=()=>{const st=gMode==="st";gWrap.hidden=st;qb.hidden=!st;
+        if(st){if(/^\s*\d+(?:[.,]\d+)?\s*(g|ml)\s*$/i.test(amt0)){gIn.value=Math.round(gPg.g)}else{gIn.value=Math.round(gPg.g);gIn.oninput();$("f-amount").value=amt0}
+          qlab.textContent="Hoeveel keer "+($("f-amount").value||"1 portie")}
+        else{const one=[...qb.querySelectorAll(".qchip")].find(b=>b.textContent==="1×");if(one)one.click();gIn.oninput()}};
+      if(gMode==="st"){gWrap.hidden=true;qlab.textContent="Hoeveel keer "+amt0}else qb.hidden=true;
       $("f-amount").addEventListener("input",()=>{const m=$("f-amount").value.trim().match(/^(\d+(?:[.,]\d+)?)\s*(g|gr|gram|ml)$/i);if(m){gIn.value=+m[1].replace(",",".");const v=$("f-amount").value;gIn.oninput();$("f-amount").value=v}})}
     const row=el(`<div class="btnrow"></div>`);
     if(!opts.isNew){const del=el(`<button class="btn danger" type="button">Verwijder</button>`);
