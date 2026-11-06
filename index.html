@@ -349,6 +349,19 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 .setline{display:flex;gap:12px;font-size:.88rem;padding:3px 2px}
 .setline span:first-child{color:var(--muted);width:18px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}.spin{animation-duration:3s}.resume .dot{animation:none}}
+/* v24 supplementen */
+.suppgrid{display:flex;flex-wrap:wrap;gap:8px}
+.suppchip{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:14px;background:var(--surface-2);border:0;font:inherit;font-weight:600;color:var(--ink);cursor:pointer;transition:background .2s,color .2s,transform .1s}
+.suppchip:active{transform:scale(.96)}
+.suppchip small{font-weight:500;color:var(--muted);font-size:.75rem}
+.suppchip.on{background:var(--pink);color:#fff}
+.suppchip.on small{color:rgba(255,255,255,.8)}
+.supplist{display:flex;flex-direction:column}
+.supprow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.supprow:first-child{border-top:0}
+.supprow b{flex:1;min-width:0}
+.supprow input[type=time]{width:auto;flex:none;font:inherit;color:var(--ink);background:var(--surface-2);border:0;border-radius:12px;padding:8px 10px}
+.supprow .x{border:0;background:var(--surface-2);width:34px;height:34px;border-radius:50%;font-size:1.2rem;color:var(--muted);cursor:pointer}
 /* v23 rustig */
 .morecard .morelist{display:flex;flex-direction:column}
 .morerow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line,rgba(0,0,0,.08));padding:12px 2px;color:var(--ink);font:inherit;cursor:pointer}
@@ -1808,6 +1821,42 @@ function renderSettings(){renderPinUI();renderSeg();renderRemUI();renderIdeas();
 }
 $("addform").addEventListener("submit",e=>{e.preventDefault();const v=$("newhabit").value.trim();if(!v)return;
   state.habits.push({id:"h"+Date.now().toString(36),name:v,part:newPart});$("newhabit").value="";saveHabits();renderSettings()});
+
+/* ===== v24: supplementen en vitamines ===== */
+const SUPP_IDEAS=[["💊","Multivitamine"],["☀️","Vitamine D"],["🐟","Omega-3"],["💪","Creatine"],["🌙","Magnesium"],["🩸","IJzer"],["🧪","Vitamine B12"],["🍊","Vitamine C"],["🦴","Calcium"],["⚡","Zink"],["🥤","Eiwitshake"],["💉","Medicijn"]];
+function supps(){return (state.profile&&state.profile.supps)||[]}
+function setSupps(l){setProfile("supps",l);render()}
+function suppTaken(k,id){return !!((day(k).supps||{})[id])}
+function toggleSupp(k,id,force){const d=ensure(k);d.supps=d.supps||{};const v=force!=null?force:!d.supps[id];if(v)d.supps[id]=Date.now();else delete d.supps[id];saveDay(k);render();
+  const all=supps(),n=all.filter(x=>suppTaken(k,x.id)).length;if(v&&n===all.length&&all.length>1)toast("💊 Alles ingenomen voor vandaag");}
+function renderSupp(){suppMoreRow();const c=$("suppcard");if(!c)return;const l=supps();c.hidden=!l.length;const r=document.querySelector('.morerow[data-k="supp"]');if(r)r.hidden=!!l.length;if(!l.length)return;
+  const n=l.filter(x=>suppTaken(cur,x.id)).length;$("supp-n").textContent=`${n} van ${l.length}`;const g=$("suppgrid");g.innerHTML="";
+  l.forEach(x=>{const on=suppTaken(cur,x.id),b=el(`<button class="suppchip${on?" on":""}" type="button" aria-pressed="${on}"><span class="se" aria-hidden="true"></span><span class="sn"></span><small></small></button>`);
+    b.querySelector(".se").textContent=on?"✓":x.em;b.querySelector(".sn").textContent=x.name;b.querySelector("small").textContent=x.at||"";
+    b.onclick=()=>{toggleSupp(cur,x.id);if(navigator.vibrate)try{navigator.vibrate(20)}catch(e){}};g.appendChild(b)})}
+function openSuppEdit(){openSheet(s=>{s.appendChild(el(`<h2>💊 Supplementen</h2>`));
+  s.appendChild(el(`<p class="muted small" style="margin:0">Vink ze elke dag af op Vandaag. Zet een tijd erbij, dan krijg je een herinnering als je hem nog niet hebt genomen.</p>`));
+  const l=supps().slice();
+  if(l.length){const box=el(`<div class="supplist"></div>`);l.forEach((x,i)=>{const r=el(`<div class="supprow"><span class="se" aria-hidden="true"></span><b></b><input type="time" aria-label="Tijd voor herinnering"><button class="x" type="button" aria-label="Verwijderen">×</button></div>`);
+      r.querySelector(".se").textContent=x.em;r.querySelector("b").textContent=x.name;const t=r.querySelector("input");t.value=x.at||"";
+      t.onchange=()=>{l[i]={...x,at:t.value||""};setSupps(l.slice());if(t.value&&"Notification" in window&&Notification.permission==="default")try{Notification.requestPermission()}catch(e){}};
+      r.querySelector(".x").onclick=()=>{l.splice(i,1);setSupps(l.slice());openSuppEdit()};box.appendChild(r)});s.appendChild(box)}
+  s.appendChild(el(`<span class="label">Toevoegen</span>`));
+  const have=new Set(l.map(x=>x.name.toLowerCase())),ch=el(`<div class="chips"></div>`);
+  SUPP_IDEAS.filter(([,n])=>!have.has(n.toLowerCase())).forEach(([em,n])=>{const b=el(`<button class="chipbtn" type="button"></button>`);b.textContent=em+" "+n;
+    b.onclick=()=>{l.push({id:uid(),em,name:n,at:""});setSupps(l.slice());openSuppEdit()};ch.appendChild(b)});s.appendChild(ch);
+  const own=el(`<div class="btnrow"><input type="text" maxlength="40" placeholder="Iets anders, bv. Ashwagandha" aria-label="Eigen supplement" style="flex:1;font:inherit;color:var(--ink);background:var(--surface-2);border:0;border-radius:14px;padding:11px 12px;min-width:0"><button class="btn" type="button" style="flex:none;width:auto;padding:0 18px">Toevoegen</button></div>`);
+  const oi=own.querySelector("input"),add=()=>{const n=oi.value.trim();if(!n){oi.focus();return}l.push({id:uid(),em:"💊",name:n,at:""});setSupps(l.slice());openSuppEdit()};
+  own.querySelector("button").onclick=add;oi.onkeydown=e=>{if(e.key==="Enter")add()};s.appendChild(own);
+  const ok=el(`<button class="btn sec" type="button">Klaar</button>`);ok.onclick=closeSheet;s.appendChild(ok)})}
+(function(){const ah=$("addhabit");if(!ah)return;
+  const c=el(`<section class="card suppcard" id="suppcard" hidden aria-label="Supplementen"><div class="card-head"><h2>💊 Supplementen</h2><span style="display:flex;gap:10px;align-items:center"><span class="muted small num" id="supp-n"></span><button class="linkbtn" type="button" id="supp-edit">Aanpassen</button></span></div><div class="suppgrid" id="suppgrid"></div></section>`);
+  ah.after(c);$("supp-edit").onclick=openSuppEdit;
+  })();
+function suppMoreRow(){if(document.querySelector('.morerow[data-k="supp"]'))return;const ml=document.querySelector("#more-dag .morelist");if(ml){const r=el(`<button class="morerow" type="button" data-k="supp"><span class="mre" aria-hidden="true">💊</span><span class="it"><b>Supplementen en vitamines</b><small>Vink je vitamines af en krijg een herinnering</small></span><span class="chev" aria-hidden="true">›</span></button>`);r.onclick=openSuppEdit;ml.appendChild(r)}}
+const _dr24=dueReminders;dueReminders=function(){const out=_dr24(),now=new Date(),m=now.getHours()*60+now.getMinutes(),t=keyOf(now);
+  supps().forEach(x=>{if(x.at&&m>=toMin(x.at)&&!suppTaken(t,x.id))out.push({id:"s"+x.id,em:x.em||"💊",title:`Tijd voor ${x.name}`,text:"Nog niet afgevinkt vandaag. Tik hier als je hem hebt genomen.",fn:()=>toggleSupp(t,x.id,true)})});return out};
+const _render24=render;render=function(){_render24();try{renderSupp()}catch(e){}};
 
 /* ===== v23: rustiger, extra's naar aparte pagina's onder "Meer" ===== */
 const MORE={

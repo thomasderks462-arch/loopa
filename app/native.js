@@ -100,9 +100,11 @@
       list.push({ id: 102, title: "Bijna bedtijd", body: "Over een half uur is het bedtijd (" + (r.bedAt || "23:00") + "). Leg je telefoon zo weg.", schedule: { on: { hour: Math.floor(m / 60), minute: m % 60 }, repeats: true, allowWhileIdle: true } }); }
     if (r.water) [10, 12, 14, 16, 18, 20].forEach(function (hr, i) {
       list.push({ id: 110 + i, title: "Tijd voor water", body: "Drink een glas water en tik het aan in Loopa.", schedule: { on: { hour: hr, minute: 0 }, repeats: true } }); });
+    ((st.profile && st.profile.supps) || []).filter(function (x) { return x.at; }).slice(0, 10).forEach(function (x, i) {
+      list.push({ id: 120 + i, title: "Tijd voor " + x.name, body: "Vergeet je " + x.name + " niet. Vink hem af in Loopa.", schedule: { on: hm(x.at, "08:00"), repeats: true, allowWhileIdle: true } }); });
     var sig = JSON.stringify(list.map(function (n) { return [n.id, n.schedule.on]; }));
     if (sig === lastSig) return; lastSig = sig;
-    var ids = [101, 102, 110, 111, 112, 113, 114, 115].map(function (id) { return { id: id }; });
+    var ids = [101, 102, 110, 111, 112, 113, 114, 115, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129].map(function (id) { return { id: id }; });
     LN.cancel({ notifications: ids }).catch(function () {}).then(function () { if (list.length) return LN.schedule({ notifications: list }); }).catch(function (e) { console.warn("plannen mislukt", e); });
   }
   var origSet = Storage.prototype.setItem;
