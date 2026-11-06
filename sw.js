@@ -1,5 +1,5 @@
 // Loopa service worker: bewaart de app zodat hij ook zonder internet opent.
-const CACHE = "loopa-v28";
+const CACHE = "loopa-v29";
 const ASSETS = ["./", "./index.html", "./zxing.min.js", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"];
 
@@ -15,7 +15,7 @@ self.addEventListener("fetch", e => {
   if (req.method !== "GET" || new URL(req.url).origin !== location.origin) return;
   if (req.mode === "navigate") {
     // Eerst het netwerk, zodat je altijd de nieuwste versie krijgt; offline de bewaarde versie.
-    e.respondWith(fetch(req).then(res => {
+    e.respondWith(fetch(req, { cache: "no-store" }).then(res => {
       const copy = res.clone(); caches.open(CACHE).then(c => c.put("./index.html", copy)); return res;
     }).catch(() => caches.match("./index.html")));
     return;
