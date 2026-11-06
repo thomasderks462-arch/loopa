@@ -1526,7 +1526,8 @@ function renderGymCard(){const box=$("gymcard");box.innerHTML="";
     c.querySelector("b").textContent=r.name;c.querySelector("small").textContent=r.ex.map(e=>exById(e.ex).name).join(", ");
     const[s1,s2]=c.querySelectorAll("button");s1.onclick=()=>startWorkout(r);s2.onclick=()=>routineEditor(r);grid.appendChild(c)});
   box.appendChild(grid);
-  const pr=el(`<button class="btn sec" type="button">📋 Kant-en-klare schema's</button>`);pr.onclick=presetSheet;box.appendChild(pr)}
+  const pr=el(`<button class="btn sec" type="button">📋 Kant-en-klare schema's</button>`);pr.onclick=presetSheet;box.appendChild(pr);
+  const hv=el(`<button class="linkbtn" type="button" style="align-self:center;padding:6px">Workouts overzetten uit Hevy</button>`);hv.onclick=()=>hevySheet();box.appendChild(hv)}
 
 /* workout starten en bijhouden */
 function startWorkout(r){
@@ -1821,6 +1822,68 @@ function renderSettings(){renderPinUI();renderSeg();renderRemUI();renderIdeas();
 }
 $("addform").addEventListener("submit",e=>{e.preventDefault();const v=$("newhabit").value.trim();if(!v)return;
   state.habits.push({id:"h"+Date.now().toString(36),name:v,part:newPart});$("newhabit").value="";saveHabits();renderSettings()});
+
+/* ===== v25: importeren uit Hevy (CSV-export) ===== */
+const HEVY_MAP={"incline bench press (dumbbell)":"incline-dumbbell-press","lateral raise (dumbbell)":"lateral-raise","lateral raise (cable)":"cable-lateral-raise","lateral raise (machine)":"machine-lateral-raise",
+ "overhead triceps extension (cable)":"overhead-cable-extension","chest press (machine)":"chest-press","shoulder press (machine plates)":"machine-shoulder-press","shoulder press (machine)":"machine-shoulder-press",
+ "lat pulldown (cable)":"lat-pulldown","bicep curl (cable)":"cable-curl","seated incline curl (dumbbell)":"incline-dumbbell-curl","seated cable row - v grip (cable)":"seated-cable-row","pull up":"pull-up","chin up":"chin-up",
+ "seated row (machine)":"machine-row","back extension (weighted hyperextension)":"back-extension","back extension (hyperextension)":"back-extension","behind the back curl (cable)":"bayesian-cable-curl",
+ "decline crunch (weighted)":"decline-crunch","decline crunch":"decline-crunch","triceps pushdown":"triceps-pushdown","triceps rope pushdown":"rope-pushdown","leg extension (machine)":"leg-extension","shrug (dumbbell)":"dumbbell-shrug","shrug (barbell)":"barbell-shrug",
+ "cable fly crossovers":"cable-crossover","lying leg curl (machine)":"lying-leg-curl","seated leg curl (machine)":"seated-leg-curl","russian twist (weighted)":"russian-twist","russian twist":"russian-twist","preacher curl (machine)":"preacher-curl","preacher curl (barbell)":"preacher-curl",
+ "hip abduction (machine)":"hip-abduction","hip adduction (machine)":"hip-adduction","triceps dip":"triceps-dip","face pull":"face-pull","hammer curl (dumbbell)":"hammer-curl","bench press (barbell)":"bench-press","chest dip":"chest-dip",
+ "reverse curl (barbell)":"reverse-curl","reverse wrist curl (dumbbell)":"reverse-wrist-curl","rear delt reverse fly (machine)":"reverse-pec-deck","hack squat (machine)":"hack-squat","seated palms up wrist curl":"wrist-curl",
+ "shoulder press (dumbbell)":"dumbbell-shoulder-press","overhead press (barbell)":"overhead-press","crunch (weighted)":"crunch","crunch":"crunch","butterfly (pec deck)":"pec-deck","bench press (smith machine)":"smith-bench-press",
+ "squat (barbell)":"squat","deadlift (barbell)":"deadlift","romanian deadlift (barbell)":"romanian-deadlift","leg press (machine)":"leg-press","bicep curl (dumbbell)":"dumbbell-curl","bicep curl (barbell)":"barbell-curl","ez bar biceps curl":"ez-bar-curl",
+ "bent over row (barbell)":"bent-over-row","dumbbell row":"dumbbell-row","push up":"push-up","plank":"plank","hip thrust (barbell)":"hip-thrust","standing calf raise (machine)":"standing-calf-raise","seated calf raise":"seated-calf-raise",
+ "skullcrusher (barbell)":"skull-crusher","triceps kickback (dumbbell)":"triceps-kickback","arnold press (dumbbell)":"arnold-press","front raise (dumbbell)":"front-raise","upright row (barbell)":"upright-row","t bar row":"t-bar-row","incline bench press (barbell)":"incline-bench-press"};
+function csvRows(t){const out=[];let row=[],f="",q=false;t=t.replace(/^﻿/,"");
+  for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true;else if(c===","){row.push(f);f=""}else if(c==="\n"||c==="\r"){if(c==="\r"&&t[i+1]==="\n")i++;row.push(f);f="";if(row.length>1||row[0]!=="")out.push(row);row=[]}else f+=c}
+  if(f!==""||row.length){row.push(f);out.push(row)}return out}
+function hevyDate(s){s=String(s||"").trim();let m=s.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{1,2}):(\d{2})/);if(m)return new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5]);
+  const MO={jan:0,feb:1,mar:2,mrt:2,apr:3,may:4,mei:4,jun:5,jul:6,aug:7,sep:8,oct:9,okt:9,nov:10,dec:11};
+  m=s.match(/^(\d{1,2})\s+([A-Za-z]{3})[a-z]*\.?\s+(\d{4}),?\s+(\d{1,2}):(\d{2})/);if(m&&MO[m[2].toLowerCase()]!=null)return new Date(+m[3],MO[m[2].toLowerCase()],+m[1],+m[4],+m[5]);
+  const d=new Date(s);return isNaN(d)?null:d}
+function hevyGuess(name,bw){const n=name.toLowerCase();let m="hele";
+  if(/wrist/.test(n))m="onderarmen";else if(/leg curl/.test(n))m="hamstrings";else if(/curl/.test(n))m="biceps";else if(/tricep|dip|pushdown|skull|kickback/.test(n))m="triceps";
+  else if(/crunch|leg raise|twist|plank|\bab\b|\babs\b|sit ?up/.test(n))m="buik";else if(/chest|bench|fly|pec|push ?up/.test(n))m="borst";
+  else if(/lateral raise|rear delt|face pull|shrug|shoulder|delt|upright|arnold|front raise|overhead press/.test(n))m="schouders";
+  else if(/row|pulldown|pull ?up|\bchin|back|deadlift|pullover/.test(n))m="rug";
+  else if(/calf/.test(n))m="kuiten";else if(/hip|glute|abduct|adduct/.test(n))m="billen";else if(/squat|leg|lunge/.test(n))m="benen";
+  const e=/smith/.test(n)?"sm":/\(cable\)|cable/.test(n)?"ka":/machine|plates/.test(n)?"ma":/dumbbell/.test(n)?"db":/barbell|ez bar/.test(n)?"bb":/kettlebell/.test(n)?"kb":bw?"lg":"ov";return{m,e}}
+function hevyImport(text){const rows=csvRows(text);if(rows.length<2)throw new Error("leeg");const H=rows[0].map(h=>h.trim().toLowerCase()),ix=k=>H.indexOf(k);
+  const iT=ix("title"),iS=ix("start_time"),iE=ix("end_time"),iX=ix("exercise_title"),iK=ix("weight_kg"),iR=ix("reps"),iD=ix("distance_km"),iSec=ix("duration_seconds"),iTy=ix("set_type");
+  if(iT<0||iS<0||iX<0)throw new Error("geen hevy");
+  const W=new Map();rows.slice(1).forEach(r=>{if(r.length<H.length-2)return;const key=r[iT]+"|"+r[iS];if(!W.has(key))W.set(key,{title:r[iT],start:r[iS],end:iE>=0?r[iE]:"",rows:[]});W.get(key).rows.push(r)});
+  state.customEx=state.customEx||[];const made=[],idFor=(name,bw)=>{const k=name.trim().toLowerCase();if(HEVY_MAP[k])return HEVY_MAP[k];
+    const lib=EXLIB.find(x=>x.name.toLowerCase()===k);if(lib)return lib.id;const c=state.customEx.find(x=>x.name.toLowerCase()===k);if(c)return c.id;
+    const g=hevyGuess(name,bw),x={id:"c-"+uid(),name:name.trim(),m:g.m,e:g.e,t:"w",src:"hevy"};state.customEx.push(x);made.push(x.name);return x.id};
+  let added=0,skipped=0;const touched=new Set(),latest={},count={};
+  W.forEach(w=>{const st=hevyDate(w.start);if(!st)return;const en=hevyDate(w.end),k=keyOf(st),id="hevy-"+st.getTime().toString(36);
+    const exs=[];w.rows.forEach(r=>{if(iTy>=0&&/warmup/i.test(r[iTy]||""))return;const kg=r[iK]===""||r[iK]==null?null:+r[iK],reps=+r[iR]||0,km=iD>=0&&r[iD]!==""?+r[iD]:null,sec=iSec>=0&&r[iSec]!==""?+r[iSec]:null;
+      const exId=idFor(r[iX],kg==null);let e=exs.find(z=>z.ex===exId);if(!e){e={ex:exId,sets:[]};exs.push(e)}
+      if(reps)e.sets.push({kg,reps,done:true});else if(sec)e.sets.push({kg,reps:sec,done:true});else if(km)e.sets.push({kg:km,reps:Math.round((sec||0)/60),done:true})});
+    const ex=exs.filter(e=>e.sets.length);if(!ex.length)return;
+    const nm=w.title.trim();count[nm]=(count[nm]||0)+1;if(!latest[nm]||latest[nm].t<st)latest[nm]={t:st,ex};
+    const d=ensure(k);d.sport=d.sport||[];if(d.sport.some(s=>s.id===id)){skipped++;return}
+    let min=en&&en>st?Math.round((en-st)/60000):0;if(min<5)min=Math.max(10,Math.round(ex.reduce((a,e)=>a+e.sets.length,0)*2.5));
+    d.sport.push({id,type:"fitness",min,int:"gemiddeld",note:nm,src:"hevy",workout:{name:nm,ex}});touched.add(k);added++});
+  const plans=[];state.routines=state.routines||[];
+  Object.entries(latest).forEach(([nm,v])=>{if(/^(morning|afternoon|evening|late night|night)\s+workout/i.test(nm)||count[nm]<2)return;
+    const ex=v.ex.map(e=>({ex:e.ex,sets:e.sets.length})),r=state.routines.find(x=>x.name.toLowerCase()===nm.toLowerCase());
+    if(r)r.ex=ex;else state.routines.push({id:uid(),name:nm,ex});plans.push(nm)});
+  touched.forEach(k=>saveDay(k));saveGym();return{added,skipped,plans,made,total:W.size}}
+function hevySheet(){openSheet(s=>{s.appendChild(el(`<h2>Importeren uit Hevy</h2>`));
+  s.appendChild(el(`<p class="muted small" style="margin:0">Zet je oude workouts, records en schema's over naar Loopa. Workouts die je al hebt geïmporteerd worden overgeslagen.</p>`));
+  s.appendChild(el(`<div class="planlist"><div style="background:var(--surface-2)">1. Open Hevy en ga naar Profiel › Instellingen</div><div style="background:var(--surface-2)">2. Tik op Export &amp; Import Data › Export Workouts</div><div style="background:var(--surface-2)">3. Bewaar het bestand in Bestanden, en kies het hieronder</div></div>`));
+  const inp=el(`<input type="file" accept=".csv,text/csv,text/comma-separated-values,application/vnd.ms-excel" hidden>`);s.appendChild(inp);
+  const b=el(`<button class="btn" type="button">📄 Kies je Hevy-bestand (.csv)</button>`);b.onclick=()=>inp.click();s.appendChild(b);
+  inp.onchange=async()=>{const f=inp.files[0];if(!f)return;let res;try{res=hevyImport(await f.text())}catch(e){msgSheet("Dit lukte niet","Dit lijkt geen Hevy-export te zijn. Kies het bestand workout_data.csv dat Hevy maakt.");return}
+    render();openSheet(t=>{t.appendChild(el(`<div class="streakwin"><span aria-hidden="true">🏋️</span><h2>${res.added} workouts geïmporteerd</h2><p class="muted"></p></div>`));
+      t.querySelector("p").textContent=res.skipped?`${res.skipped} stonden er al in en zijn overgeslagen.`:"Je records en beloningen zijn bijgewerkt.";
+      if(res.plans.length){t.appendChild(el(`<span class="label">Schema's klaargezet</span>`));const c=el(`<div class="chips"></div>`);res.plans.forEach(n=>{const x=el(`<span class="chipbtn"></span>`);x.textContent=n;c.appendChild(x)});t.appendChild(c)}
+      if(res.made.length)t.appendChild(el(`<p class="muted small" style="margin:0">${res.made.length} oefeningen kende Loopa nog niet. Die zijn als eigen oefening toegevoegd.</p>`));
+      const ok=el(`<button class="btn" type="button">Bekijken</button>`);ok.onclick=()=>{closeSheet();show("sport")};t.appendChild(ok)})}})}
 
 /* ===== v24: supplementen en vitamines ===== */
 const SUPP_IDEAS=[["💊","Multivitamine"],["☀️","Vitamine D"],["🐟","Omega-3"],["💪","Creatine"],["🌙","Magnesium"],["🩸","IJzer"],["🧪","Vitamine B12"],["🍊","Vitamine C"],["🦴","Calcium"],["⚡","Zink"],["🥤","Eiwitshake"],["💉","Medicijn"]];
