@@ -349,6 +349,14 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 .setline{display:flex;gap:12px;font-size:.88rem;padding:3px 2px}
 .setline span:first-child{color:var(--muted);width:18px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}.spin{animation-duration:3s}.resume .dot{animation:none}}
+/* v22 lockscreen */
+.lockt{display:flex;align-items:center;gap:12px;border:0;font:inherit;color:var(--ink);text-align:left;background:var(--surface);border-radius:18px;padding:12px 14px;cursor:pointer;box-shadow:0 1px 2px rgba(27,23,20,.04),0 6px 20px rgba(27,23,20,.05)}
+.lockt .lkic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--surface-2);font-size:1.1rem;flex:none}
+.lockt .it{flex:1;display:flex;flex-direction:column;gap:2px}.lockt small{color:var(--muted);font-size:.78rem}
+.lockt .lksw{width:46px;height:28px;border-radius:14px;background:#d9d3cd;position:relative;flex:none;transition:background .2s}
+.lockt .lksw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.lockt.on .lksw{background:linear-gradient(135deg,#ff5a1f,#ff9d0a)}.lockt.on .lksw::after{transform:translateX(18px)}
+.lockt.on .lkic{background:linear-gradient(135deg,#ff5a1f,#ffa21a)}
 /* v21 */
 .lock.biomode .dots,.lock.biomode .pad,.lock.biomode>p{display:none}
 .lock:not(.biomode) .biobig{display:none}.lock:not(.biomode) .pinlink{display:none}
@@ -1007,6 +1015,7 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
   <div class="wk-in">
     <input type="text" class="wk-name" id="wk-name" maxlength="40" aria-label="Naam van de workout">
     <div class="wk-stats"><span><small class="label">Volume</small><b id="wk-vol" class="num">0 kg</b></span><span><small class="label">Sets</small><b id="wk-sets" class="num">0</b></span></div>
+    <button class="lockt" id="wk-lockt" type="button" hidden><span class="lkic" aria-hidden="true">🔒</span><span class="it"><b>Timer op vergrendelscherm</b><small></small></span><span class="lksw" aria-hidden="true"></span></button>
     <div id="wk-list" class="wrap" style="gap:12px"></div>
     <button class="btn sec" id="wk-add" type="button">+ Oefening toevoegen</button>
     <button class="linkbtn" id="wk-cancel" type="button" style="align-self:center;padding:10px">Workout annuleren</button>
@@ -1747,6 +1756,43 @@ function renderSettings(){renderPinUI();renderSeg();renderRemUI();renderIdeas();
 }
 $("addform").addEventListener("submit",e=>{e.preventDefault();const v=$("newhabit").value.trim();if(!v)return;
   state.habits.push({id:"h"+Date.now().toString(36),name:v,part:newPart});$("newhabit").value="";saveHabits();renderSettings()});
+
+/* ===== v22: workout-timer op het vergrendelscherm via de muziekspeler ===== */
+var lockT={audio:null,on:false,sig:""};
+function lockTWanted(){try{return localStorage.getItem("loopa-lockt")==="1"}catch(e){return false}}
+function silentWav(){const sr=8000,n=sr*2,b=new ArrayBuffer(44+n*2),v=new DataView(b),w=(o,s)=>[...s].forEach((c,i)=>v.setUint8(o+i,c.charCodeAt(0)));
+  w(0,"RIFF");v.setUint32(4,36+n*2,true);w(8,"WAVE");w(12,"fmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,sr,true);v.setUint32(28,sr*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,"data");v.setUint32(40,n*2,true);
+  return URL.createObjectURL(new Blob([b],{type:"audio/wav"}))}
+function lockTStart(){if(!("mediaSession" in navigator)||!state.active||!!(window.claude&&claude.use))return false;
+  if(!lockT.audio){const a=new Audio(silentWav());a.loop=true;a.setAttribute("playsinline","");a.preload="auto";lockT.audio=a;
+    const ms=navigator.mediaSession,keep=()=>{if(state.active&&lockT.on)lockT.audio.play().catch(()=>{})};
+    try{ms.setActionHandler("play",keep);ms.setActionHandler("pause",keep);ms.setActionHandler("stop",()=>{lockTStop(true)});
+      ms.setActionHandler("nexttrack",()=>{if(rest.end){stopRest();lockTSync(true)}});ms.setActionHandler("previoustrack",()=>{if(rest.end){rest.end+=15000;rest.len=Math.max(rest.len,(rest.end-Date.now())/1000);lockTSync(true)}})}catch(e){}}
+  lockT.on=true;lockT.sig="";const p=lockT.audio.play();if(p)p.then(()=>lockTSync(true)).catch(()=>{lockT.on=false;toast("Starten lukte niet. Tik nog een keer op de knop.");renderLockTBtn()});return true}
+function lockTStop(byUser){lockT.on=false;if(lockT.audio){try{lockT.audio.pause()}catch(e){}}
+  try{navigator.mediaSession.metadata=null;navigator.mediaSession.playbackState="none"}catch(e){}
+  if(byUser){try{localStorage.setItem("loopa-lockt","0")}catch(e){}renderLockTBtn()}}
+function lockTNow(){const a=state.active;let cur=null,si=0;for(const e of a.ex){const i=e.sets.findIndex(s=>!s.done);if(i>=0){cur=e;si=i;break}}
+  if(!cur&&a.ex.length){cur=a.ex[a.ex.length-1];si=cur.sets.length-1}
+  return cur?{name:exById(cur.ex).name,set:`Set ${si+1} van ${cur.sets.length}`}:{name:a.name||"Workout",set:"Voeg een oefening toe"}}
+function lockTSync(force){if(!lockT.on||!state.active||!("mediaSession" in navigator))return;const a=state.active,now=Date.now(),el=(now-a.start)/1000,ms=navigator.mediaSession,c=lockTNow();
+  const resting=rest.end>now,left=resting?(rest.end-now)/1000:0;
+  const title=resting?`⏱️ Rust ${fmtClock(left)}`:`💪 ${c.name}`,artist=resting?`Hierna: ${c.name} · ${c.set}`:`${c.set} · workout ${fmtClock(el)}`;
+  const sig=title+"|"+artist;
+  if(force||sig!==lockT.sig){lockT.sig=sig;try{ms.metadata=new MediaMetadata({title,artist,album:"Loopa workout",artwork:[{src:"icons/icon-512.png",sizes:"512x512",type:"image/png"},{src:"icons/icon-192.png",sizes:"192x192",type:"image/png"}]})}catch(e){}}
+  try{ms.playbackState="playing";
+    if(resting)ms.setPositionState({duration:Math.max(rest.len,left+1),playbackRate:1,position:Math.max(0,Math.min(rest.len,rest.len-left))});
+    else ms.setPositionState({duration:4*3600,playbackRate:1,position:Math.min(4*3600-1,el)})}catch(e){}}
+function renderLockTBtn(){const b=$("wk-lockt");if(!b)return;const ok="mediaSession" in navigator&&!!!(window.claude&&claude.use);b.hidden=!ok;
+  b.classList.toggle("on",lockT.on);b.querySelector("b").textContent=lockT.on?"Timer staat op je vergrendelscherm":"Timer op vergrendelscherm";
+  b.querySelector("small").textContent=lockT.on?"Tik om uit te zetten":"Via de muziekspeler. Andere muziek stopt dan."}
+let lockTLast=0;
+setInterval(()=>{if(!state.active){if(lockT.on)lockTStop(false);return}if(lockT.on){const restNow=rest.end>Date.now();
+  if(restNow!==lockT.wasRest){lockT.wasRest=restNow;lockTSync(true)}else if(Date.now()-lockTLast>4000){lockTLast=Date.now();lockTSync(false)}else lockTSync(false)}},1000);
+(function(){const btn=$("wk-lockt");if(!btn)return;
+  btn.onclick=()=>{if(lockT.on){lockTStop(true);toast("Timer van je vergrendelscherm gehaald");return}
+    try{localStorage.setItem("loopa-lockt","1")}catch(e){}if(lockTStart()){renderLockTBtn();toast("🔒 Vergrendel je telefoon: je timer staat bij de muziekspeler")}};renderLockTBtn()})();
+const _ow22=openWorkout;openWorkout=function(){_ow22();if(lockTWanted()&&!lockT.on)lockTStart();renderLockTBtn()};
 
 /* ===== v21: Face ID meteen, beloningen per oefening, workout-tijd in beeld ===== */
 function isIOSWeb(){return !window.LoopaBio&&(/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1))}
