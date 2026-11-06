@@ -1748,16 +1748,24 @@ $("delkey").onclick=()=>{try{localStorage.removeItem(KEY)}catch(e){}$("apikey").
 $("apikey").addEventListener("focus",e=>{if(e.target.value.startsWith("•"))e.target.value=""});
 
 /* ---- back-up ---- */
-$("backup").onclick=()=>{const blob=new Blob([JSON.stringify({app:"loopa",version:1,saved:new Date().toISOString(),state},null,1)],{type:"application/json"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`loopa-backup-${keyOf(new Date())}.json`;document.body.appendChild(a);a.click();
-  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)};
+const BK_EXTRA=["loopa-pw","loopa-chat","loopa-lockt"];
+async function makeBackup(){const extra={};BK_EXTRA.forEach(k=>{try{const v=localStorage.getItem(k);if(v!=null)extra[k]=v}catch(e){}});
+  const name=`loopa-backup-${keyOf(new Date())}.json`,txt=JSON.stringify({app:"loopa",version:2,saved:new Date().toISOString(),state,extra});
+  const blob=new Blob([txt],{type:"application/json"});let done=false;
+  if(!window.Capacitor&&navigator.canShare){try{const file=new File([blob],name,{type:"application/json"});if(navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"Loopa back-up"});done=true}}catch(e){if(e&&e.name==="AbortError")return}}
+  if(!done){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+  setProfile("lastBackup",Date.now());try{renderBackupNote();render()}catch(e){}toast("💾 Back-up gemaakt. Bewaar hem in Bestanden of iCloud.")}
+function renderBackupNote(){const n=$("backupnote");if(!n)return;const t=state.profile&&state.profile.lastBackup;
+  n.textContent=t?`Laatste back-up: ${new Date(t).toLocaleDateString("nl-NL",{day:"numeric",month:"long"})}`:"Je hebt nog geen back-up gemaakt."}
+$("backup").onclick=()=>makeBackup();
+setTimeout(()=>{try{const b=$("backup");if(b&&!$("backupnote")){const n=el(`<span class="muted small" id="backupnote"></span>`);b.closest(".btnrow").after(n);renderBackupNote()}}catch(e){}},0);
 $("restore").onclick=()=>{$("restorefile").value="";$("restorefile").click()};
 $("restorefile").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;
-  let data=null;try{const j=JSON.parse(await f.text());data=j.state||j}catch(err){}
+  let data=null,extra=null;try{const j=JSON.parse(await f.text());data=j.state||j;extra=j.extra||null}catch(err){}
   if(!data||typeof data.days!=="object"){msgSheet("Dit is geen Loopa-back-up","Kies het bestand dat je eerder met Back-up downloaden hebt bewaard.");return}
   const n=Object.keys(data.days).length;
   msgSheet("Back-up terugzetten?",`Deze back-up bevat ${n} dagen. Alles wat nu in de app staat wordt vervangen.`,[["Terugzetten",()=>{
-    state={habits:[],days:{},profile:null,products:{},routines:[],customEx:[],active:null,...data};migrate();saveLocal();closeSheet();if(!$("onb").hidden)closeOnb();show("dag")}],["Annuleren",closeSheet]])});
+    state={habits:[],days:{},profile:null,products:{},routines:[],customEx:[],active:null,...data};migrate();saveLocal();if(extra)Object.entries(extra).forEach(([k,v])=>{try{if(BK_EXTRA.includes(k))localStorage.setItem(k,v)}catch(e){}});toast("✅ Back-up teruggezet");closeSheet();if(!$("onb").hidden)closeOnb();show("dag")}],["Annuleren",closeSheet]])});
 
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
@@ -1822,6 +1830,20 @@ function renderSettings(){renderPinUI();renderSeg();renderRemUI();renderIdeas();
 }
 $("addform").addEventListener("submit",e=>{e.preventDefault();const v=$("newhabit").value.trim();if(!v)return;
   state.habits.push({id:"h"+Date.now().toString(36),name:v,part:newPart});$("newhabit").value="";saveHabits();renderSettings()});
+
+/* ===== v26: back-up makkelijk en met herinnering ===== */
+function hasBackup(){return typeof makeBackup==="function"&&!!document.getElementById("backup")}
+function backupSheet(){openSheet(s=>{s.appendChild(el(`<h2>💾 Back-up</h2>`));
+  const t=state.profile&&state.profile.lastBackup;
+  s.appendChild(el(`<p class="muted small" style="margin:0">Je gegevens staan alleen op deze telefoon. Met een back-up bewaar je alles in één bestand: gewoontes, eten, workouts, records, supplementen en instellingen. Bewaar het in Bestanden of iCloud Drive. Op een nieuwe telefoon zet je het hier weer terug.</p>`));
+  const n=el(`<div class="notebox"></div>`);n.textContent=t?`Laatste back-up: ${new Date(t).toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"})}`:"Je hebt nog geen back-up gemaakt.";s.appendChild(n);
+  const a=el(`<button class="btn" type="button">Back-up maken</button>`);a.onclick=()=>{closeSheet();makeBackup()};s.appendChild(a);
+  const b=el(`<button class="btn sec" type="button">Back-up terugzetten</button>`);b.onclick=()=>{closeSheet();setTimeout(()=>$("restore").click(),300)};s.appendChild(b)})}
+function backupMoreRow(){if(!hasBackup()||document.querySelector('.morerow[data-k="bk"]'))return;const ml=document.querySelector("#more-overzicht .morelist");if(!ml)return;
+  const r=el(`<button class="morerow" type="button" data-k="bk"><span class="mre" aria-hidden="true">💾</span><span class="it"><b>Back-up</b><small></small></span><span class="chev" aria-hidden="true">›</span></button>`);r.onclick=backupSheet;ml.appendChild(r)}
+function backupDue(){if(!hasBackup())return false;const n=Object.keys(state.days||{}).length;if(n<3)return false;const t=state.profile&&state.profile.lastBackup;return !t||Date.now()-t>7*864e5}
+const _dr26=dueReminders;dueReminders=function(){const out=_dr26();try{if(backupDue())out.push({id:"bk"+keyOf(new Date()),em:"💾",title:"Tijd voor een back-up",text:"Je gegevens staan alleen op deze telefoon. Tik om ze veilig te bewaren.",fn:()=>makeBackup()})}catch(e){}return out};
+const _render26=render;render=function(){_render26();try{backupMoreRow();const r=document.querySelector('.morerow[data-k="bk"] small');if(r){const t=state.profile&&state.profile.lastBackup;r.textContent=t?"Laatste: "+new Date(t).toLocaleDateString("nl-NL",{day:"numeric",month:"long"}):"Nog geen back-up gemaakt"}}catch(e){}};
 
 /* ===== v25: importeren uit Hevy (CSV-export) ===== */
 const HEVY_MAP={"incline bench press (dumbbell)":"incline-dumbbell-press","lateral raise (dumbbell)":"lateral-raise","lateral raise (cable)":"cable-lateral-raise","lateral raise (machine)":"machine-lateral-raise",
