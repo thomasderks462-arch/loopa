@@ -349,6 +349,22 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 .setline{display:flex;gap:12px;font-size:.88rem;padding:3px 2px}
 .setline span:first-child{color:var(--muted);width:18px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}.spin{animation-duration:3s}.resume .dot{animation:none}}
+/* v23 rustig */
+.morecard .morelist{display:flex;flex-direction:column}
+.morerow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line,rgba(0,0,0,.08));padding:12px 2px;color:var(--ink);font:inherit;cursor:pointer}
+.morerow:first-child{border-top:0}
+.morerow .mre{width:38px;height:38px;border-radius:12px;background:var(--surface-2);display:grid;place-items:center;font-size:1.15rem;flex:none}
+.morerow .it{flex:1;min-width:0;display:flex;flex-direction:column}
+.morerow .it b{font-weight:650}
+.morerow .it small{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.morerow .chev{color:var(--muted);font-size:1.4rem}
+.subpg{position:fixed;inset:0;z-index:29;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;transform:translateX(100%);transition:transform .24s ease}
+.subpg.in{transform:none}
+.subhead{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;background:var(--bg);border-bottom:1px solid var(--line,rgba(0,0,0,.08))}
+.subhead b{font-size:1.1rem}
+.subin{max-width:520px;margin:0 auto;padding:16px 16px calc(env(safe-area-inset-bottom) + 40px)}
+.subin>.insub{margin:0}
+.subin>.insub>.card-head h2{display:none}
 /* v22 lockscreen */
 .lockt{display:flex;align-items:center;gap:12px;border:0;font:inherit;color:var(--ink);text-align:left;background:var(--surface);border-radius:18px;padding:12px 14px;cursor:pointer;box-shadow:0 1px 2px rgba(27,23,20,.04),0 6px 20px rgba(27,23,20,.05)}
 .lockt .lkic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--surface-2);font-size:1.1rem;flex:none}
@@ -1756,6 +1772,42 @@ function renderSettings(){renderPinUI();renderSeg();renderRemUI();renderIdeas();
 }
 $("addform").addEventListener("submit",e=>{e.preventDefault();const v=$("newhabit").value.trim();if(!v)return;
   state.habits.push({id:"h"+Date.now().toString(36),name:v,part:newPart});$("newhabit").value="";saveHabits();renderSettings()});
+
+/* ===== v23: rustiger, extra's naar aparte pagina's onder "Meer" ===== */
+const MORE={
+  dag:[{k:"tiles",em:"📊",t:"Je dag in cijfers",el:()=>$("tiles"),s:()=>"Eten, water, sport en slaap van vandaag"},
+       {k:"gevoel",em:"📝",t:"Stemming en notities",el:()=>$("mood").closest("section"),s:()=>{const d=day(cur);return d.notes?"Notitie: "+d.notes.slice(0,40):d.mood?"Stemming ingevuld":"Hoe voel je je vandaag?"}}],
+  eten:[{k:"vast",em:"⭐",t:"Vaste maaltijden en boodschappen",el:()=>$("mealtpl"),s:()=>{const n=(state.meals||[]).length;return n?`${n} ${n===1?"maaltijd":"maaltijden"} bewaard`:"Eet je vaak hetzelfde? Bewaar het hier"}},
+        {k:"eweek",em:"📈",t:"Deze week",el:()=>$("eatweek").closest("section"),s:()=>"Calorieën en eiwit per dag"}],
+  sport:[{k:"steps",em:"👟",t:"Stappen",el:()=>$("stepsbox"),s:()=>{const v=day(cur).steps;return v!=null?`${(+v).toLocaleString("nl-NL")} van ${STEPGOAL().toLocaleString("nl-NL")} vandaag`:"Nog geen stappen vandaag"}},
+         {k:"rec",em:"🏆",t:"Records en beloningen",el:()=>$("prlist").closest("section"),s:()=>{const n=Object.keys(exHistory()).length;return n?`${n} ${n===1?"oefening":"oefeningen"} met records`:"Je beste sets en medailles"}},
+         {k:"smin",em:"📊",t:"Minuten per dag",el:()=>$("sportchart").closest("section"),s:()=>"Je sportminuten deze week"}],
+  slaap:[{k:"rust",em:"🫁",t:"Tot rust komen",el:()=>$("breathbtn").closest("section"),s:()=>"Ademhaling en slaapgeluid"},
+         {k:"sgraf",em:"📊",t:"Uren slaap",el:()=>$("sleepchart").closest("section"),s:()=>"De afgelopen 14 nachten"}],
+  overzicht:[{k:"feel",em:"🙂",t:"Stemming en energie",el:()=>$("feelchart").closest("section"),s:()=>"En wat jou helpt"},
+             {k:"cal",em:"📅",t:"Maandkalender",el:()=>$("calgrid").closest("section"),s:()=>"Je maand in één oogopslag"},
+             {k:"chal",em:"🎯",t:"Uitdagingen",el:()=>$("chal").closest("section"),s:()=>{const n=(state.badges||[]).length;return n?`${n} ${n===1?"badge":"badges"} verdiend`:"Badges verdienen"}},
+             {k:"lvl",em:"⭐",t:"Niveau",el:()=>$("lvl-bar").closest("section"),s:()=>($("lvl-name")&&$("lvl-name").textContent)||"Punten voor gewoontes en sport"},
+             {k:"hgrid",em:"✅",t:"Gewoontes per dag",el:()=>$("hgrid").closest("section"),s:()=>"De afgelopen 14 dagen"}]};
+const moreEls={};let morePage=null;
+(function(){const hold=el(`<div id="morehold" hidden></div>`);document.body.appendChild(hold);
+  Object.entries(MORE).forEach(([v,items])=>{const view=$("view-"+v);if(!view)return;
+    items.forEach(it=>{const e=it.el();if(!e)return;moreEls[it.k]=e;hold.appendChild(e)});
+    const card=el(`<section class="card morecard" aria-label="Meer"><div class="card-head"><h2>Meer</h2></div><div class="morelist"></div></section>`);card.id="more-"+v;
+    items.forEach(it=>{if(!moreEls[it.k])return;const r=el(`<button class="morerow" type="button"><span class="mre" aria-hidden="true"></span><span class="it"><b></b><small></small></span><span class="chev" aria-hidden="true">›</span></button>`);
+      r.querySelector(".mre").textContent=it.em;r.querySelector("b").textContent=it.t;r.dataset.k=it.k;r.onclick=()=>openMore(it);card.querySelector(".morelist").appendChild(r)});
+    view.appendChild(card)})})();
+function renderMore(){Object.values(MORE).flat().forEach(it=>{const r=document.querySelector(`.morerow[data-k="${it.k}"] small`);if(r)try{r.textContent=it.s()}catch(e){}})}
+function openMore(it){closeMore(true);const e=moreEls[it.k];if(!e)return;
+  const pg=el(`<div class="subpg" role="dialog" aria-label=""><div class="subhead"><button class="aiback" type="button" aria-label="Terug">‹</button><b></b></div><div class="subin"></div></div>`);
+  pg.setAttribute("aria-label",it.t);pg.querySelector(".subhead b").textContent=it.em+" "+it.t;pg.querySelector(".subin").appendChild(e);e.classList.add("insub");
+  document.body.appendChild(pg);document.body.style.overflow="hidden";morePage={pg,e};requestAnimationFrame(()=>pg.classList.add("in"));
+  pg.querySelector(".aiback").onclick=()=>closeMore();try{render()}catch(err){}}
+function closeMore(now){if(!morePage)return;const{pg,e}=morePage;morePage=null;
+  const done=()=>{e.classList.remove("insub");$("morehold").appendChild(e);pg.remove()};
+  document.body.style.overflow="";if(now)done();else{pg.classList.remove("in");setTimeout(done,240)}renderMore()}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&morePage&&$("sheet").hidden)closeMore()});
+const _render23=render;render=function(){_render23();renderMore()};
 
 /* ===== v22: workout-timer op het vergrendelscherm via de muziekspeler ===== */
 var lockT={audio:null,on:false,sig:""};
