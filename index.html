@@ -1858,10 +1858,10 @@ function hevyImport(text){const rows=csvRows(text);if(rows.length<2)throw new Er
   state.customEx=state.customEx||[];const made=[],idFor=(name,bw)=>{const k=name.trim().toLowerCase();if(HEVY_MAP[k])return HEVY_MAP[k];
     const lib=EXLIB.find(x=>x.name.toLowerCase()===k);if(lib)return lib.id;const c=state.customEx.find(x=>x.name.toLowerCase()===k);if(c)return c.id;
     const g=hevyGuess(name,bw),x={id:"c-"+uid(),name:name.trim(),m:g.m,e:g.e,t:"w",src:"hevy"};state.customEx.push(x);made.push(x.name);return x.id};
-  let added=0,skipped=0;const touched=new Set(),latest={},count={};
+  let added=0,skipped=0;const touched=new Set(),latest={},count={},use={};
   W.forEach(w=>{const st=hevyDate(w.start);if(!st)return;const en=hevyDate(w.end),k=keyOf(st),id="hevy-"+st.getTime().toString(36);
     const exs=[];w.rows.forEach(r=>{if(iTy>=0&&/warmup/i.test(r[iTy]||""))return;const kg=r[iK]===""||r[iK]==null?null:+r[iK],reps=+r[iR]||0,km=iD>=0&&r[iD]!==""?+r[iD]:null,sec=iSec>=0&&r[iSec]!==""?+r[iSec]:null;
-      const exId=idFor(r[iX],kg==null);let e=exs.find(z=>z.ex===exId);if(!e){e={ex:exId,sets:[]};exs.push(e)}
+      const exId=idFor(r[iX],kg==null);use[exId]=(use[exId]||0)+1;let e=exs.find(z=>z.ex===exId);if(!e){e={ex:exId,sets:[]};exs.push(e)}
       if(reps)e.sets.push({kg,reps,done:true});else if(sec)e.sets.push({kg,reps:sec,done:true});else if(km)e.sets.push({kg:km,reps:Math.round((sec||0)/60),done:true})});
     const ex=exs.filter(e=>e.sets.length);if(!ex.length)return;
     const nm=w.title.trim();count[nm]=(count[nm]||0)+1;if(!latest[nm]||latest[nm].t<st)latest[nm]={t:st,ex};
@@ -1872,6 +1872,11 @@ function hevyImport(text){const rows=csvRows(text);if(rows.length<2)throw new Er
   Object.entries(latest).forEach(([nm,v])=>{if(/^(morning|afternoon|evening|late night|night)\s+workout/i.test(nm)||count[nm]<2)return;
     const ex=v.ex.map(e=>({ex:e.ex,sets:e.sets.length})),r=state.routines.find(x=>x.name.toLowerCase()===nm.toLowerCase());
     if(r)r.ex=ex;else state.routines.push({id:uid(),name:nm,ex});plans.push(nm)});
+  const top=(m,n)=>Object.keys(use).filter(id=>exById(id).m===m).sort((a,b)=>use[b]-use[a]).slice(0,n);
+  {const pd=state.routines.find(x=>/^pull/i.test(x.name));if(pd){const have=pd.ex.filter(e=>exById(e.ex).m==="buik").length;
+      top("buik",4).filter(id=>!pd.ex.some(e=>e.ex===id)).slice(0,Math.max(0,3-have)).forEach(id=>pd.ex.push({ex:id,sets:3}))}}
+  if(!state.routines.some(x=>/chest.*back.*abs/i.test(x.name))){const ex=[...top("borst",2),...top("rug",2),...top("buik",2)].map(id=>({ex:id,sets:3}));
+    if(ex.length>=4){state.routines.push({id:uid(),name:"Chest back abs",ex});plans.push("Chest back abs")}}
   touched.forEach(k=>saveDay(k));saveGym();return{added,skipped,plans,made,total:W.size}}
 function hevySheet(){openSheet(s=>{s.appendChild(el(`<h2>Importeren uit Hevy</h2>`));
   s.appendChild(el(`<p class="muted small" style="margin:0">Zet je oude workouts, records en schema's over naar Loopa. Workouts die je al hebt geïmporteerd worden overgeslagen.</p>`));
