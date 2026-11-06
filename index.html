@@ -1066,7 +1066,7 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <nav class="tabs" role="tablist">
-  <button role="tab" data-view="dag" aria-selected="true"><svg><use href="#i-today"/></svg>Vandaag</button>
+  <button role="tab" data-view="dag" aria-selected="true"><svg><use href="#i-today"/></svg>Doelen</button>
   <button role="tab" data-view="eten" aria-selected="false"><svg><use href="#i-food"/></svg>Eten</button>
   <button role="tab" data-view="sport" aria-selected="false"><svg><use href="#i-run"/></svg>Sport</button>
   <button role="tab" data-view="slaap" aria-selected="false"><svg><use href="#i-moon"/></svg>Slaap</button>
@@ -1829,8 +1829,9 @@ function setSupps(l){setProfile("supps",l);render()}
 function suppTaken(k,id){return !!((day(k).supps||{})[id])}
 function toggleSupp(k,id,force){const d=ensure(k);d.supps=d.supps||{};const v=force!=null?force:!d.supps[id];if(v)d.supps[id]=Date.now();else delete d.supps[id];saveDay(k);render();
   const all=supps(),n=all.filter(x=>suppTaken(k,x.id)).length;if(v&&n===all.length&&all.length>1)toast("💊 Alles ingenomen voor vandaag");}
-function renderSupp(){suppMoreRow();const c=$("suppcard");if(!c)return;const l=supps();c.hidden=!l.length;const r=document.querySelector('.morerow[data-k="supp"]');if(r)r.hidden=!!l.length;if(!l.length)return;
-  const n=l.filter(x=>suppTaken(cur,x.id)).length;$("supp-n").textContent=`${n} van ${l.length}`;const g=$("suppgrid");g.innerHTML="";
+function renderSupp(){const c=$("suppcard");if(!c)return;const l=supps();c.hidden=false;
+  const n=l.filter(x=>suppTaken(cur,x.id)).length;$("supp-n").textContent=l.length?`${n} van ${l.length}`:"";const g=$("suppgrid");g.innerHTML="";
+  if(!l.length){const b=el(`<button class="addhabit" type="button" style="width:100%">+ Voeg je vitamines en supplementen toe</button>`);b.onclick=openSuppEdit;g.appendChild(b)}
   l.forEach(x=>{const on=suppTaken(cur,x.id),b=el(`<button class="suppchip${on?" on":""}" type="button" aria-pressed="${on}"><span class="se" aria-hidden="true"></span><span class="sn"></span><small></small></button>`);
     b.querySelector(".se").textContent=on?"✓":x.em;b.querySelector(".sn").textContent=x.name;b.querySelector("small").textContent=x.at||"";
     b.onclick=()=>{toggleSupp(cur,x.id);if(navigator.vibrate)try{navigator.vibrate(20)}catch(e){}};g.appendChild(b)})}
@@ -1851,11 +1852,16 @@ function openSuppEdit(){openSheet(s=>{s.appendChild(el(`<h2>💊 Supplementen</h
   const ok=el(`<button class="btn sec" type="button">Klaar</button>`);ok.onclick=closeSheet;s.appendChild(ok)})}
 (function(){const ah=$("addhabit");if(!ah)return;
   const c=el(`<section class="card suppcard" id="suppcard" hidden aria-label="Supplementen"><div class="card-head"><h2>💊 Supplementen</h2><span style="display:flex;gap:10px;align-items:center"><span class="muted small num" id="supp-n"></span><button class="linkbtn" type="button" id="supp-edit">Aanpassen</button></span></div><div class="suppgrid" id="suppgrid"></div></section>`);
-  ah.after(c);$("supp-edit").onclick=openSuppEdit;
+  $("addhabit").after(c);$("supp-edit").onclick=openSuppEdit;
   })();
 function suppMoreRow(){if(document.querySelector('.morerow[data-k="supp"]'))return;const ml=document.querySelector("#more-dag .morelist");if(ml){const r=el(`<button class="morerow" type="button" data-k="supp"><span class="mre" aria-hidden="true">💊</span><span class="it"><b>Supplementen en vitamines</b><small>Vink je vitamines af en krijg een herinnering</small></span><span class="chev" aria-hidden="true">›</span></button>`);r.onclick=openSuppEdit;ml.appendChild(r)}}
 const _dr24=dueReminders;dueReminders=function(){const out=_dr24(),now=new Date(),m=now.getHours()*60+now.getMinutes(),t=keyOf(now);
   supps().forEach(x=>{if(x.at&&m>=toMin(x.at)&&!suppTaken(t,x.id))out.push({id:"s"+x.id,em:x.em||"💊",title:`Tijd voor ${x.name}`,text:"Nog niet afgevinkt vandaag. Tik hier als je hem hebt genomen.",fn:()=>toggleSupp(t,x.id,true)})});return out};
+const _renderDag24=renderDag;renderDag=function(){const pn=$("pct"),pv=pn&&pn._v;_renderDag24();const l=supps();if(!l.length)return;if(pn)pn._v=pv;
+  const nh=state.habits.length,dh=doneCount(cur),ns=l.length,ds=l.filter(x=>suppTaken(cur,x.id)).length,n=nh+ns,done=dh+ds,f=n?done/n:0;
+  setRing("bigarc",f,f>=1?"var(--good)":"var(--pink)");countTo(pn,Math.round(f*100),"%");
+  $("herotitle").textContent=f>=1?"Alles gedaan!":done?"Goed bezig":"Aan de slag";
+  $("herosub").textContent=`${dh} van ${nh} gewoontes · ${ds} van ${ns} supplementen`};
 const _render24=render;render=function(){_render24();try{renderSupp()}catch(e){}};
 
 /* ===== v23: rustiger, extra's naar aparte pagina's onder "Meer" ===== */
