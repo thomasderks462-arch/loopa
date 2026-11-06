@@ -1253,7 +1253,7 @@ function foodForm(entry,opts){
     if(opts.unknown){const n=el(`<div class="notebox"><b>Dit product ken ik nog niet.</b> Vul het één keer in, dan herkent de app het bij de volgende scan. Of maak een foto van het etiket, dan leest Claude de voedingswaarden voor je.</div>`);s.appendChild(n);
       const lb=el(`<button class="btn sec" type="button">${icon("i-camera","width:18px;height:18px;vertical-align:-3px;margin-right:6px")}Foto van het etiket</button>`);
       lb.onclick=()=>{pendingForm={entry:{...e,...read()},opts};pickFile("label")};s.appendChild(lb);
-      const sb=el(`<button class="btn sec" type="button">🔍 Zoek op naam</button>`);sb.onclick=()=>{closeSheet();setTimeout(()=>foodPicker(e.meal),320)};s.appendChild(sb)}
+      const sb=el(`<button class="btn sec" type="button">🔍 Zoek op naam</button>`);sb.onclick=()=>{closeSheet();setTimeout(()=>{pickGtin=opts.gtin||null;foodPicker(e.meal)},320)};s.appendChild(sb)}
     if(opts.known){s.appendChild(el(`<div class="notebox"><b>Product herkend.</b> De waarden komen van je eerdere scan.</div>`))}
     if(opts.note){const n=el(`<div class="notebox"></div>`);n.textContent=opts.note;s.appendChild(n)}
     if(opts.gtin)s.appendChild(el(`<span class="muted small num">Barcode ${opts.gtin}</span>`));
@@ -2269,9 +2269,12 @@ const SHORTMEAL=l=>l==="Avondeten"?"Avond":l==="Tussendoor"?"Snack":l;
 function quickAdd(x,meal,qty){qty=qty||1;const d=ensure(cur);d.food=d.food||[];const b=x.base||x,r=v=>v==null||v===""?null:+v,m=v=>r(v)==null?null:Math.round(r(v)*qty*10)/10;
   const item={id:uid(),name:x.name,amount:b.amount||"",kcal:r(b.kcal)==null?null:Math.round(r(b.kcal)*qty),p:m(b.p),c:m(b.c),f:m(b.f),meal,src:"hand",qty,base:{amount:b.amount||"",kcal:r(b.kcal),p:r(b.p),c:r(b.c),f:r(b.f)},...(x.img?{img:x.img}:{})};
   d.food.push(item);lastFood=item.id;saveDay(cur);render();return item}
-function foodPicker(meal){meal=meal||guessMeal();let q="",offT=null;
+var pickGtin=null;
+function foodPicker(meal){meal=meal||guessMeal();let q="",offT=null;const gtin=pickGtin;pickGtin=null;
+  const linkG=x=>{if(!gtin)return;state.products=state.products||{};state.products[gtin]={name:x.name,amount:x.amount,kcal:x.kcal,p:x.p,c:x.c,f:x.f};saveProducts()};
   openSheet(s=>{s.classList.add("picker");
     s.appendChild(el(`<h2>Eten toevoegen</h2>`));
+    if(gtin)s.appendChild(el(`<div class="notebox">Kies wat je net gescand hebt. Loopa onthoudt dan deze barcode, zodat het de volgende keer meteen goed gaat.</div>`));
     s.appendChild(segment(MEALS.map(([v,l])=>[v,SHORTMEAL(l)]),meal,v=>meal=v));
     const sw=el(`<label class="fsearch"><span aria-hidden="true">🔍</span><input type="search" placeholder="Zoek eten, bv. yoghurt" aria-label="Zoek eten" autocomplete="off" enterkeyhint="search"></label>`),inp=sw.querySelector("input");s.appendChild(sw);
     const acts=el(`<div class="factions"></div>`);
@@ -2282,8 +2285,8 @@ function foodPicker(meal){meal=meal||guessMeal();let q="",offT=null;
     const list=el(`<div class="flist"></div>`);s.appendChild(list);s.appendChild(el(`<span class="muted small" style="text-align:center;font-size:.72rem">Foto's: Wikimedia Commons (CC) en Open Food Facts</span>`));
     const row=x=>{const r=el(`<div class="frow">${""}<button class="fmain" type="button">${foodThumb(x)}<span class="it"><b></b><small class="num"></small></span></button><button class="fplus" type="button" aria-label="Toevoegen">+</button></div>`);
       r.querySelector("b").textContent=x.name;r.querySelector("small").textContent=[x.amount,x.kcal!=null&&x.kcal!==""?Math.round(x.kcal)+" kcal":null,x.tag&&x.tag!=="Standaard"?x.tag:null].filter(Boolean).join(" · ");
-      r.querySelector(".fmain").onclick=()=>{forceMeal=meal;foodForm({...x,meal,src:"hand",tag:undefined},{isNew:true,picked:true})};
-      const pl=r.querySelector(".fplus");pl.onclick=()=>{if(pl.classList.contains("ok"))return;quickAdd(x,meal);pl.classList.add("ok");pl.textContent="✓";pl.setAttribute("aria-label","Toegevoegd");
+      r.querySelector(".fmain").onclick=()=>{forceMeal=meal;foodForm({...x,meal,src:gtin?"scan":"hand",tag:undefined},{isNew:true,picked:true,gtin:gtin||undefined})};
+      const pl=r.querySelector(".fplus");pl.onclick=()=>{if(pl.classList.contains("ok"))return;linkG(x);quickAdd(x,meal);pl.classList.add("ok");pl.textContent="✓";pl.setAttribute("aria-label","Toegevoegd");
         toast(`${x.name} toegevoegd aan ${SHORTMEAL(MEALS.find(m=>m[0]===meal)[1]).toLowerCase()}`,"Ongedaan",()=>{const d=ensure(cur);d.food=(d.food||[]).filter(y=>y.id!==lastFood);saveDay(cur);render();pl.classList.remove("ok");pl.textContent="+"});
         setTimeout(()=>{pl.classList.remove("ok");pl.textContent="+";pl.setAttribute("aria-label","Nog een keer toevoegen")},1600)};
       fixFoodImgs(r);return r};

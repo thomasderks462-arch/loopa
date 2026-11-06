@@ -1,5 +1,5 @@
 // Loopa service worker: bewaart de app zodat hij ook zonder internet opent.
-const CACHE = "loopa-v18";
+const CACHE = "loopa-v19";
 const ASSETS = ["./", "./index.html", "./zxing.min.js", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"];
 
