@@ -1043,7 +1043,7 @@ nav.tabs button[aria-selected="true"]{color:var(--pink)}
   <video id="camv" playsinline muted autoplay></video>
   <div class="cam-frame" aria-hidden="true"><i></i></div>
   <div class="cam-top"><button class="round" id="cam-x" type="button" aria-label="Stoppen met scannen">×</button><span id="cam-msg">Richt op de barcode</span><button class="round" id="cam-torch" type="button" aria-label="Lamp aan of uit" hidden>⚡</button></div>
-  <div class="cam-bot"><button class="btn sec" id="cam-type" type="button">Cijfers intypen</button><button class="btn sec" id="cam-photo" type="button">Foto kiezen</button></div>
+  <div class="cam-bot"><button class="btn sec" id="cam-type" type="button">Intypen</button><button class="btn sec" id="cam-photo" type="button">Foto</button><button class="btn sec" id="cam-name" type="button">Op naam</button></div>
 </div>
 <div class="sheet-bg" id="sheetbg" hidden></div>
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true"><div class="sheet-in" id="sheetin"></div></div>
@@ -1252,7 +1252,8 @@ function foodForm(entry,opts){
     {const hd=el(`<div class="fhead">${foodThumb(e,true)}<h2>${opts.isNew?"Eten toevoegen":"Eten aanpassen"}</h2></div>`);fixFoodImgs(hd);s.appendChild(hd)}
     if(opts.unknown){const n=el(`<div class="notebox"><b>Dit product ken ik nog niet.</b> Vul het één keer in, dan herkent de app het bij de volgende scan. Of maak een foto van het etiket, dan leest Claude de voedingswaarden voor je.</div>`);s.appendChild(n);
       const lb=el(`<button class="btn sec" type="button">${icon("i-camera","width:18px;height:18px;vertical-align:-3px;margin-right:6px")}Foto van het etiket</button>`);
-      lb.onclick=()=>{pendingForm={entry:{...e,...read()},opts};pickFile("label")};s.appendChild(lb)}
+      lb.onclick=()=>{pendingForm={entry:{...e,...read()},opts};pickFile("label")};s.appendChild(lb);
+      const sb=el(`<button class="btn sec" type="button">🔍 Zoek op naam</button>`);sb.onclick=()=>{closeSheet();setTimeout(()=>foodPicker(e.meal),320)};s.appendChild(sb)}
     if(opts.known){s.appendChild(el(`<div class="notebox"><b>Product herkend.</b> De waarden komen van je eerdere scan.</div>`))}
     if(opts.note){const n=el(`<div class="notebox"></div>`);n.textContent=opts.note;s.appendChild(n)}
     if(opts.gtin)s.appendChild(el(`<span class="muted small num">Barcode ${opts.gtin}</span>`));
@@ -1622,10 +1623,11 @@ async function offSearch(q){const key=q.toLowerCase();if(offCache.has(key))retur
     const res=out.slice(0,4);offCache.set(key,res);return res}catch(e){return[]}finally{clearTimeout(t)}}
 
 /* ---- live scannen met de camera ---- */
-let camStream=null,camReader=null,camLoop=null,camMode=null,camDone=false;
+let camStream=null,camReader=null,camLoop=null,camMode=null,camDone=false,camHint=null;
 async function scanLive(mode){camMode=mode;camDone=false;
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){pickFileRaw(mode);return}
   $("cam").hidden=false;$("cam").classList.toggle("qr",mode==="qr");$("cam-msg").textContent=mode==="qr"?"Richt op de QR-code":"Richt op de barcode";$("cam-torch").hidden=true;
+  clearTimeout(camHint);camHint=setTimeout(()=>{if(!camDone&&!$("cam").hidden)$("cam-msg").textContent=mode==="qr"?"Lukt het niet? Kies een foto":"Lukt het niet? Iets dichterbij, of zoek op naam"},8000);
   const v=$("camv"),want=mode==="qr"?["qr_code"]:["ean_13","ean_8","upc_a","upc_e","code_128","code_39","itf","qr_code"];
   try{let det=null;
     if("BarcodeDetector" in window){try{const sup=await BarcodeDetector.getSupportedFormats(),fm=want.filter(x=>sup.includes(x));if(fm.length)det=new BarcodeDetector({formats:fm})}catch(e){}}
@@ -1649,14 +1651,19 @@ function gotCode(txt){if(camDone)return;const m=camMode;stopCam();try{navigator.
 $("cam-x").onclick=stopCam;
 $("cam-type").onclick=()=>{const m=camMode;stopCam();typeCode(m)};
 $("cam-photo").onclick=()=>{const m=camMode;stopCam();pickFileRaw(m)};
+$("cam-name").onclick=()=>{stopCam();setTimeout(()=>foodPicker(guessMeal()),60)};
 document.addEventListener("visibilitychange",()=>{if(document.hidden&&!$("cam").hidden)stopCam()});
 
 /* ---- voedingswaarden opzoeken in Open Food Facts ---- */
-async function lookupOFF(gtin,mode){busySheet("Product opzoeken…");
+async function offGet(gtin,ms){const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),ms);
+  try{const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${gtin}.json?fields=product_name,product_name_nl,brands,nutriments,serving_quantity,serving_size,image_front_small_url`,{signal:ctl.signal});
+    if(r.status===404)return{status:0};if(!r.ok)throw new Error("http "+r.status);return await r.json()}finally{clearTimeout(t)}}
+async function lookupOFF(gtin,mode){
   const base={meal:guessMeal(),src:mode};
-  try{const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),9000);
-    const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${gtin}.json?fields=product_name,product_name_nl,brands,nutriments,serving_quantity,serving_size,image_front_small_url`,{signal:ctl.signal});
-    clearTimeout(t);const j=await r.json();
+  if(/^2\d{12}$/.test(gtin)||/^02\d{10}$/.test(gtin)||/^2\d{7}$/.test(gtin)){
+    foodForm(base,{isNew:true,gtin,unknown:true,note:"Dit is een winkelcode van een gewogen of los product, zoals fruit of groente uit de supermarkt. Zulke codes staan niet in de productdatabase. Tik op Zoek op naam en kies bijvoorbeeld druiven."});return}
+  busySheet("Product opzoeken…");
+  try{let j;try{j=await offGet(gtin,10000)}catch(e1){j=await offGet(gtin,15000)}
     if(j&&j.status===1&&j.product){const P=j.product,n=P.nutriments||{},num=v=>v==null||v===""||isNaN(+v)?null:+v;
       let kcal=num(n["energy-kcal_100g"]);if(kcal==null&&num(n["energy_100g"])!=null)kcal=num(n["energy_100g"])/4.184;
       const per100={kcal,p:num(n.proteins_100g),c:num(n.carbohydrates_100g),f:num(n.fat_100g)};
@@ -1665,7 +1672,7 @@ async function lookupOFF(gtin,mode){busySheet("Product opzoeken…");
       const serving=num(P.serving_quantity);
       if(kcal==null){foodForm({...base,name},{isNew:true,gtin,unknown:true,note:"Dit product staat in Open Food Facts, maar zonder voedingswaarden."});return}
       foodForm({...base,name,grams:serving||100},{isNew:true,gtin,per100,img:P.image_front_small_url||null,serving:serving?Math.round(serving):null});return}
-    foodForm(base,{isNew:true,gtin,unknown:true})}
+    foodForm(base,{isNew:true,gtin,unknown:true,note:"Deze barcode staat (nog) niet in Open Food Facts. Vul het één keer in, of zoek het op naam."})}
   catch(e){foodForm(base,{isNew:true,gtin,unknown:true,note:"Opzoeken lukte niet. Controleer je internetverbinding, of vul het product zelf in."})}}
 
 /* ---- foto's herkennen: via Claude in claude.ai, of met een eigen API-sleutel ---- */
