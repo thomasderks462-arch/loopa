@@ -2478,12 +2478,16 @@ const PRESETS=[
   ["Full body B","Beginner, afwisselen met A",["deadlift","incline-dumbbell-press","lat-pulldown","lunge","hanging-leg-raise"]],
   ["Push","Borst, schouders en triceps",["bench-press","overhead-press","incline-dumbbell-press","lateral-raise","triceps-pushdown","overhead-cable-extension"]],
   ["Pull","Rug en biceps",["deadlift","pull-up","seated-cable-row","face-pull","barbell-curl","hammer-curl"]],
+  ["Sharms","Schouders en armen",["dumbbell-shoulder-press","lateral-raise","rear-delt-fly","ez-bar-curl","hammer-curl","rope-pushdown","overhead-cable-extension"]],
   ["Legs","Benen en billen",["squat","romanian-deadlift","leg-press","lying-leg-curl","hip-thrust","standing-calf-raise"]],
   ["Upper","Bovenlichaam",["bench-press","bent-over-row","dumbbell-shoulder-press","lat-pulldown","dumbbell-curl","triceps-pushdown"]],
   ["Lower","Onderlichaam",["squat","romanian-deadlift","bulgarian-split-squat","leg-extension","seated-calf-raise"]],
   ["Thuis zonder gewichten","Alleen je eigen lichaam",["push-up","glute-bridge","lunge","bench-dip","mountain-climber","plank","burpee"]]];
 function presetSheet(){openSheet(s=>{s.classList.add("tall");s.appendChild(el(`<h2>Kant-en-klare schema's</h2>`));
   s.appendChild(el(`<span class="muted small">Begin je net? Doe Full body A en B om en om. Al ervaren? Probeer Push, Pull en Legs.</span>`));
+  {const all=el(`<button class="btn" type="button">💪 Push, Pull en Sharms in één keer bewaren</button>`);all.onclick=()=>{state.routines=state.routines||[];let n=0;
+    PRESETS.filter(p=>["Push","Pull","Sharms"].includes(p[0])).forEach(([nm,,ids])=>{if(state.routines.some(x=>x.name===nm))return;state.routines.push({id:uid(),name:nm,ex:ids.map(i=>({ex:i,sets:3}))});n++});
+    saveGym();render();closeSheet();toast(n?"Push, Pull en Sharms staan bij je schema's":"Die staan er al")};s.appendChild(all)}
   PRESETS.forEach(([n,sub,ids])=>{const c=el(`<div class="routine" style="background:var(--surface-2)"><b></b><small class="muted"></small><div class="pthumbs"></div><small></small><div class="btnrow"><button class="btn" type="button">Start</button><button class="btn sec" type="button" style="background:var(--surface)">Bewaren</button></div></div>`);
     c.querySelector("b").textContent=n;c.querySelectorAll("small")[0].textContent=sub;c.querySelectorAll("small")[1].textContent=ids.map(i=>exById(i).name).join(", ");
     c.querySelector(".pthumbs").innerHTML=ids.map(i=>exThumb(i)).join("");fixImgs(c);
