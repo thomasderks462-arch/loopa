@@ -1291,7 +1291,8 @@ function foodForm(entry,opts){
     if(opts.isNew&&!opts.gtin)attachSuggest(fill,read);
     if(gIn){gIn.oninput=()=>{const g=+gIn.value||0,r1=v=>v==null?"":Math.round(v*g/10)/10;$("f-kcal").value=Math.round(gpc.kcal*g/100);
       ["p","c","f"].forEach(k=>$("f-"+k).value=r1(gpc[k]));$("f-amount").value=g+" "+gpc.u;
-      $("f-kcal").dispatchEvent(new Event("input",{bubbles:true}))};if(!((e.qty||1)>1))qb.hidden=true}
+      $("f-kcal").dispatchEvent(new Event("input",{bubbles:true}))};if(!((e.qty||1)>1))qb.hidden=true;
+      $("f-amount").addEventListener("input",()=>{const m=$("f-amount").value.trim().match(/^(\d+(?:[.,]\d+)?)\s*(g|gr|gram|ml)$/i);if(m){gIn.value=+m[1].replace(",",".");const v=$("f-amount").value;gIn.oninput();$("f-amount").value=v}})}
     const row=el(`<div class="btnrow"></div>`);
     if(!opts.isNew){const del=el(`<button class="btn danger" type="button">Verwijder</button>`);
       del.onclick=()=>{if(!del.dataset.c){del.dataset.c=1;del.textContent="Zeker?";return}const d=ensure(cur);d.food=(d.food||[]).filter(x=>x.id!==e.id);saveDay(cur);closeSheet();render()};row.appendChild(del)}
