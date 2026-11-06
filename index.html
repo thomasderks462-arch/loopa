@@ -1297,9 +1297,21 @@ function foodForm(entry,opts){
       $("f-kcal").dispatchEvent(new Event("input",{bubbles:true}))};gWrap.after(qb);const qlab=qb.querySelector(".label");
       gApply=()=>{const st=gMode==="st";gWrap.hidden=st;qb.hidden=!st;
         if(st){if(/^\s*\d+(?:[.,]\d+)?\s*(g|ml)\s*$/i.test(amt0)){gIn.value=Math.round(gPg.g)}else{gIn.value=Math.round(gPg.g);gIn.oninput();$("f-amount").value=amt0}
-          qlab.textContent="Hoeveel keer "+($("f-amount").value||"1 portie")}
+          qlab.textContent="Hoeveel keer "+($("f-amount").value||"1 portie");pwr.querySelectorAll(".chipbtn").forEach(b=>b.classList.toggle("on",+b.dataset.w===Math.round(gPg.g)));const ci=pwr.querySelector("input");if(ci)ci.value=Math.round(gPg.g)}
         else{const one=[...qb.querySelectorAll(".qchip")].find(b=>b.textContent==="1×");if(one)one.click();gIn.oninput()}};
-      if(gMode==="st"){gWrap.hidden=true;qlab.textContent="Hoeveel keer "+amt0}else qb.hidden=true;
+      const pm=amt0.match(/^(\S+)\s+([^(]+?)\s*\(/),pword=pm?pm[2].trim():"stuk",ppre=pm?pm[1]:"1";
+      const pwr=el(`<div class="pwrow" style="display:flex;flex-direction:column;gap:8px;margin-top:6px"><span class="label"></span><div class="chips"></div></div>`);
+      pwr.querySelector(".label").textContent=`Eén ${pword} weegt`;qb.appendChild(pwr);
+      const setPW=(w,store)=>{w=Math.max(1,Math.round(w));gIn.value=w;gIn.oninput();$("f-amount").value=`${ppre} ${pword} (${w} ${gPg.u})`;qlab.textContent="Hoeveel keer "+$("f-amount").value;
+        pwr.querySelectorAll(".chipbtn").forEach(b=>b.classList.toggle("on",+b.dataset.w===w));const ci=pwr.querySelector("input");if(ci&&+ci.value!==w)ci.value=w;
+        if(store&&e.name){try{const m=JSON.parse(localStorage.getItem("loopa-pw")||"{}");m[norm(e.name)]=w;localStorage.setItem("loopa-pw",JSON.stringify(m))}catch(err){}}};
+      {const g0=Math.round(gPg.g),opts=[...new Set([5,10,15,20,25,30,35,40,50,60,75,80,100,120,150,200,250,300,400,500].filter(v=>v>=g0*.45&&v<=g0*2.3).sort((a,b)=>Math.abs(a-g0)-Math.abs(b-g0)).slice(0,5).concat(g0))].sort((a,b)=>a-b),ch=pwr.querySelector(".chips");
+        opts.forEach(w=>{const b=el(`<button class="chipbtn" type="button">${w} ${gPg.u}</button>`);b.dataset.w=w;b.onclick=()=>setPW(w,true);ch.appendChild(b)});
+        const ci=el(`<input type="number" inputmode="decimal" min="1" max="2000" aria-label="Gewicht per stuk" style="width:84px;font:inherit;color:var(--ink);background:var(--surface-2);border:0;border-radius:12px;padding:8px 10px">`);ci.value=g0;
+        ci.oninput=()=>{const v=+ci.value;if(v>0)setPW(v,true)};ch.appendChild(ci);
+        pwr.querySelectorAll(".chipbtn").forEach(b=>b.classList.toggle("on",+b.dataset.w===g0))}
+      if(gMode==="st"){gWrap.hidden=true;qlab.textContent="Hoeveel keer "+amt0;
+        if(opts.isNew){let sw=null;try{sw=JSON.parse(localStorage.getItem("loopa-pw")||"{}")[norm(e.name)]}catch(err){}if(sw&&Math.round(sw)!==Math.round(gPg.g))setPW(sw,false)}}else qb.hidden=true;
       $("f-amount").addEventListener("input",()=>{const m=$("f-amount").value.trim().match(/^(\d+(?:[.,]\d+)?)\s*(g|gr|gram|ml)$/i);if(m){gIn.value=+m[1].replace(",",".");const v=$("f-amount").value;gIn.oninput();$("f-amount").value=v}})}
     const row=el(`<div class="btnrow"></div>`);
     if(!opts.isNew){const del=el(`<button class="btn danger" type="button">Verwijder</button>`);
