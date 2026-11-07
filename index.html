@@ -1657,13 +1657,18 @@ window.LOOPA_LOCAL_EX=true;
 /* online zoeken in Open Food Facts bij handmatig invoeren */
 const offCache=new Map();
 async function offSearch(q){const key=q.toLowerCase();if(offCache.has(key))return offCache.get(key);
-  const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),6000);
-  try{const r=await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=8&lc=nl&cc=nl&fields=product_name,product_name_nl,brands,nutriments,code,image_front_small_url`,{signal:ctl.signal});
-    const j=await r.json(),num=v=>v==null||v===""||isNaN(+v)?null:+v,out=[];
-    (j.products||[]).forEach(P=>{const n=P.nutriments||{};let kcal=num(n["energy-kcal_100g"]);if(kcal==null&&num(n["energy_100g"])!=null)kcal=num(n["energy_100g"])/4.184;
-      const nm=(P.product_name_nl||P.product_name||"").trim();if(!nm||kcal==null)return;const br=(P.brands||"").split(",")[0].trim();
-      out.push({name:br&&!nm.toLowerCase().includes(br.toLowerCase())?nm+" · "+br:nm,amount:"100 g",g:100,unit:"g",kcal:Math.round(kcal),p:num(n.proteins_100g),c:num(n.carbohydrates_100g),f:num(n.fat_100g),img:P.image_front_small_url||undefined,tag:"Online"})});
-    const res=out.slice(0,4);offCache.set(key,res);return res}catch(e){return[]}finally{clearTimeout(t)}}
+  const num=v=>v==null||v===""||isNaN(+v)?null:+v,F="product_name,product_name_nl,brands,nutriments,code,image_front_small_url";
+  const get=async(url,ms)=>{const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),ms);try{const r=await fetch(url,{signal:ctl.signal});if(!r.ok)throw 0;return await r.json()}finally{clearTimeout(t)}};
+  let prods=[];
+  try{const j=await get(`https://search.openfoodfacts.org/search?q=${encodeURIComponent(q)}&page_size=20&langs=nl,en&fields=${F}`,7000);prods=j.hits||j.products||[]}catch(e){}
+  if(!prods.length)try{const j=await get(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=20&lc=nl&fields=${F}`,10000);prods=j.products||[]}catch(e){}
+  const out=[],seen=new Set();
+  prods.forEach(P=>{const n=P.nutriments||{};let kcal=num(n["energy-kcal_100g"]);if(kcal==null&&num(n["energy_100g"])!=null)kcal=num(n["energy_100g"])/4.184;
+    let nm=P.product_name_nl||P.product_name||"";if(typeof nm!=="string")nm=String(Object.values(nm)[0]||"");nm=nm.trim();if(!nm||kcal==null)return;
+    let br=P.brands||"";if(Array.isArray(br))br=br[0]||"";br=String(br).split(",")[0].trim();const full=br&&!nm.toLowerCase().includes(br.toLowerCase())?nm+" · "+br:nm;
+    if(seen.has(full.toLowerCase()))return;seen.add(full.toLowerCase());
+    out.push({name:full,amount:"100 g",g:100,unit:"g",kcal:Math.round(kcal),p:num(n.proteins_100g),c:num(n.carbohydrates_100g),f:num(n.fat_100g),img:P.image_front_small_url||undefined,tag:"Online"})});
+  const res=out.slice(0,8);if(res.length)offCache.set(key,res);return res}
 
 /* ---- live scannen met de camera ---- */
 let camStream=null,camReader=null,camLoop=null,camMode=null,camDone=false,camHint=null;
@@ -2472,11 +2477,13 @@ function foodPicker(meal){meal=meal||guessMeal();let q="",offT=null;const gtin=p
           r.querySelector("b").textContent=t.name;r.querySelector("small").textContent=`${t.items.length} dingen · ${Math.round(kc)} kcal`;
           const add=()=>{t.items.forEach(x=>quickAdd(x,meal,x.base?(x.qty||1):1));toast(t.name+" toegevoegd");closeSheet()};r.querySelector(".fmain").onclick=add;r.querySelector(".fplus").onclick=add;list.appendChild(r)})}
         if(!rc.length&&!ts.length)sect("Populair",FOODS.filter(x=>/Banaan|Appel|Griekse yoghurt|Volkoren brood|Ei|Kipfilet|Rijst|Havermout/.test(x.name)).slice(0,8));return}
-      const res=foodSearch(q).slice(0,extra?6:14).concat(extra||[]);
-      if(!res.length)list.appendChild(el(`<div class="emptyline">Niets gevonden.</div>`));else res.forEach(x=>list.appendChild(row(x)));
+      const res=foodSearch(q).slice(0,20);
+      if(!res.length&&!(extra&&extra.length))list.appendChild(el(`<div class="emptyline">${extra===null?"Zoeken in de online database…":"Niets gevonden."}</div>`));else res.forEach(x=>list.appendChild(row(x)));
+      if(extra===null&&res.length)list.appendChild(el(`<div class="emptyline">Ook online zoeken…</div>`));
+      if(extra&&extra.length){list.appendChild(el(`<span class="label">Uit de winkel (online)</span>`));extra.forEach(x=>list.appendChild(row(x)))}
       const own=el(`<button class="btn sec" type="button"></button>`);own.textContent=`"${q}" zelf invullen`;own.onclick=()=>{forceMeal=meal;foodForm({name:q,meal,src:"hand"},{isNew:true})};list.appendChild(own)};
-    inp.addEventListener("input",()=>{q=inp.value.trim();draw();clearTimeout(offT);
-      if(typeof offSearch==="function"&&q.length>=3)offT=setTimeout(async()=>{const qq=q;let r=[];try{r=await offSearch(qq)}catch(e){}if(qq===q&&r.length)draw(r)},600)});
+    inp.addEventListener("input",()=>{q=inp.value.trim();const on=typeof offSearch==="function"&&q.length>=3&&navigator.onLine!==false;draw(on?null:undefined);clearTimeout(offT);
+      if(on)offT=setTimeout(async()=>{const qq=q;let r=[];try{r=await offSearch(qq)}catch(e){}if(qq===q)draw(r)},600)});
     draw()})}
 
 function gramsOf(x){if(x.g&&x.unit)return{g:+x.g,u:x.unit};const a=String((x.base&&x.base.amount)||x.amount||"");
@@ -3277,13 +3284,550 @@ Wodka|1 shotje|35|230|0|0|0
 Whisky|1 glas|35|250|0|0|0
 Rum-cola|1 glas|250|80|0|8|0
 Aperol spritz|1 glas|200|75|0|7|0
-Cocktail (zoet)|1 glas|200|130|0|17|0`;
-const FOODS=FOODRAW.split("\n").map(l=>{const[n,por,g,k,p,c,f]=l.split("|"),m=+g/100,ml=/glas|kop|flesje|shake|blikje|beker|shotje/.test(por);
+Cocktail (zoet)|1 glas|200|130|0|17|0
+Pizza salami|1 hele pizza|350|265|11|29|11
+Pizza salami|½ pizza|175|265|11|29|11
+Pizza margherita|1 hele pizza|330|240|10|31|8
+Pizza pepperoni|1 hele pizza|350|275|12|28|13
+Pizza hawaii|1 hele pizza|360|225|10|29|7
+Pizza tonno|1 hele pizza|360|230|12|27|8
+Pizza quattro formaggi|1 hele pizza|340|285|13|27|14
+Pizza funghi|1 hele pizza|340|220|9|29|7
+Pizza prosciutto|1 hele pizza|350|235|11|29|8
+Pizza shoarma|1 hele pizza|380|245|13|27|9
+Pizza kip|1 hele pizza|370|230|13|27|7
+Pizza BBQ chicken|1 hele pizza|380|245|12|30|8
+Pizza vegetariana|1 hele pizza|360|205|8|28|7
+Pizza calzone|1 calzone|350|250|11|30|10
+Pizza diavola|1 hele pizza|350|270|12|28|12
+Pizza bolognese|1 hele pizza|370|235|11|28|9
+Diepvriespizza salami|1 pizza|320|255|10|28|11
+Diepvriespizza margherita|1 pizza|300|235|9|30|8
+Pizza (bezorg, medium)|2 punten|220|270|12|30|11
+Pizzabroodje|1 stuk|90|270|10|33|10
+Panini mozzarella tomaat|1 stuk|180|245|11|28|9
+Bigmac-achtige burger|1 burger|215|250|12|21|13
+Kipburger|1 burger|190|255|12|25|12
+Crispy chicken burger|1 burger|210|265|12|26|13
+Dubbele cheeseburger|1 burger|170|275|15|20|15
+Vegaburger met broodje|1 burger|200|230|10|27|9
+Friet klein|1 portie|80|300|3|38|15
+Friet medium|1 portie|115|300|3|38|15
+Friet groot|1 portie|150|300|3|38|15
+Patat speciaal|1 bakje|200|260|3|28|16
+Patat oorlog|1 bakje|220|265|5|28|15
+Kipnuggets (fastfood)|6 stuks|100|270|15|16|17
+Chicken wings|5 stuks|150|260|20|8|17
+Chicken tenders|3 stuks|130|240|17|16|12
+Milkshake vanille (fastfood)|1 beker|300|110|3|18|3
+Softijs|1 hoorntje|90|180|4|28|6
+McFlurry-achtig ijs|1 beker|180|190|4|29|6
+Wrap kip (fastfood)|1 wrap|200|240|12|26|10
+Mexicano|1 stuk|85|250|11|14|17
+Bamischijf|1 stuk|120|260|7|28|13
+Nasischijf|1 stuk|120|255|6|30|12
+Kaassoufflé|1 stuk|85|300|9|25|18
+Berenklauw|1 stuk|170|245|12|10|18
+Frikandel speciaal|1 stuk|110|235|9|12|16
+Kroket met broodje|1 broodje|130|265|8|27|14
+Gehaktbal met jus|1 bal|150|210|15|5|14
+Shoarma met knoflooksaus|1 portie|250|220|17|5|15
+Shoarmabroodje|1 broodje|330|230|13|21|10
+Durum (dürüm)|1 rol|380|210|12|20|9
+Kapsalon klein|1 bak|450|210|11|13|13
+Turkse pizza|1 stuk|200|215|10|29|6
+Falafelbroodje|1 broodje|280|215|7|29|8
+Sate van kip met pindasaus|1 portie|200|215|20|7|12
+Babi pangang met rijst|1 portie|450|160|7|21|5
+Foe yong hai met rijst|1 portie|450|145|7|17|5
+Kip kerrie met rijst|1 portie|450|135|8|18|3
+Tjap tjoy|1 portie|300|75|6|6|3
+Mihoen goreng|1 portie|350|150|6|22|4
+Nasi goreng met ei|1 bord|400|170|6|23|6
+Bami goreng met kip|1 bord|400|165|8|22|5
+Kip teriyaki met rijst|1 bord|400|150|9|22|3
+Sushi box (12 stuks)|1 box|300|155|6|28|2
+Sushi zalm nigiri|1 stuk|35|165|8|25|3
+California roll|1 stuk|30|150|4|25|4
+Kip tandoori|1 portie|200|165|25|4|6
+Butter chicken met rijst|1 bord|450|165|8|18|7
+Pad thai met kip|1 bord|400|175|9|22|6
+Ramen met varkensvlees|1 kom|550|85|5|10|3
+Pho met rundvlees|1 kom|600|60|5|7|1
+Burrito bowl|1 bowl|450|145|8|17|5
+Nachos met kaas en gehakt|1 portie|250|300|12|24|18
+Quesadilla kip|1 stuk|200|270|15|24|13
+Enchiladas|2 stuks|300|170|9|17|7
+Spaghetti carbonara|1 bord|350|180|8|22|7
+Spaghetti bolognese (zelfgemaakt)|1 bord|400|145|8|19|4
+Penne arrabiata|1 bord|350|140|4|26|2
+Pasta pesto|1 bord|350|200|6|26|8
+Pasta kip pesto|1 bord|400|185|11|22|6
+Tagliatelle zalm|1 bord|400|170|9|20|6
+Pasta met tomatensaus en gehakt|1 bord|400|155|8|20|5
+Lasagne (zelfgemaakt)|1 stuk|350|150|9|12|7
+Ravioli|1 bord|300|170|7|25|5
+Tortellini met roomsaus|1 bord|300|210|8|24|9
+Mac and cheese|1 bord|300|195|8|20|9
+Risotto met paddenstoelen|1 bord|350|150|4|22|5
+Paella|1 bord|400|155|9|19|5
+Stamppot boerenkool met rookworst|1 bord|450|135|5|11|8
+Hutspot met klapstuk|1 bord|450|110|6|11|4
+Andijviestamppot met spekjes|1 bord|400|120|4|11|7
+Zuurkool met worst|1 bord|450|120|5|9|7
+Aardappelen, groente en vlees|1 bord|450|120|8|12|4
+Kip met rijst en groente|1 bord|450|120|10|15|2
+Zalm met aardappels en groente|1 bord|450|125|9|11|5
+Gehaktballen in tomatensaus|1 portie|250|165|11|6|11
+Goulash|1 portie|300|105|10|5|5
+Hachee|1 portie|300|120|12|5|6
+Chili sin carne|1 portie|350|95|5|13|2
+Shakshuka|1 portie|300|95|6|6|5
+Ovenschotel kip en aardappel|1 portie|400|130|9|12|5
+Quiche lorraine|1 stuk|150|285|10|18|19
+Wraps met kip en groente|2 wraps|350|175|11|20|5
+Taco's met gehakt|3 taco's|300|210|11|17|11
+Couscous met kip|1 bord|400|145|10|18|4
+Salade nicoise|1 bord|350|105|8|5|6
+Salade geitenkaas|1 bord|300|170|7|8|12
+Maaltijdsalade kip|1 bak|350|110|8|9|5
+Poké bowl zalm|1 bowl|450|150|7|19|5
+Poké bowl kip|1 bowl|450|140|9|18|4
+Buddha bowl|1 bowl|450|130|5|16|5
+Broodje frikandel|1 broodje|130|265|9|28|13
+Broodje hamburger|1 broodje|180|245|12|25|11
+Broodje kipfilet|1 broodje|120|210|13|30|4
+Broodje ham kaas|1 broodje|130|255|13|28|10
+Broodje tonijnsalade|1 broodje|150|250|10|25|12
+Broodje filet americain|1 broodje|130|255|9|27|12
+Broodje zalm|1 broodje|140|230|11|26|9
+Broodje kaas tomaat|1 broodje|140|235|10|27|10
+Broodje pulled pork|1 broodje|200|230|12|25|9
+Broodje carpaccio|1 broodje|150|250|11|26|11
+Club sandwich|1 sandwich|250|230|12|20|11
+Croque monsieur|1 stuk|180|265|13|22|14
+Tosti ham-kaas-ananas|1 tosti|150|240|12|26|9
+Bagel zalm roomkaas|1 bagel|180|250|11|30|9
+Croissant ham kaas|1 stuk|110|330|12|25|20
+Saucijzenbroodje groot|1 stuk|120|330|9|26|21
+Kaasbroodje|1 stuk|90|330|10|30|19
+Appelflap|1 stuk|100|290|3|32|17
+Krentenbol met boter|1 bol|75|300|7|48|8
+Ontbijt eieren met spek|1 bord|200|250|15|2|20
+Pancakes (Amerikaans)|3 stuks|150|225|6|29|9
+Pannenkoek spek|1 stuk|180|245|9|23|13
+Pannenkoek appel|1 stuk|180|200|5|30|6
+Wafel met slagroom|1 stuk|120|330|5|35|19
+Overnight oats|1 pot|250|135|6|20|4
+Yoghurt met granola|1 schaal|250|130|5|17|5
+Smoothie bowl|1 bowl|350|95|3|18|2
+Bloemkoolrijst|1 portie|150|25|2|4|0
+Ijs aardbei|2 bolletjes|100|185|3|25|8
+Magnum-achtig ijs|1 ijsje|90|300|4|28|19
+Waterijsje|1 ijsje|60|90|0|22|0
+Raket ijsje|1 ijsje|55|80|0|20|0
+Cornetto-achtig ijs|1 ijsje|90|260|4|33|13
+Roomijs chocolade|2 bolletjes|100|215|4|26|11
+Bonbon|1 stuk|12|500|5|55|28
+Chocoladereep melk|1 reep|45|535|7|57|30
+Chocoladereep hazelnoot|1 reep|45|550|8|50|35
+Mars|1 reep|51|450|4|70|17
+Milky Way|1 reep|22|450|4|72|16
+Lion|1 reep|42|480|5|65|22
+Kinder Bueno|1 reepje|22|570|9|50|37
+Kinder chocolade|1 reepje|12|565|9|54|35
+Toblerone|1 stukje|8|525|5|60|29
+Smarties|1 kokertje|38|470|4|70|18
+Maltesers|1 zakje|37|500|8|61|25
+Twix wit|1 reep|23|500|5|63|25
+Oreo|1 koekje|11|480|5|69|20
+Liga|1 koekje|16|440|8|65|15
+Sultana|1 pakje (3)|43|390|6|67|10
+Lu Prince|1 koekje|18|470|6|68|18
+Evergreen|1 koekje|13|450|6|68|16
+Kokosmakroon|1 stuk|25|450|4|55|24
+Jodenkoek|1 koek|20|500|5|65|25
+Roze koek|1 koek|35|400|3|73|10
+Mergpijp|1 stuk|60|420|3|55|21
+Moorkop|1 stuk|90|320|4|28|21
+Bossche bol|1 bol|110|380|5|30|26
+Slagroomtaart|1 punt|110|300|4|28|19
+Chocoladetaart|1 punt|100|400|5|45|22
+Kwarktaart|1 punt|110|260|6|25|15
+Carrot cake|1 punt|120|400|5|50|20
+Banana bread|1 plak|80|330|5|50|12
+Cupcake|1 stuk|70|400|4|55|19
+Macaron|1 stuk|15|420|7|60|17
+Churros|5 stuks|100|400|5|45|22
+Pinda's gezouten|1 handje|30|615|26|10|51
+Chips naturel (zak)|1 zakje 40 g|40|540|6|50|34
+Chips paprika|1 handje|25|530|6|52|32
+Pringles|1 handje|25|540|5|50|35
+Hamka's|1 handje|25|490|8|55|26
+Wokkels|1 handje|25|510|6|58|27
+Doritos|1 handje|25|500|7|60|25
+Cheetos / kaasstengels|1 handje|25|500|6|56|28
+Kaasvlinders|3 stuks|30|500|12|45|30
+Borrelkaas|5 blokjes|30|380|25|0|31
+Worst (borrel)|5 plakjes|30|420|17|1|39
+Kaasstengels|2 stuks|30|510|12|45|31
+Popcorn zoet|1 bakje|50|470|6|70|18
+Popcorn zout|1 bakje|50|440|8|55|22
+Rijstwafel met pindakaas|1 stuk|20|440|14|50|20
+Appel met pindakaas|1 appel + 1 el|200|120|3|14|6
+Banaan met kwark|1 schaaltje|250|85|7|13|0
+Eiwitreep (Barebells-achtig)|1 reep|55|360|36|31|14
+Eiwitshake melk|1 shake|330|80|10|6|2
+Eiwitpannenkoek|1 stuk|100|170|15|15|5
+Proteïne kwark|1 bakje|200|60|10|4|0
+Proteïne pudding|1 bakje|200|75|10|6|1
+Skyr vanille|1 bakje|150|75|9|8|0
+Vruchtenkwark|1 bakje|150|110|6|15|3
+Danoontje|1 potje|50|105|6|13|3
+Fristi|1 glas|250|65|3|11|0
+Chocomel|1 glas|250|80|3|11|2
+Optimel|1 glas|250|40|3|5|0
+Cola light|1 blikje|330|0|0|0|0
+Fanta|1 blikje|330|38|0|9|0
+Fanta zero|1 blikje|330|2|0|0|0
+Sprite zero|1 blikje|330|1|0|0|0
+Red Bull|1 blikje|250|46|0|11|0
+Monster|1 blikje|500|47|0|11|0
+Monster ultra|1 blikje|500|2|0|1|0
+Ice tea green|1 flesje|500|18|0|4|0
+Appelsap troebel|1 glas|200|45|0|11|0
+Verse jus d'orange|1 glas|200|45|1|10|0
+Limonade (kant-en-klaar)|1 glas|250|25|0|6|0
+Chocolademelk warm met slagroom|1 kop|250|105|3|12|5
+Cappuccino havermelk|1 kop|200|40|1|5|2
+Iced latte|1 beker|350|45|2|5|2
+Iced coffee zoet|1 beker|350|70|2|11|2
+Bier (fluitje)|1 fluitje|200|42|0|3|0
+Bier (vaasje)|1 vaasje|250|42|0|3|0
+Bier (blikje)|1 blikje|330|42|0|3|0
+Bier (halve liter)|1 glas|500|42|0|3|0
+Weizen|1 glas|500|47|1|4|0
+Breezer|1 flesje|275|70|0|10|0
+Wijn rood (fles)|1 fles|750|85|0|3|0
+Rum|1 shotje|35|230|0|0|0
+Jägermeister|1 shotje|20|250|0|24|0
+Mojito|1 glas|250|80|0|10|0
+Pina colada|1 glas|250|180|1|25|7
+Kipfilet (gegrild)|1 stuk|150|150|31|0|3
+Kipfilet (gebakken in olie)|1 stuk|150|175|30|0|6
+Kipshoarma|1 portie|150|170|22|2|8
+Kippendijfilet|1 stuk|120|180|19|0|11
+Hele kip (geroosterd)|¼ kip|250|215|25|0|12
+Gehakt (gebakken)|1 portie|100|250|24|0|17
+Steak (entrecote)|1 stuk|200|215|26|0|12
+Spareribs|1 portie|300|290|20|6|21
+Varkensvlees (mager)|1 portie|120|145|22|0|6
+Kalkoen (gebraden)|1 portie|120|150|29|0|3
+Lamsvlees|1 portie|120|260|20|0|20
+Tonijnsteak|1 stuk|150|130|29|0|1
+Zalmfilet (gebakken)|1 stuk|125|210|22|0|13
+Kabeljauw (gebakken)|1 stuk|125|105|23|0|1
+Gebakken vis (gepaneerd)|1 stuk|125|220|13|16|12
+Vissticks|5 stuks|125|200|12|19|8
+Garnalen (gebakken)|1 portie|100|120|23|1|3
+Tonijn uit blik (olie)|1 blikje|120|190|26|0|10
+Makreel in tomatensaus|1 blikje|125|175|14|3|12
+Kaas plakje jong|1 plak|20|360|24|0|29
+Kaas plakje 30+|1 plak|20|270|30|0|16
+Ei (gebakken in boter)|1 ei|55|195|13|0|15
+Spiegelei|2 eieren|110|195|13|0|15
+Omelet met kaas|1 omelet|150|210|14|1|17
+Witte rijst (droog)|1 portie|75|355|7|78|1
+Pasta (droog)|1 portie|80|355|12|71|2
+Volkoren pasta (droog)|1 portie|80|345|14|65|2
+Havermout met melk|1 kom|250|100|5|14|3
+Havermout met water|1 kom|250|60|2|10|1
+Brood met boter|1 snee|40|280|8|40|9
+Brood met pindakaas|1 snee|45|320|12|35|14
+Brood met hagelslag|1 snee|45|310|8|55|6
+Brood met kaas|1 snee|55|275|14|28|11
+Brood met ham|1 snee|55|210|12|28|5
+Brood met jam|1 snee|45|255|6|51|2
+Beschuit met aardbeien|1 beschuit|60|200|4|35|5
+Rookworst (half)|½ worst|125|280|13|2|25
+Saté (stokje)|1 stokje|40|220|20|5|13
+Kroepoek|1 handje|20|510|2|60|30
+Loempia groot|1 stuk|200|200|6|22|10
+Mini loempia's|5 stuks|100|240|6|28|11
+Garnalenkroket|1 stuk|70|230|8|20|13
+Kaaskroket|1 stuk|70|280|10|22|17
+Ui-ringen|6 stuks|100|330|4|35|19
+Mozzarella sticks|4 stuks|100|300|13|25|16
+Knoflookbrood|2 stukjes|60|350|8|42|17
+Tzatziki|2 eetlepels|40|95|4|4|7
+Guacamole|2 eetlepels|40|155|2|8|13
+Salsa|2 eetlepels|40|30|1|6|0
+Mayonaise (lepel)|1 eetlepel|15|700|1|2|76
+Curry ketchup|1 eetlepel|15|110|1|25|0
+Joppiesaus|1 eetlepel|15|480|1|16|46
+Ravigottesaus|1 eetlepel|15|380|1|8|38
+Hollandaisesaus|2 eetlepels|30|480|2|3|51
+Pindakaas (lepel)|1 eetlepel|15|620|25|13|50
+Honing (lepel)|1 theelepel|8|330|0|80|0
+Suiker in koffie|1 klontje|4|400|0|100|0
+Melk in koffie|1 scheutje|20|46|3|5|2
+Koffiemelk|1 cupje|7|125|7|10|6
+Komkommer met hummus|1 portie|150|80|3|6|5
+Gemengde groente (diepvries)|1 portie|200|35|2|5|0
+Gegrilde groente|1 portie|200|70|2|7|4
+Rauwkost salade|1 bakje|150|40|1|6|1
+Coleslaw|1 bakje|100|150|1|12|11
+Aardappelsalade|1 bakje|150|155|2|14|10
+Patatas bravas|1 portie|200|175|3|22|9
+Zoete aardappel friet|1 portie|150|200|2|30|8
+Wedges|1 portie|150|160|3|22|7
+Aardappelkroketjes|8 stuks|150|180|3|22|9
+Yoghurt aardbei|1 bakje|125|95|3|14|3
+Yoghurt perzik|1 bakje|125|95|3|14|3
+Griekse yoghurt honing|1 bakje|150|140|5|14|7
+Kwark aardbei|1 bakje|150|95|7|13|1
+Hangop|1 schaaltje|150|90|7|5|5
+Vla vanille|1 schaaltje|150|100|3|15|3
+Pudding chocolade|1 bakje|125|125|3|19|4
+Rijstpudding|1 bakje|150|115|3|19|3
+Yakult|1 flesje|65|70|1|16|0
+Kefir|1 glas|250|55|3|4|3
+Ayran|1 glas|250|35|2|3|2
+Lactosevrije melk|1 glas|250|47|3|5|2
+Rijstmelk|1 glas|250|50|0|10|1
+Kokosdrink|1 glas|250|20|0|3|1
+Kaas oud plakje|1 plak|20|400|29|0|32
+Komijnekaas|1 plak|20|355|25|0|28
+Gouda belegen blokjes|10 blokjes|50|380|25|0|31
+Mozzarella light|1 bol|125|165|19|1|10
+Cottage cheese|1 bakje|200|90|11|3|4
+Zuivelspread|1 laagje|10|270|7|4|25
+Philadelphia light|1 laagje|15|150|8|5|11
+Verse geitenkaas|1 portie|30|240|14|2|20
+Gorgonzola|1 portie|30|350|19|0|30
+Manchego|1 portie|30|440|26|0|36
+Volkoren boterham|1 snee|35|230|10|38|3
+Witte boterham|1 snee|35|250|8|48|3
+Bruine boterham|1 snee|35|240|9|42|3
+Spelt boterham|1 snee|35|245|10|42|3
+Waldkornbrood|1 snee|40|245|9|37|5
+Desembrood|1 snee|40|240|9|45|2
+Maisbrood|1 snee|35|255|8|46|4
+Krentenbrood|1 snee|35|270|7|48|4
+Suikerbrood|1 snee|35|330|7|55|9
+Rozijnenbrood|1 snee|35|270|7|50|4
+Sandwich (witbrood)|1 snee|30|260|8|48|3
+Pistolet wit|1 broodje|50|270|9|53|2
+Kaiserbroodje|1 broodje|60|270|9|52|2
+Croissant roomboter|1 stuk|60|420|8|45|23
+Pain au chocolat|1 stuk|70|420|7|46|23
+Brioche|1 stuk|50|370|8|50|15
+Naanbrood|1 stuk|90|290|9|50|6
+Wrap volkoren|1 wrap|60|300|9|50|7
+Pita volkoren|1 pita|70|245|9|47|2
+Mini pannenkoekjes|10 stuks|100|220|6|33|7
+Crackers met kaas|2 crackers|40|380|14|45|16
+Ontbijtkoek (plak)|1 plak|25|330|4|75|1
+Ontbijtkoek met boter|1 plak|30|370|4|65|10
+Muesli krokant|1 kom|50|440|9|62|16
+Special K|1 kom|40|375|9|78|2
+Weetabix|2 stuks|38|360|12|69|2
+Choco Pops|1 kom|40|380|7|83|3
+Kellogg's Frosties|1 kom|40|375|5|87|1
+Havermoutpap kant-en-klaar|1 beker|250|90|4|14|2
+Granola honing noten|1 kom|50|470|10|60|20
+Chiapudding|1 potje|200|110|4|11|5
+Peer (handpeer)|1 stuk|180|58|0|14|0
+Appel (groot)|1 stuk|200|52|0|12|0
+Appel (klein)|1 stuk|120|52|0|12|0
+Banaan (groot)|1 stuk|150|90|1|21|0
+Clementine|1 stuk|60|47|1|11|0
+Bramen bakje|1 bakje|125|43|1|10|1
+Frambozen bakje|1 bakje|125|52|1|12|1
+Rode bessen|1 bakje|125|56|1|14|0
+Papaja|½ stuk|150|43|0|11|0
+Kaki (sharon)|1 stuk|150|70|1|18|0
+Vijg vers|1 stuk|50|74|1|19|0
+Pitaya (drakenvrucht)|1 stuk|200|60|1|13|0
+Gedroogde mango|1 handje|30|320|2|78|1
+Gedroogde pruimen|5 stuks|40|240|2|64|0
+Fruit in blik (op sap)|1 schaaltje|150|55|0|13|0
+Ananas (blik)|1 schaaltje|150|60|0|15|0
+Mandarijnen (blik)|1 schaaltje|150|60|0|14|0
+Appelmoes (bakje)|1 bakje|100|75|0|18|0
+Fruitbakje gemengd|1 bakje|200|50|1|11|0
+Banaan gedroogd|1 handje|30|520|2|58|33
+Sperziebonen (portie)|1 portie|200|31|2|7|0
+Broccoli (portie)|1 portie|200|34|3|7|0
+Bloemkool met kaassaus|1 portie|200|95|5|6|6
+Spinazie (portie)|1 portie|200|23|3|4|0
+Wortelen (portie)|1 portie|200|41|1|10|0
+Doperwten en worteltjes|1 portie|200|55|3|9|0
+Rode kool met appel|1 portie|200|60|1|13|0
+Witlof met ham en kaas|1 portie|300|105|8|4|6
+Gebakken champignons|1 portie|150|60|3|3|4
+Gebakken uien|1 portie|100|110|1|10|7
+Paprika (gegrild)|1 portie|150|35|1|6|1
+Komkommersalade|1 bakje|150|30|1|5|1
+Tomaat-mozzarella salade|1 bord|200|165|9|3|13
+Sla met dressing|1 kom|100|70|1|4|6
+Maïskolf|1 kolf|150|95|3|21|1
+Edamame (peulen)|1 bakje|150|120|11|9|5
+Sugarsnaps|1 bakje|150|42|3|7|0
+Pompoen (geroosterd)|1 portie|200|45|1|10|0
+Aardappels gebakken met ui|1 portie|200|150|3|20|7
+Aardappelpartjes|1 portie|200|160|3|23|6
+Puree met jus|1 portie|250|105|2|14|4
+Krieltjes (gebakken)|1 portie|200|140|3|20|5
+Gekookte aardappelen (4 stuks)|4 stuks|240|77|2|17|0
+Rijst witte (portie)|1 portie|200|130|3|28|0
+Rijst zilvervlies (portie)|1 portie|200|125|3|26|1
+Pandanrijst|1 portie|200|130|3|29|0
+Spaghetti (portie gekookt)|1 portie|220|158|6|31|1
+Macaroni (gekookt)|1 portie|220|155|6|31|1
+Penne (gekookt)|1 portie|220|155|6|31|1
+Tagliatelle (gekookt)|1 portie|220|160|6|31|1
+Eiermie (gekookt)|1 portie|220|140|5|25|2
+Udon (gekookt)|1 portie|220|105|3|21|0
+Couscous parelcouscous|1 portie|200|155|5|30|1
+Kipdijen (gemarineerd)|1 portie|150|195|21|3|11
+Kipfiletreepjes|1 portie|150|120|24|1|2
+Kipgyros|1 portie|150|175|20|3|9
+Kip pesto|1 portie|150|175|23|2|8
+Shoarmareepjes (varken)|1 portie|150|200|20|2|13
+Hamburger rund (los)|1 burger|100|240|19|1|18
+Biefstukreepjes|1 portie|150|140|22|0|6
+Runderburger mager|1 burger|100|190|21|0|11
+Gehaktbal (klein)|1 bal|50|230|17|5|16
+Kipworst|1 worst|100|210|14|4|15
+Chipolata worstjes|3 stuks|90|300|14|2|26
+Frikandel (los)|1 stuk|70|250|11|8|19
+Kipschnitzel|1 stuk|150|230|18|13|12
+Cordon bleu|1 stuk|150|250|16|12|16
+Hamlap|1 stuk|150|150|20|1|7
+Rollade|1 plak|100|210|22|0|13
+Kalkoenspies|1 spies|120|135|22|2|4
+Kip saté spies|1 spies|80|210|22|5|11
+Kipkerrie (zonder rijst)|1 portie|250|125|12|6|6
+Zalm (gerookt, plakjes)|3 plakjes|50|180|21|0|10
+Zalm (rauw)|1 moot|125|200|20|0|13
+Tonijnsalade (bakje)|1 bakje|150|230|11|5|18
+Gamba's in knoflook|1 portie|150|160|18|1|9
+Calamaris (gefrituurd)|1 portie|150|200|13|15|9
+Paling (gerookt)|1 portie|50|330|17|0|29
+Ansjovis|5 stuks|20|210|29|0|10
+Sardines in olie|1 blikje|90|220|24|0|14
+Mosselen (pan)|1 pan|500|90|12|4|2
+Zalmburger|1 burger|100|185|17|4|11
+Vegetarische burger (Beyond-achtig)|1 burger|113|240|18|4|17
+Vegetarische schnitzel|1 stuk|100|230|13|17|12
+Vegetarische balletjes|6 stuks|100|195|16|9|10
+Vegetarische shoarma|1 portie|150|170|18|5|8
+Vegetarische kipnuggets|6 stuks|100|230|13|20|11
+Tofu (gebakken)|1 portie|150|190|17|4|12
+Linzensoep|1 kom|300|65|4|9|1
+Bonensoep|1 kom|300|75|4|10|2
+Champignonsoep|1 kom|300|55|2|5|3
+Kerriesoep|1 kom|300|60|2|7|3
+Uiensoep|1 kom|300|45|2|5|2
+Goulashsoep|1 kom|300|65|4|6|3
+Soep in zak (gemiddeld)|1 kom|250|50|2|6|2
+Cup-a-soup|1 beker|175|30|1|5|1
+Hamburger menu (burger+friet+cola)|1 menu|730|140|4|19|6
+Mosterdsoep|1 kom|300|90|3|6|6
+Tomatensoep met balletjes|1 kom|300|55|3|6|2
+Haring met uitjes|1 haring|90|200|15|1|15
+Kibbeling met saus|1 portie|200|250|13|12|17
+Lekkerbek met friet|1 portie|300|260|10|25|14
+Fish & chips|1 portie|400|230|10|23|11
+Popcorn chicken|1 portie|150|280|17|17|16
+Hotdog (fastfood)|1 stuk|150|250|10|22|14
+Bapao|1 stuk|100|240|8|38|6
+Pasteitje (ragout)|1 stuk|150|250|8|17|17
+Kipragout|1 portie|200|130|9|7|8
+Saucijs|1 stuk|100|290|14|1|26
+Zuurkoolschotel|1 portie|400|115|5|9|6
+Macaroni met kaas uit de oven|1 portie|350|185|9|21|7
+Bami (kant-en-klaar)|1 bak|450|145|7|19|5
+Nasi (kant-en-klaar)|1 bak|450|150|6|21|4
+Lasagne (kant-en-klaar)|1 bak|400|135|7|13|6
+Pasta bolognese (kant-en-klaar)|1 bak|450|120|6|16|3
+Kip tikka (kant-en-klaar)|1 bak|450|125|7|16|4
+Stamppot (kant-en-klaar)|1 bak|450|100|4|11|4
+Wrap (kant-en-klaar, kip)|1 wrap|180|210|10|24|8
+Salade (kant-en-klaar, kip)|1 bak|300|110|8|8|5
+Sushi (supermarkt)|1 doosje|250|160|5|28|3
+Pastasalade kip|1 bak|350|160|7|19|6
+Chocoladepasta (lepel)|1 laagje|15|540|6|57|31
+Pindakaas crunchy|1 laagje|15|620|25|14|50
+Speculoos|1 koekje|8|480|5|70|19
+Volkoren koek|1 koek|50|380|6|65|10
+Rijstwafel naturel|1 stuk|8|380|8|80|3
+Mais wafel|1 stuk|8|380|8|80|3
+Kokosrepen|1 reep|40|420|3|60|19
+Fruitreep|1 reep|30|350|4|65|7
+Notenreep|1 reep|40|500|14|35|33
+Dadels met pindakaas|3 stuks|60|370|8|55|13
+Studentenhaver (zakje)|1 zakje|50|470|13|40|30
+Popcorn (bios, klein)|1 bak|60|500|7|55|28
+Snoepzakje|1 zakje|100|340|5|78|0
+Lolly|1 stuk|10|390|0|98|0
+Pepermunt|5 stuks|5|395|0|98|1
+Marshmallows|5 stuks|25|320|3|80|0
+Chocolade paaseitjes|5 stuks|30|510|5|60|28
+Pepernoten|1 handje|30|440|5|76|13
+Kruidnoten|1 handje|30|480|5|70|20
+Chocoladeletter|¼ letter|50|540|7|55|32
+Banketstaaf|1 plak|50|440|6|46|26
+Speculaasbrok|1 stuk|40|470|5|65|21
+Tiramisu|1 portie|120|280|5|28|17
+Panna cotta|1 portie|120|230|3|20|15
+Crème brûlée|1 portie|120|300|4|22|22
+Chocolademousse|1 potje|100|240|5|25|14
+Apfelstrudel|1 stuk|120|260|3|35|12
+Poffertjes met boter en suiker|1 portie (15)|150|280|6|42|10
+Suikerwafel|1 stuk|40|460|5|60|22
+Kaneelbroodje (bakker)|1 stuk|100|380|6|52|16
+Donut chocolade|1 stuk|70|430|5|50|23
+Berliner bol|1 stuk|80|340|6|47|14
+Eclair|1 stuk|80|340|6|28|23
+Frambozenbroodje|1 stuk|90|350|5|50|15
+Krentenbollen (mini)|3 stuks|75|290|8|50|5
+Smoothie aardbei-banaan|1 beker|300|60|1|13|0
+Groene smoothie|1 beker|300|50|1|10|0
+Proteïne smoothie|1 beker|400|75|7|10|1
+Sportwater|1 flesje|500|10|0|2|0
+Vitaminwater|1 flesje|500|20|0|5|0
+Kombucha|1 flesje|330|20|0|4|0
+Ginger beer|1 flesje|200|40|0|10|0
+Tonic|1 glas|200|35|0|9|0
+Bitter lemon|1 glas|200|45|0|11|0
+Cassis|1 blikje|330|40|0|10|0
+Rivella|1 glas|250|30|0|7|0
+Slush|1 beker|300|60|0|15|0
+Bubble tea|1 beker|500|75|1|15|1
+Thee met suiker|1 kop|200|16|0|4|0
+Thee met honing|1 kop|200|20|0|5|0
+Cortado|1 kop|60|60|3|5|3
+Mokka|1 kop|250|80|3|10|3
+Americano|1 kop|200|1|0|0|0
+Champagne|1 glas|125|80|0|1|0
+Sangria|1 glas|200|90|0|11|0
+Baileys|1 glas|50|330|3|25|13
+Advocaat|1 glas|40|250|5|28|6
+Port|1 glas|75|160|0|14|0
+Cider|1 flesje|330|45|0|5|0
+Hard seltzer|1 blikje|330|30|0|1|0
+Tequila|1 shotje|35|230|0|0|0
+Likeur (zoet)|1 shotje|35|300|0|30|0`;
+const FOODS=FOODRAW.split("\n").map(l=>{const[n,por,g,k,p,c,f]=l.split("|"),m=+g/100,ml=/glas|kop|flesje|shake|blikje|beker|shotje|fluitje|vaasje|\bfles\b/.test(por);
   return{name:n,amount:`${por} (${g} ${ml?"ml":"g"})`,g:+g,unit:ml?"ml":"g",kcal:Math.round(+k*m),p:Math.round(+p*m*10)/10,c:Math.round(+c*m*10)/10,f:Math.round(+f*m*10)/10,tag:"Standaard"}});
 const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
 function lev(a,b){const d=Array.from({length:a.length+1},(_,i)=>[i]);for(let j=1;j<=b.length;j++)d[0][j]=j;
   for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[a.length][b.length]}
-function matchScore(n,q){if(n.startsWith(q))return 4;const ws=n.split(/[\s\-(),/]+/).filter(Boolean);if(ws.some(w=>w.startsWith(q)))return 3;if(n.includes(q))return 2;
+function matchScore(n,q){if(n.startsWith(q))return 4;const qs=q.split(/\s+/).filter(w=>w.length>1);
+  if(qs.length>1){const nw=n.split(/[\s\-(),/]+/).filter(Boolean),hit=w=>nw.some(x=>x.startsWith(w)||(w.length>=5&&lev(x.slice(0,w.length),w)<=1)),k=qs.filter(hit).length;
+    if(k===qs.length)return 3.5;if(hit(qs[0]))return 1.5;if(k)return 1}const ws=n.split(/[\s\-(),/]+/).filter(Boolean);if(ws.some(w=>w.startsWith(q)))return 3;if(n.includes(q))return 2;
   const qw=q.split(/\s+/).pop();if(qw.length>=4&&ws.some(w=>w.length>=3&&lev(w.slice(0,qw.length),qw)<=(qw.length>=6?2:1)))return 1;return 0}
 function foodSearch(q){const nq=norm(q),seen=new Set(),cands=[];if(!nq)return[];
   Object.keys(state.days).sort().reverse().forEach(k=>food(k).forEach(x=>{const nn=norm(x.name);if(x.name&&!seen.has(nn)){seen.add(nn);{const b=perPortion(x);cands.push({name:x.name,amount:b.amount,kcal:b.kcal,p:b.p,c:b.c,f:b.f,img:x.img,tag:"Eerder gegeten"})}}}));
