@@ -522,6 +522,8 @@ input[type=number]{font:inherit;color:var(--ink);background:var(--surface-2);bor
 .mealcard .bar i{background:linear-gradient(90deg,#3b82f6,#7c3aed)!important}
 
 .fplus{color:#3b82f6;background:#172340}
+.fstar{width:34px;height:38px;border:0;background:none;color:var(--muted);font-size:1.25rem;flex:none;cursor:pointer;padding:0}.fstar.on{color:#fbbf24}
+.picker .fcopy{width:100%;margin-bottom:4px}
 .fplus.ok{background:#3b82f6;color:#fff}
 .qchip.on{background:#3b82f6;box-shadow:0 4px 12px rgba(59,130,246,.3)}
 .qtytot{color:#60a5fa}
@@ -1258,7 +1260,7 @@ function goalSheet(title,unit,val,min,max,step,save){openSheet(s=>{s.appendChild
   const ok=el(`<button class="btn" type="button">Opslaan</button>`);ok.onclick=()=>{save(val);closeSheet();render()};s.appendChild(ok)})}
 
 /* ---- eten toevoegen of aanpassen ---- */
-function recentFoods(){const seen=new Map();Object.keys(state.days).sort().reverse().forEach(k=>food(k).forEach(x=>{if(x.name&&!seen.has(x.name))seen.set(x.name,x)}));return [...seen.values()].slice(0,8).map(perPortion)}
+function recentFoods(){const seen=new Map();Object.keys(state.days).sort().reverse().forEach(k=>food(k).forEach(x=>{if(x.name&&!seen.has(x.name))seen.set(x.name,x)}));return [...seen.values()].slice(0,12).map(perPortion)}
 function foodForm(entry,opts){
   const e={name:"",amount:"",kcal:"",p:"",c:"",f:"",meal:guessMeal(),src:"hand",...entry};if(e.base)Object.assign(e,e.base);
   openSheet(s=>{
@@ -1270,7 +1272,7 @@ function foodForm(entry,opts){
     if(opts.known){s.appendChild(el(`<div class="notebox"><b>Product herkend.</b> De waarden komen van je eerdere scan.</div>`))}
     if(opts.note){const n=el(`<div class="notebox"></div>`);n.textContent=opts.note;s.appendChild(n)}
     if(opts.gtin)s.appendChild(el(`<span class="muted small num">Barcode ${opts.gtin}</span>`));
-    if(opts.isNew&&e.src==="hand"&&!e.name){const rc=recentFoods();if(rc.length){const c=el(`<div class="chips"></div>`);
+    if(opts.isNew&&e.src==="hand"&&!e.name){const rc=recentFoods().slice(0,8);if(rc.length){const c=el(`<div class="chips"></div>`);
       rc.forEach(x=>{const b=el(`<button class="chipbtn" type="button"></button>`);b.textContent=x.name;
         b.onclick=()=>{const keep=read();fill({...x,meal:keep.meal})};c.appendChild(b)});
       s.appendChild(el(`<span class="label">Eerder gegeten</span>`));s.appendChild(c)}}
@@ -2388,7 +2390,7 @@ document.querySelectorAll("[data-gps]").forEach(b=>b.onclick=()=>gpsStart(b.data
 setTimeout(()=>{try{const sv=JSON.parse(localStorage.getItem(GPSK)||"null");if(sv&&sv.segs&&!inArtifact()){gps=sv;gpsUI();if(gps.run)gpsWatchOn()}}catch(e){}},300);
 
 /* ===== v13: echte foto's bij eten (hoofdfoto van het Wikipedia-artikel) ===== */
-const FOODWIKI=[[/griekse yoghurt|skyr/,"Strained yogurt"],[/yoghurt/,"Yogurt"],[/kwark/,"Quark (dairy product)"],[/vla/,"Custard"],[/karnemelk/,"Buttermilk"],[/chocolademelk|chocomel/,"Chocolate milk"],
+const FOODWIKI=[[/pizza/,"Pizza"],[/griekse yoghurt|skyr/,"Strained yogurt"],[/yoghurt/,"Yogurt"],[/kwark/,"Quark (dairy product)"],[/vla/,"Custard"],[/karnemelk/,"Buttermilk"],[/chocolademelk|chocomel/,"Chocolate milk"],
  [/havermelk/,"Oat milk"],[/sojamelk/,"Soy milk"],[/cappuccino/,"Cappuccino"],[/koffie/,"Coffee"],[/thee\b/,"Tea"],[/melk/,"Milk"],[/smeerkaas/,"Processed cheese"],[/mozzarella/,"Mozzarella"],[/feta/,"Feta"],
  [/huttenkase|cottage/,"Cottage cheese"],[/tosti/,"Toast sandwich"],[/broodje kaas/,"Cheese sandwich"],[/kaas/,"Gouda cheese"],[/roomboter|\bboter/,"Butter"],[/halvarine|margarine/,"Margarine"],
  [/omelet/,"Omelette"],[/gebakken ei/,"Fried egg"],[/\bei\b|eieren|eitje/,"Boiled egg"],[/krentenbol/,"Currant bun"],[/croissant/,"Croissant"],[/beschuit/,"Beschuit"],[/knackebrod|cracker/,"Crispbread"],
@@ -2449,12 +2451,17 @@ function quickAdd(x,meal,qty){qty=qty||1;const d=ensure(cur);d.food=d.food||[];c
   const item={id:uid(),name:x.name,amount:b.amount||"",kcal:r(b.kcal)==null?null:Math.round(r(b.kcal)*qty),p:m(b.p),c:m(b.c),f:m(b.f),meal,src:"hand",qty,base:{amount:b.amount||"",kcal:r(b.kcal),p:r(b.p),c:r(b.c),f:r(b.f)},...(x.img?{img:x.img}:{})};
   d.food.push(item);lastFood=item.id;saveDay(cur);render();return item}
 var pickGtin=null;
+function favs(){return (state.profile&&state.profile.favs)||[]}
+function isFav(n){const k=norm(n);return favs().some(x=>norm(x.name)===k)}
+function toggleFav(x){const k=norm(x.name),l=favs().slice(),i=l.findIndex(y=>norm(y.name)===k);
+  if(i>=0)l.splice(i,1);else{const b=x.base||x;l.unshift({name:x.name,amount:b.amount||"",g:x.g,unit:x.unit,kcal:b.kcal,p:b.p,c:b.c,f:b.f,...(x.img?{img:x.img}:{})})}
+  setProfile("favs",l);return i<0}
 function foodPicker(meal){meal=meal||guessMeal();let q="",offT=null;const gtin=pickGtin;pickGtin=null;
   const linkG=x=>{if(!gtin)return;state.products=state.products||{};state.products[gtin]={name:x.name,amount:x.amount,kcal:x.kcal,p:x.p,c:x.c,f:x.f};saveProducts()};
   openSheet(s=>{s.classList.add("picker");
     s.appendChild(el(`<h2>Eten toevoegen</h2>`));
     if(gtin)s.appendChild(el(`<div class="notebox">Kies wat je net gescand hebt. Loopa onthoudt dan deze barcode, zodat het de volgende keer meteen goed gaat.</div>`));
-    s.appendChild(segment(MEALS.map(([v,l])=>[v,SHORTMEAL(l)]),meal,v=>meal=v));
+    s.appendChild(segment(MEALS.map(([v,l])=>[v,SHORTMEAL(l)]),meal,v=>{meal=v;if(!q)draw()}));
     const sw=el(`<label class="fsearch"><span aria-hidden="true">🔍</span><input type="search" placeholder="Zoek eten, bv. yoghurt" aria-label="Zoek eten" autocomplete="off" enterkeyhint="search"></label>`),inp=sw.querySelector("input");s.appendChild(sw);
     const acts=el(`<div class="factions"></div>`);
     [["scan","i-barcode","Barcode","var(--pink)"],["foto","i-camera","Foto","var(--good)"],["hand","i-pen","Zelf invullen","var(--night)"],["qr","i-qr","QR-code","var(--flame)"]].forEach(([m,ic,l,c])=>{
@@ -2462,8 +2469,9 @@ function foodPicker(meal){meal=meal||guessMeal();let q="",offT=null;const gtin=p
       b.onclick=()=>{forceMeal=meal;if(m==="hand")foodForm({meal,src:"hand",name:q},{isNew:true});else{closeSheet();pickFile(m)}};acts.appendChild(b)});
     s.appendChild(acts);
     const list=el(`<div class="flist"></div>`);s.appendChild(list);s.appendChild(el(`<span class="muted small" style="text-align:center;font-size:.72rem">Foto's: Wikimedia Commons (CC) en Open Food Facts</span>`));
-    const row=x=>{const r=el(`<div class="frow">${""}<button class="fmain" type="button">${foodThumb(x)}<span class="it"><b></b><small class="num"></small></span></button><button class="fplus" type="button" aria-label="Toevoegen">+</button></div>`);
-      r.querySelector("b").textContent=x.name;r.querySelector("small").textContent=[x.amount,x.kcal!=null&&x.kcal!==""?Math.round(x.kcal)+" kcal":null,x.tag&&x.tag!=="Standaard"?x.tag:null].filter(Boolean).join(" · ");
+    const row=x=>{const r=el(`<div class="frow">${""}<button class="fmain" type="button">${foodThumb(x)}<span class="it"><b></b><small class="num"></small></span></button><button class="fstar" type="button"></button><button class="fplus" type="button" aria-label="Toevoegen">+</button></div>`);
+      r.querySelector("b").textContent=x.name;const st=r.querySelector(".fstar"),ss=()=>{const on=isFav(x.name);st.textContent=on?"★":"☆";st.classList.toggle("on",on);st.setAttribute("aria-label",on?"Uit favorieten halen":"Favoriet maken");st.setAttribute("aria-pressed",on)};ss();
+      st.onclick=()=>{const on=toggleFav(x);ss();toast(on?`⭐ ${x.name} staat bij je favorieten`:`${x.name} uit favorieten`);if(navigator.vibrate)try{navigator.vibrate(15)}catch(e){}};r.querySelector("small").textContent=[x.amount,x.kcal!=null&&x.kcal!==""?Math.round(x.kcal)+" kcal":null,x.tag&&x.tag!=="Standaard"?x.tag:null].filter(Boolean).join(" · ");
       r.querySelector(".fmain").onclick=()=>{forceMeal=meal;foodForm({...x,meal,src:gtin?"scan":"hand",tag:undefined},{isNew:true,picked:true,gtin:gtin||undefined})};
       const pl=r.querySelector(".fplus");pl.onclick=()=>{if(pl.classList.contains("ok"))return;linkG(x);quickAdd(x,meal);pl.classList.add("ok");pl.textContent="✓";pl.setAttribute("aria-label","Toegevoegd");
         toast(`${x.name} toegevoegd aan ${SHORTMEAL(MEALS.find(m=>m[0]===meal)[1]).toLowerCase()}`,"Ongedaan",()=>{const d=ensure(cur);d.food=(d.food||[]).filter(y=>y.id!==lastFood);saveDay(cur);render();pl.classList.remove("ok");pl.textContent="+"});
@@ -2471,12 +2479,13 @@ function foodPicker(meal){meal=meal||guessMeal();let q="",offT=null;const gtin=p
       fixFoodImgs(r);return r};
     const sect=(t,items)=>{if(!items.length)return;list.appendChild(el(`<span class="label">${t}</span>`));items.forEach(x=>list.appendChild(row(x)))};
     const draw=extra=>{list.innerHTML="";
-      if(!q){const rc=recentFoods().map(perPortion);sect("Eerder gegeten",rc);
+      if(!q){const cb=copyBtn(meal);if(cb){const o=cb.onclick;cb.onclick=()=>{o();closeSheet()};cb.querySelector("b").textContent=`${SHORTMEAL(MEALS.find(m=>m[0]===meal)[1])} van gisteren herhalen`;list.appendChild(cb)}
+        const fv=favs();sect("⭐ Favorieten",fv);const rc=recentFoods().filter(x=>!isFav(x.name));sect("Eerder gegeten",rc);
         const ts=state.meals||[];if(ts.length){list.appendChild(el(`<span class="label">Vaste maaltijden</span>`));ts.forEach(t=>{const kc=t.items.reduce((a,x)=>a+(+x.kcal||0),0);
           const r=el(`<div class="frow"><button class="fmain" type="button"><span class="fth" style="background:#1a2340" aria-hidden="true"><i>⭐</i></span><span class="it"><b></b><small class="num"></small></span></button><button class="fplus" type="button" aria-label="Hele maaltijd toevoegen">+</button></div>`);
           r.querySelector("b").textContent=t.name;r.querySelector("small").textContent=`${t.items.length} dingen · ${Math.round(kc)} kcal`;
           const add=()=>{t.items.forEach(x=>quickAdd(x,meal,x.base?(x.qty||1):1));toast(t.name+" toegevoegd");closeSheet()};r.querySelector(".fmain").onclick=add;r.querySelector(".fplus").onclick=add;list.appendChild(r)})}
-        if(!rc.length&&!ts.length)sect("Populair",FOODS.filter(x=>/Banaan|Appel|Griekse yoghurt|Volkoren brood|Ei|Kipfilet|Rijst|Havermout/.test(x.name)).slice(0,8));return}
+        if(!rc.length&&!ts.length&&!fv.length)sect("Populair",FOODS.filter(x=>/Banaan|Appel|Griekse yoghurt|Volkoren brood|Ei|Kipfilet|Rijst|Havermout/.test(x.name)).slice(0,8));return}
       const res=foodSearch(q).slice(0,20);
       if(!res.length&&!(extra&&extra.length))list.appendChild(el(`<div class="emptyline">${extra===null?"Zoeken in de online database…":"Niets gevonden."}</div>`));else res.forEach(x=>list.appendChild(row(x)));
       if(extra===null&&res.length)list.appendChild(el(`<div class="emptyline">Ook online zoeken…</div>`));
@@ -3834,7 +3843,7 @@ function foodSearch(q){const nq=norm(q),seen=new Set(),cands=[];if(!nq)return[];
   Object.values(state.products||{}).forEach(p=>{const nn=norm(p.name);if(!p.name||seen.has(nn))return;seen.add(nn);const pc=p.per100,g=p.serving||100,sc=v=>v==null?null:Math.round(v*g/10)/10;
     cands.push(pc?{name:p.name,amount:g+" g",g,unit:"g",kcal:pc.kcal==null?null:Math.round(pc.kcal*g/100),p:sc(pc.p),c:sc(pc.c),f:sc(pc.f),tag:"Gescand",img:p.img}:{name:p.name,amount:p.amount,kcal:p.kcal,p:p.p,c:p.c,f:p.f,tag:"Gescand"})});
   FOODS.forEach(x=>{if(!seen.has(norm(x.name)))cands.push(x)});
-  return cands.map((x,i)=>({x,i,s:matchScore(norm(x.name),nq)+(x.tag==="Standaard"?0:.5)})).filter(o=>o.s>=1).sort((a,b)=>b.s-a.s||a.i-b.i).map(o=>o.x)}
+  return cands.map((x,i)=>({x,i,s:matchScore(norm(x.name),nq)+(x.tag==="Standaard"?0:.5)+(isFav(x.name)?.6:0)})).filter(o=>o.s>=1).sort((a,b)=>b.s-a.s||a.i-b.i).map(o=>o.x)}
 function attachSuggest(fill,read){const inp=$("f-name");if(!inp)return;inp.setAttribute("autocomplete","off");
   const box=el(`<div class="sugg" role="listbox" aria-label="Suggesties" hidden></div>`),por=el(`<div class="chips" hidden></div>`);
   inp.closest(".field").after(box);$("f-amount").closest(".field").after(por);
