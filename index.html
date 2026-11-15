@@ -8,12 +8,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Loopa">
-<meta name="description" content="Loopa: gewoontes, eten, sport, gym en slaap bijhouden.">
+<meta name="apple-mobile-web-app-title" content="Rise.">
+<meta name="description" content="Rise: gewoontes, eten, sport, gym en slaap bijhouden.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<title>Loopa</title>
+<title>Rise.</title>
 <style>html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <style>
 /* Layout: lichte iOS-achtige app in de kleuren van het logo (oranje, wit, een tintje zwart); één kolom met afgeronde kaarten, weekbalk en voortgangsring bovenaan, tabbalk onderin. */
@@ -822,8 +822,8 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
 #splash .sp-face svg{width:100%;height:100%;display:block}
 #splash .sp-back{position:absolute;inset:0;border-radius:36px;transform:translateZ(-16px) rotateY(180deg);background:linear-gradient(135deg,#e3122b,#ff6a13)}
 #splash .sp-shine{position:absolute;inset:-40%;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.85) 50%,transparent 60%);transform:translateX(-120%);animation:spshine .9s 1.35s ease-in-out forwards}
-#splash .sp-arc{stroke-dasharray:110;stroke-dashoffset:110;animation:sparc .8s .95s cubic-bezier(.6,0,.2,1) forwards}
-#splash .sp-dot{transform-origin:32px 32px;transform:scale(0);animation:spdot .45s 1.6s cubic-bezier(.2,.9,.3,1.6) forwards}
+#splash .sp-arc{stroke-dasharray:70;stroke-dashoffset:70;animation:sparc .8s .95s cubic-bezier(.6,0,.2,1) forwards}
+#splash .sp-dot{transform-origin:49px 22px;transform:scale(0);animation:spdot .45s 1.6s cubic-bezier(.2,.9,.3,1.6) forwards}
 #splash .sp-floor{width:120px;height:18px;border-radius:50%;background:radial-gradient(closest-side,rgba(60,0,6,.55),transparent);margin-top:-14px;animation:spfloor 1.5s cubic-bezier(.18,.8,.25,1) both}
 /* naam: letters vliegen uit de diepte */
 #splash .sp-name{display:flex;font-family:var(--display);font-size:3rem;font-weight:900;letter-spacing:-.01em;transform-style:preserve-3d;margin-top:-4px}
@@ -852,6 +852,8 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
 #view-sport[data-pg="gym"] .sp-cardio,#view-sport[data-pg="cardio"] .sp-gym{display:none!important}
 #view-sport[data-pg="gym"] .morerow:not([data-k="rec"]),#view-sport[data-pg="cardio"] .morerow[data-k="rec"]{display:none}
 #view-sport[data-pg="gym"] .morerow[data-k="rec"]{border-top:0}
+#splash .sp-name span.sp-pt{color:#ffd166}
+.brand b .pt{color:var(--flame)}
 </style>
 </head>
 <body>
@@ -859,9 +861,9 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3122b"/><stop offset="1" stop-color="#ff6a13"/></linearGradient></defs>
   <symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="18" fill="url(#lg)"/>
-    <circle cx="32" cy="32" r="17" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="6"/>
-    <path d="M32 15a17 17 0 1 1-16.2 22.2" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
-    <circle cx="32" cy="32" r="5" fill="#fff"/></symbol>
+    <path d="M14 50 H50" stroke="#fff" stroke-opacity=".3" stroke-width="5" stroke-linecap="round"/>
+    <path d="M14 45 L26 33 L34 39 L49 22" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M39 21 H50 V32" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-flame" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2c1 3.5-1.6 5.2-2.8 7.3C8 11.4 7 13 7 15a5 5 0 0 0 10 0c0-2.6-1.5-4.4-2.4-5.6-.3 1.4-.9 2.3-1.9 2.8.6-3.4-.2-7.5-.7-10.2Z"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></symbol>
@@ -885,12 +887,12 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
   <div class="sp-rays"></div><div class="sp-glow"></div>
   <div class="sp-stage"><i class="sp-back"></i><i class="sp-layer" style="--z:2"></i><i class="sp-layer" style="--z:4"></i><i class="sp-layer" style="--z:6"></i><i class="sp-layer" style="--z:8"></i><i class="sp-layer" style="--z:10"></i><i class="sp-layer" style="--z:12"></i><i class="sp-layer" style="--z:14"></i>
     <div class="sp-face"><svg viewBox="0 0 64 64"><rect width="64" height="64" fill="#fff"/>
-      <circle cx="32" cy="32" r="17" fill="none" stroke="#e3122b" stroke-opacity=".18" stroke-width="6"/>
-      <path class="sp-arc" d="M32 15a17 17 0 1 1-16.2 22.2" fill="none" stroke="url(#lg)" stroke-width="6" stroke-linecap="round"/>
-      <circle class="sp-dot" cx="32" cy="32" r="5" fill="#e3122b"/></svg><i class="sp-shine"></i></div>
+      <path d="M14 50 H50" stroke="#e3122b" stroke-opacity=".18" stroke-width="5" stroke-linecap="round"/>
+      <path class="sp-arc" d="M14 45 L26 33 L34 39 L49 22" fill="none" stroke="url(#lg)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path class="sp-dot" d="M39 21 H50 V32" fill="none" stroke="#ff6a13" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="sp-shine"></i></div>
   </div>
   <div class="sp-floor"></div>
-  <div class="sp-name"><span style="--i:0">L</span><span style="--i:1">o</span><span style="--i:2">o</span><span style="--i:3">p</span><span style="--i:4">a</span></div>
+  <div class="sp-name"><span style="--i:0">R</span><span style="--i:1">i</span><span style="--i:2">s</span><span style="--i:3">e</span><span style="--i:4" class="sp-pt">.</span></div>
   <div class="sp-slogan">Discipline is mijn <b>obsessie</b>.</div>
   <div class="sp-bar"></div>
 </div>
@@ -898,12 +900,12 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
   <div class="topband">
   <header>
     <div>
-      <div class="brand"><svg role="img" aria-label="Loopa logo"><use href="#logo"/></svg><b>Loopa</b></div>
+      <div class="brand"><svg role="img" aria-label="Rise logo"><use href="#logo"/></svg><b>Rise<span class="pt">.</span></b></div>
       <div class="muted small" id="datelabel"></div>
       <h1 id="title">Vandaag</h1>
     </div>
     <div style="display:flex;gap:8px">
-      <button class="chip aichip" id="aibtn" type="button" aria-label="Vraag Loopa, je AI-coach"><span aria-hidden="true">✦</span>Coach</button>
+      <button class="chip aichip" id="aibtn" type="button" aria-label="Vraag Rise, je AI-coach"><span aria-hidden="true">✦</span>Coach</button>
       <span class="chip num" id="streakchip" title="Dagen op rij met minstens één gewoonte"><svg style="color:var(--flame)"><use href="#i-flame"/></svg><span id="streaknum">0</span></span>
       <button class="chip" id="gear" aria-label="Gewoontes en doelen"><svg><use href="#i-gear"/></svg></button>
     </div>
@@ -1136,7 +1138,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
     </section>
     <section class="card">
       <h2>Foto's herkennen</h2>
-      <span class="muted small">Om foto's van je eten en van etiketten te laten herkennen, gebruikt Loopa Claude. Daarvoor heb je een eigen API-sleutel nodig, die je aanmaakt op console.anthropic.com. De sleutel blijft alleen op dit apparaat. Per foto betaal je een klein bedrag aan Anthropic, meestal een paar cent.</span>
+      <span class="muted small">Om foto's van je eten en van etiketten te laten herkennen, gebruikt Rise Claude. Daarvoor heb je een eigen API-sleutel nodig, die je aanmaakt op console.anthropic.com. De sleutel blijft alleen op dit apparaat. Per foto betaal je een klein bedrag aan Anthropic, meestal een paar cent.</span>
       <input type="password" id="apikey" placeholder="sk-ant-..." autocomplete="off" aria-label="Claude API-sleutel" style="font:inherit;color:var(--ink);background:var(--surface-2);border:0;border-radius:14px;padding:11px 12px">
       <span class="muted small" id="keynote"></span>
       <div class="btnrow"><button class="btn danger" type="button" id="delkey">Wissen</button><button class="btn" type="button" id="savekey">Opslaan</button></div>
@@ -1336,7 +1338,7 @@ function renderEten(){
   $("kcalsub").textContent=`${Math.round(t.kcal)} gegeten · doel ${g} kcal`;
   const mg=macroGoals();
   const pr=state.profile||{},nb=$("eatnudge");nb.innerHTML="";nb.hidden=!!(pr.weight&&pr.height&&pr.age);
-  if(!nb.hidden){const b=el(`<div class="banner"><span class="em" aria-hidden="true">🎯</span><button class="it" type="button"><b>Maak je eetschema persoonlijk</b><small>Vul je lengte, gewicht en doel in, dan rekent Loopa uit hoeveel je per maaltijd nodig hebt.</small></button></div>`);b.querySelector(".it").onclick=bodyProfileSheet;nb.appendChild(b)}
+  if(!nb.hidden){const b=el(`<div class="banner"><span class="em" aria-hidden="true">🎯</span><button class="it" type="button"><b>Maak je eetschema persoonlijk</b><small>Vul je lengte, gewicht en doel in, dan rekent Rise uit hoeveel je per maaltijd nodig hebt.</small></button></div>`);b.querySelector(".it").onclick=bodyProfileSheet;nb.appendChild(b)}
   $("macros").innerHTML=[["Eiwit",t.p,mg.p,"#e3122b","#fde3e5"],["Koolh.",t.c,mg.c,"#ff6a13","#ffe8d8"],["Vet",t.f,mg.f,"#ffa45c","#fbefd9"]]
     .map(([l,v,gl,c,bg])=>`<div class="mring"><div class="mr"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="${bg}" stroke-width="11"/><circle cx="50" cy="50" r="42" fill="none" stroke="${c}" stroke-width="11" stroke-linecap="round" stroke-dasharray="${264*Math.min(1,v/gl)} 264"${v>0?"":` opacity="0"`}/></svg><b class="num">${Math.round(v)}<small>g</small></b></div><span>${l}</span><small class="num">van ${Math.round(gl)} g</small></div>`).join("");
   const box=$("foodlists");box.innerHTML="";const MEM={ontbijt:"🌅",lunch:"🥪",diner:"🍽️",snack:"🍎"},MIMG={ontbijt:"Muesli",lunch:"Cheese sandwich",diner:"Spaghetti alla bolognese",snack:"Apple"};
@@ -1474,7 +1476,7 @@ let pendingForm=null,scanMode=null;
 
 /* ---- scannen ---- */
 function pickFile(mode){if(mode==="scan"||mode==="qr"){scanLive(mode);return}
-  if((mode==="foto"||mode==="label")&&!getKey()&&!(window.claude&&claude.use)){msgSheet("Stel eerst foto-herkenning in","Om foto's te laten herkennen heeft Loopa een Claude API-sleutel nodig. Je stelt hem één keer in onder Gewoontes & doelen.",[["Naar instellingen",()=>{closeSheet();show("instellingen")}],["Handmatig invullen",()=>foodForm({meal:guessMeal(),src:"hand"},{isNew:true})]]);return}
+  if((mode==="foto"||mode==="label")&&!getKey()&&!(window.claude&&claude.use)){msgSheet("Stel eerst foto-herkenning in","Om foto's te laten herkennen heeft Rise een Claude API-sleutel nodig. Je stelt hem één keer in onder Gewoontes & doelen.",[["Naar instellingen",()=>{closeSheet();show("instellingen")}],["Handmatig invullen",()=>foodForm({meal:guessMeal(),src:"hand"},{isNew:true})]]);return}
   pickFileRaw(mode)}
 function pickFileRaw(mode){scanMode=mode;const i=(mode==="foto"||mode==="label")?$("filePhoto"):$("fileScan");i.value="";i.click()}
 $("fileScan").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;const mode=scanMode;
@@ -1821,7 +1823,7 @@ async function scanLive(mode){camMode=mode;camDone=false;
     try{const caps=track&&track.getCapabilities?track.getCapabilities():null;if(caps&&caps.torch){let on=false;$("cam-torch").hidden=false;
       $("cam-torch").onclick=()=>{on=!on;track.applyConstraints({advanced:[{torch:on}]}).catch(()=>{})}}}catch(e){}
   }catch(err){stopCam();
-    msgSheet("Camera niet beschikbaar","Geef Loopa toestemming om je camera te gebruiken, in de instellingen van je browser. Je kunt ook een foto kiezen of de cijfers intypen.",
+    msgSheet("Camera niet beschikbaar","Geef Rise toestemming om je camera te gebruiken, in de instellingen van je browser. Je kunt ook een foto kiezen of de cijfers intypen.",
       [["Foto kiezen",()=>{closeSheet();setTimeout(()=>pickFileRaw(mode),320)}],["Cijfers intypen",()=>typeCode(mode)]])}}
 function stopCam(){camDone=true;clearTimeout(camLoop);if(camReader){try{camReader.reset()}catch(e){}camReader=null}
   if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null}const v=$("camv");v.pause();v.srcObject=null;$("cam").hidden=true}
@@ -1887,7 +1889,7 @@ const BK_EXTRA=["loopa-pw","loopa-chat","loopa-lockt"];
 async function makeBackup(){const extra={};BK_EXTRA.forEach(k=>{try{const v=localStorage.getItem(k);if(v!=null)extra[k]=v}catch(e){}});
   const name=`loopa-backup-${keyOf(new Date())}.json`,txt=JSON.stringify({app:"loopa",version:2,saved:new Date().toISOString(),state,extra});
   const blob=new Blob([txt],{type:"application/json"});let done=false;
-  if(!window.Capacitor&&navigator.canShare){try{const file=new File([blob],name,{type:"application/json"});if(navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"Loopa back-up"});done=true}}catch(e){if(e&&e.name==="AbortError")return}}
+  if(!window.Capacitor&&navigator.canShare){try{const file=new File([blob],name,{type:"application/json"});if(navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"Rise back-up"});done=true}}catch(e){if(e&&e.name==="AbortError")return}}
   if(!done){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
   setProfile("lastBackup",Date.now());try{renderBackupNote();render()}catch(e){}toast("💾 Back-up gemaakt. Bewaar hem in Bestanden of iCloud.")}
 function renderBackupNote(){const n=$("backupnote");if(!n)return;const t=state.profile&&state.profile.lastBackup;
@@ -1897,7 +1899,7 @@ setTimeout(()=>{try{const b=$("backup");if(b&&!$("backupnote")){const n=el(`<spa
 $("restore").onclick=()=>{$("restorefile").value="";$("restorefile").click()};
 $("restorefile").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;
   let data=null,extra=null;try{const j=JSON.parse(await f.text());data=j.state||j;extra=j.extra||null}catch(err){}
-  if(!data||typeof data.days!=="object"){msgSheet("Dit is geen Loopa-back-up","Kies het bestand dat je eerder met Back-up downloaden hebt bewaard.");return}
+  if(!data||typeof data.days!=="object"){msgSheet("Dit is geen Rise-back-up","Kies het bestand dat je eerder met Back-up downloaden hebt bewaard.");return}
   const n=Object.keys(data.days).length;
   msgSheet("Back-up terugzetten?",`Deze back-up bevat ${n} dagen. Alles wat nu in de app staat wordt vervangen.`,[["Terugzetten",()=>{
     state={habits:[],days:{},profile:null,products:{},routines:[],customEx:[],active:null,...data};migrate();saveLocal();if(extra)Object.entries(extra).forEach(([k,v])=>{try{if(BK_EXTRA.includes(k))localStorage.setItem(k,v)}catch(e){}});toast("✅ Back-up teruggezet");closeSheet();if(!$("onb").hidden)closeOnb();show("dag")}],["Annuleren",closeSheet]])});
@@ -2036,7 +2038,7 @@ function hevyImport(text){const rows=csvRows(text);if(rows.length<2)throw new Er
     if(ex.length>=4){state.routines.push({id:uid(),name:"Chest back abs",ex});plans.push("Chest back abs")}}
   touched.forEach(k=>saveDay(k));saveGym();return{added,skipped,plans,made,total:W.size}}
 function hevySheet(){openSheet(s=>{s.appendChild(el(`<h2>Importeren uit Hevy</h2>`));
-  s.appendChild(el(`<p class="muted small" style="margin:0">Zet je oude workouts, records en schema's over naar Loopa. Workouts die je al hebt geïmporteerd worden overgeslagen.</p>`));
+  s.appendChild(el(`<p class="muted small" style="margin:0">Zet je oude workouts, records en schema's over naar Rise. Workouts die je al hebt geïmporteerd worden overgeslagen.</p>`));
   s.appendChild(el(`<div class="planlist"><div style="background:var(--surface-2)">1. Open Hevy en ga naar Profiel › Instellingen</div><div style="background:var(--surface-2)">2. Tik op Export &amp; Import Data › Export Workouts</div><div style="background:var(--surface-2)">3. Bewaar het bestand in Bestanden, en kies het hieronder</div></div>`));
   const inp=el(`<input type="file" accept=".csv,text/csv,text/comma-separated-values,application/vnd.ms-excel" hidden>`);s.appendChild(inp);
   const b=el(`<button class="btn" type="button">📄 Kies je Hevy-bestand (.csv)</button>`);b.onclick=()=>inp.click();s.appendChild(b);
@@ -2044,7 +2046,7 @@ function hevySheet(){openSheet(s=>{s.appendChild(el(`<h2>Importeren uit Hevy</h2
     render();openSheet(t=>{t.appendChild(el(`<div class="streakwin"><span aria-hidden="true">🏋️</span><h2>${res.added} workouts geïmporteerd</h2><p class="muted"></p></div>`));
       t.querySelector("p").textContent=res.skipped?`${res.skipped} stonden er al in en zijn overgeslagen.`:"Je records en beloningen zijn bijgewerkt.";
       if(res.plans.length){t.appendChild(el(`<span class="label">Schema's klaargezet</span>`));const c=el(`<div class="chips"></div>`);res.plans.forEach(n=>{const x=el(`<span class="chipbtn"></span>`);x.textContent=n;c.appendChild(x)});t.appendChild(c)}
-      if(res.made.length)t.appendChild(el(`<p class="muted small" style="margin:0">${res.made.length} oefeningen kende Loopa nog niet. Die zijn als eigen oefening toegevoegd.</p>`));
+      if(res.made.length)t.appendChild(el(`<p class="muted small" style="margin:0">${res.made.length} oefeningen kende Rise nog niet. Die zijn als eigen oefening toegevoegd.</p>`));
       const ok=el(`<button class="btn" type="button">Bekijken</button>`);ok.onclick=()=>{closeSheet();show("sport")};t.appendChild(ok)})}})}
 
 /* ===== v24: supplementen en vitamines ===== */
@@ -2147,7 +2149,7 @@ function lockTSync(force){if(!lockT.on||!state.active||!("mediaSession" in navig
   const resting=rest.end>now,left=resting?(rest.end-now)/1000:0;
   const title=resting?`⏱️ Rust ${fmtClock(left)}`:`💪 ${c.name}`,artist=resting?`Hierna: ${c.name} · ${c.set}`:`${c.set} · workout ${fmtClock(el)}`;
   const sig=title+"|"+artist;
-  if(force||sig!==lockT.sig){lockT.sig=sig;try{ms.metadata=new MediaMetadata({title,artist,album:"Loopa workout",artwork:[{src:"icons/icon-512.png",sizes:"512x512",type:"image/png"},{src:"icons/icon-192.png",sizes:"192x192",type:"image/png"}]})}catch(e){}}
+  if(force||sig!==lockT.sig){lockT.sig=sig;try{ms.metadata=new MediaMetadata({title,artist,album:"Rise workout",artwork:[{src:"icons/icon-512.png",sizes:"512x512",type:"image/png"},{src:"icons/icon-192.png",sizes:"192x192",type:"image/png"}]})}catch(e){}}
   try{ms.playbackState="playing";
     if(resting)ms.setPositionState({duration:Math.max(rest.len,left+1),playbackRate:1,position:Math.max(0,Math.min(rest.len,rest.len-left))});
     else ms.setPositionState({duration:4*3600,playbackRate:1,position:Math.min(4*3600-1,el)})}catch(e){}}
@@ -2232,19 +2234,19 @@ async function bioAvail(){if(bioInfo)return bioInfo;
   bioInfo={ok,label:bioLabelWeb()};return bioInfo}
 function bioOn(){try{return !!localStorage.getItem("loopa-bio")}catch(e){return false}}
 async function bioEnroll(){const info=await bioAvail();if(!info.ok)return false;
-  if(window.LoopaBio){const ok=await window.LoopaBio.verify(`Zet ${info.label} aan voor Loopa`);if(ok)try{localStorage.setItem("loopa-bio","native")}catch(e){}return ok}
-  try{const c=await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:"Loopa"},
-      user:{id:crypto.getRandomValues(new Uint8Array(16)),name:"Loopa",displayName:"Loopa op deze telefoon"},
+  if(window.LoopaBio){const ok=await window.LoopaBio.verify(`Zet ${info.label} aan voor Rise`);if(ok)try{localStorage.setItem("loopa-bio","native")}catch(e){}return ok}
+  try{const c=await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:"Rise"},
+      user:{id:crypto.getRandomValues(new Uint8Array(16)),name:"Rise",displayName:"Rise op deze telefoon"},
       pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],
       authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"discouraged"},timeout:60000,attestation:"none"}});
     if(!c)return false;localStorage.setItem("loopa-bio",b64u(c.rawId));return true}catch(e){return false}}
 async function bioVerify(){const v=(()=>{try{return localStorage.getItem("loopa-bio")}catch(e){return null}})();if(!v)return false;
-  if(window.LoopaBio)return window.LoopaBio.verify("Ontgrendel Loopa");
+  if(window.LoopaBio)return window.LoopaBio.verify("Ontgrendel Rise");
   try{const a=await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{type:"public-key",id:unb64u(v)}],userVerification:"required",timeout:60000}});return !!a}catch(e){return false}}
 function bioOff(){try{localStorage.removeItem("loopa-bio")}catch(e){}}
 async function renderBioUI(){const row=$("biorow");if(!row)return;const info=await bioAvail();
   row.hidden=!getPin()||!info.ok;if(row.hidden)return;
-  row.querySelector("b").textContent=`${info.label} gebruiken`;row.querySelector("small").textContent=`Ontgrendel Loopa met ${info.label}. Je pincode blijft werken als reserve.`;
+  row.querySelector("b").textContent=`${info.label} gebruiken`;row.querySelector("small").textContent=`Ontgrendel Rise met ${info.label}. Je pincode blijft werken als reserve.`;
   row.querySelector("input").checked=bioOn()}
 (function(){const row=$("biorow");if(!row)return;
   row.querySelector("input").onchange=async e=>{const on=e.target.checked,info=await bioAvail();
@@ -2266,7 +2268,7 @@ async function stepsFromClipboard(){let t="";try{t=await navigator.clipboard.rea
   stepsImport(m,"opdracht");const v=m[keyOf(new Date())];toast(v!=null?`${v.toLocaleString("nl-NL")} stappen binnengehaald 👟`:"Stappen binnengehaald 👟");return true}
 let stepsBusy=false;
 async function stepsSyncNative(interactive){const H=window.LoopaHealth;if(!H||stepsBusy)return false;stepsBusy=true;
-  try{if(interactive){const ok=await H.connect();if(!ok){msgSheet("Geen toegang tot je stappen",H.platform==="android"?"Geef Loopa toegang tot Stappen in Health Connect. Heb je Health Connect nog niet? Installeer het dan uit de Play Store.":"Geef Loopa toegang tot Stappen in de Gezondheid-app: Gezondheid › Profiel › Apps › Loopa.",[...(H.platform==="android"?[["Health Connect openen",()=>{closeSheet();H.settings()}]]:[]),["Sluiten",closeSheet]]);return false}
+  try{if(interactive){const ok=await H.connect();if(!ok){msgSheet("Geen toegang tot je stappen",H.platform==="android"?"Geef Rise toegang tot Stappen in Health Connect. Heb je Health Connect nog niet? Installeer het dan uit de Play Store.":"Geef Rise toegang tot Stappen in de Gezondheid-app: Gezondheid › Profiel › Apps › Rise.",[...(H.platform==="android"?[["Health Connect openen",()=>{closeSheet();H.settings()}]]:[]),["Sluiten",closeSheet]]);return false}
       setProfile("stepsAuto",true)}
     const m=await H.steps(7);const n=stepsImport(m,H.platform==="android"?"healthconnect":"health");
     if(interactive)toast(n?"Stappen gekoppeld 👟 Ze worden nu vanzelf bijgewerkt.":"Gekoppeld, maar nog geen stappen gevonden.");return true}
@@ -2279,8 +2281,8 @@ function stepsHelp(){openSheet(s=>{s.appendChild(el(`<h2>Stappen van je iPhone</
     <li>Zoek op <b>gezondheid</b> en kies <b>Zoek naar gezondheidsvoorbeelden</b>. Zet <b>Type</b> op <b>Stappen</b> en voeg het filter <b>Startdatum is vandaag</b> toe.</li>
     <li>Voeg <b>Bereken statistieken</b> toe en kies <b>Som</b>.</li>
     <li>Voeg <b>Kopieer naar klembord</b> toe.</li>
-    <li>Noem de opdracht <b>Loopa stappen</b>. Tik bij de eerste keer op <b>Sta toe</b> voor Gezondheid.</li></ol>`));
-  s.appendChild(el(`<p class="muted small" style="margin:0">Daarna: draai de opdracht (vanuit de Opdrachten-app, een widget of "Hé Siri, Loopa stappen"), open Loopa en tik op <b>Plakken</b>. Tip: zet de opdracht als widget op je beginscherm.</p>`));
+    <li>Noem de opdracht <b>Rise stappen</b>. Tik bij de eerste keer op <b>Sta toe</b> voor Gezondheid.</li></ol>`));
+  s.appendChild(el(`<p class="muted small" style="margin:0">Daarna: draai de opdracht (vanuit de Opdrachten-app, een widget of "Hé Siri, Rise stappen"), open Rise en tik op <b>Plakken</b>. Tip: zet de opdracht als widget op je beginscherm.</p>`));
   const p=el(`<button class="btn" type="button">Plakken</button>`);p.onclick=async()=>{if(await stepsFromClipboard())closeSheet()};s.appendChild(p);
   const c=el(`<button class="btn sec" type="button">Sluiten</button>`);c.onclick=closeSheet;s.appendChild(c)})}
 function renderSteps(){const box=$("stepsbox");if(!box)return;const k=cur,d=day(k),v=d.steps,g=STEPGOAL(),wk=weekKeys(k),H=window.LoopaHealth,isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
@@ -2294,14 +2296,14 @@ function renderSteps(){const box=$("stepsbox");if(!box)return;const k=cur,d=day(
   const act=$("stepsact");act.innerHTML="";
   if(H){const b=el(`<button class="btn" type="button"></button>`);b.textContent=linked?"Stappen bijwerken":(H.platform==="android"?"Koppel met Health Connect":"Koppel met Apple Gezondheid");b.onclick=()=>stepsSyncNative(true);act.appendChild(b)}
   else{const b=el(`<button class="btn" type="button">Plakken</button>`);b.onclick=async()=>{if(!(await stepsFromClipboard())&&isIOS)stepsHelp()};act.appendChild(b);
-    const h=el(`<button class="btn sec" type="button"></button>`);h.textContent=isIOS?"Uit Gezondheid halen":"Hoe koppel ik?";h.onclick=isIOS?stepsHelp:()=>msgSheet("Stappen koppelen","Met de Loopa-app op Android haal je je stappen vanzelf uit Health Connect. In de web-app vul je ze hieronder zelf in, of plak je een getal.");act.appendChild(h)}
+    const h=el(`<button class="btn sec" type="button"></button>`);h.textContent=isIOS?"Uit Gezondheid halen":"Hoe koppel ik?";h.onclick=isIOS?stepsHelp:()=>msgSheet("Stappen koppelen","Met de Rise-app op Android haal je je stappen vanzelf uit Health Connect. In de web-app vul je ze hieronder zelf in, of plak je een getal.");act.appendChild(h)}
   if(document.activeElement!==$("steps"))$("steps").value=v??""}
 (function(){const u=new URL(location.href),q=u.searchParams.get("stappen");if(q!=null){const m=parseStepsText(q);if(m){setTimeout(()=>{stepsImport(m,"opdracht");toast("Stappen binnengehaald 👟")},600)}
     u.searchParams.delete("stappen");try{history.replaceState(null,"",u.pathname+(u.search||"")+u.hash)}catch(e){}}})();
 function stepsAutoSync(){if(window.LoopaHealth&&state.profile&&state.profile.stepsAuto)stepsSyncNative(false)}
 setTimeout(stepsAutoSync,1500);document.addEventListener("visibilitychange",()=>{if(!document.hidden)stepsAutoSync()});
 
-/* ===== v18: AI-coach "Vraag Loopa" ===== */
+/* ===== v18: AI-coach "Vraag Rise" ===== */
 const AICHAT="loopa-chat";
 let aiHist=[];try{aiHist=JSON.parse(localStorage.getItem(AICHAT)||"[]")}catch(e){aiHist=[]}
 let aiBusy=null;
@@ -2325,7 +2327,7 @@ function aiContext(){const p=state.profile||{},t=keyOf(new Date()),L=[],r=x=>Mat
   const ws=bodySorted().filter(x=>x.kg!=null).slice(-6);if(ws.length)L.push("Gewicht: "+ws.map(x=>`${x.date} ${x.kg} kg`).join(", ")+".");
   try{const fl=forecastLine();if(fl)L.push("Voorspelling: "+fl.replace(/^\S+\s/,""))}catch(e){}
   return L.join("\n")}
-const AI_RULES=`Je bent Loopa, de vriendelijke coach in de app Loopa. Daarin houdt de gebruiker gewoontes, eten, water, sport, gym, gewicht en slaap bij.
+const AI_RULES=`Je bent Rise, de vriendelijke coach in de app Rise. Daarin houdt de gebruiker gewoontes, eten, water, sport, gym, gewicht en slaap bij.
 Antwoord altijd in het Nederlands, persoonlijk en kort: meestal 2 tot 6 zinnen of een kort lijstje. Gebruik de gegevens van de gebruiker hieronder als ze helpen en noem echte getallen. Verzin geen gegevens die er niet staan.
 Geef praktische tips die vandaag nog kunnen. Je bent geen arts: stel geen diagnoses en verwijs bij pijn, klachten, eetproblemen of twijfel vriendelijk naar de huisarts of een diëtist.
 Opmaak: gewone zinnen, **vet** mag, lijstjes met "- ". Geen koppen of tabellen.`;
@@ -2349,7 +2351,7 @@ function aiSuggest(){const t=keyOf(new Date()),f=sumFood(t),left=Math.round(goal
   out.push(h>=20?"Tips om vanavond beter te slapen":"Geef me een training van 30 minuten");
   if(goalKg())out.push(`Hoe haal ik ${goalKg()} kg?`);return out.slice(0,5)}
 function aiOpen(){if(document.querySelector(".aiv"))return;
-  const v=el(`<div class="aiv" role="dialog" aria-label="Vraag Loopa"><div class="aihead"><button class="aiback" type="button" aria-label="Terug">‹</button><div class="aititle"><span class="aistar" aria-hidden="true">✦</span><span><b>Vraag Loopa</b><small>Je persoonlijke coach</small></span></div><button class="aiclear" type="button">Wissen</button></div>
+  const v=el(`<div class="aiv" role="dialog" aria-label="Vraag Rise"><div class="aihead"><button class="aiback" type="button" aria-label="Terug">‹</button><div class="aititle"><span class="aistar" aria-hidden="true">✦</span><span><b>Vraag Rise</b><small>Je persoonlijke coach</small></span></div><button class="aiclear" type="button">Wissen</button></div>
     <div class="aimsgs" aria-live="polite"></div>
     <form class="aiform"><textarea rows="1" placeholder="Stel een vraag…" aria-label="Je vraag" maxlength="1500"></textarea><button class="aisend" type="submit" aria-label="Versturen">↑</button></form></div>`);
   document.body.appendChild(v);document.body.style.overflow="hidden";requestAnimationFrame(()=>v.classList.add("in"));
@@ -2362,12 +2364,12 @@ function aiOpen(){if(document.querySelector(".aiv"))return;
   const bubble=(role,html)=>{const b=el(`<div class="aimsg ${role}"><div class="aibub"></div></div>`);b.querySelector(".aibub").innerHTML=html;box.appendChild(b);return b.querySelector(".aibub")};
   const bottom=()=>{box.scrollTop=box.scrollHeight};
   function draw(){box.innerHTML="";
-    if(!aiHist.length){const w=el(`<div class="aiwelcome"><span class="aistar big" aria-hidden="true">✦</span><h2>Hoi${state.profile&&state.profile.name?" "+state.profile.name.replace(/[<>&]/g,""):""}! Waar kan ik je mee helpen?</h2><p class="muted small">Ik kijk mee met wat je eet, sport en slaapt in Loopa. Vraag maar raak.</p><div class="aisugs"></div></div>`);
+    if(!aiHist.length){const w=el(`<div class="aiwelcome"><span class="aistar big" aria-hidden="true">✦</span><h2>Hoi${state.profile&&state.profile.name?" "+state.profile.name.replace(/[<>&]/g,""):""}! Waar kan ik je mee helpen?</h2><p class="muted small">Ik kijk mee met wat je eet, sport en slaapt in Rise. Vraag maar raak.</p><div class="aisugs"></div></div>`);
       aiSuggest().forEach(q=>{const c=el(`<button type="button" class="aisug"></button>`);c.textContent=q;c.onclick=()=>ask(q);w.querySelector(".aisugs").appendChild(c)});box.appendChild(w)}
     aiHist.forEach(m=>bubble(m.role,m.role==="user"?aiMd(m.content).replace(/<span class="aili">/g,"").replace(/<\/span>/g,""):aiMd(m.content)));bottom()}
   async function ask(q){q=q.trim();if(!q||aiBusy)return;ta.value="";ta.style.height="auto";
     const run=await aiClient();
-    if(!run){if(!aiHist.length)box.innerHTML="";bubble("user",aiMd(q));const b=bubble("assistant",`Om met mij te praten heeft Loopa een Claude API-sleutel nodig, dezelfde als voor foto's herkennen. Je stelt hem één keer in onder Gewoontes &amp; doelen.<br><button type="button" class="btn sec aikey">Naar instellingen</button>`);
+    if(!run){if(!aiHist.length)box.innerHTML="";bubble("user",aiMd(q));const b=bubble("assistant",`Om met mij te praten heeft Rise een Claude API-sleutel nodig, dezelfde als voor foto's herkennen. Je stelt hem één keer in onder Gewoontes &amp; doelen.<br><button type="button" class="btn sec aikey">Naar instellingen</button>`);
       b.querySelector(".aikey").onclick=()=>{close();show("instellingen");setTimeout(()=>{const k=$("apikey");if(k){k.scrollIntoView({block:"center"});k.focus()}},350)};bottom();return}
     if(!aiHist.length)box.innerHTML="";
     aiHist.push({role:"user",content:q});aiSave();bubble("user",aiMd(q));
@@ -2377,7 +2379,7 @@ function aiOpen(){if(document.querySelector(".aiv"))return;
     try{const txt=await run(msgs.map(m=>({role:m.role,content:m.content})),t=>{if(t&&t!=="Thinking..."){b.innerHTML=aiMd(t);bottom()}},ctl.signal);
       aiHist.push({role:"assistant",content:txt||"…"});aiSave();b.innerHTML=aiMd(txt||"…")}
     catch(err){const code=(err&&err.code)||"failed";if(code==="cancelled"||(err&&err.name==="AbortError")){b.closest(".aimsg").remove();aiHist.pop();aiSave();return}
-      b.parentNode.classList.add("err");b.innerHTML=({offline:"Geen internet. Probeer het zo nog eens.",bad_key:"De API-sleutel klopt niet of is verlopen. Kijk even bij Gewoontes &amp; doelen.",no_credit:"Je API-account heeft geen tegoed meer. Vul het aan op console.anthropic.com.",rate_limited:"Even te veel vragen tegelijk. Wacht een minuutje.",not_granted:"Loopa mag Claude hier niet gebruiken. Geef toestemming en probeer opnieuw.",refusal:"Daar kan ik je niet mee helpen. Probeer een andere vraag."})[code]||"Dat lukte niet. Probeer het nog eens.";
+      b.parentNode.classList.add("err");b.innerHTML=({offline:"Geen internet. Probeer het zo nog eens.",bad_key:"De API-sleutel klopt niet of is verlopen. Kijk even bij Gewoontes &amp; doelen.",no_credit:"Je API-account heeft geen tegoed meer. Vul het aan op console.anthropic.com.",rate_limited:"Even te veel vragen tegelijk. Wacht een minuutje.",not_granted:"Rise mag Claude hier niet gebruiken. Geef toestemming en probeer opnieuw.",refusal:"Daar kan ik je niet mee helpen. Probeer een andere vraag."})[code]||"Dat lukte niet. Probeer het nog eens.";
       aiHist.pop();aiSave()}
     finally{aiBusy=null;form.classList.remove("busy");bottom()}}
   form.onsubmit=e=>{e.preventDefault();ask(ta.value)};
@@ -2409,7 +2411,7 @@ function weightForecast(){const g=goalKg(),ws=bodySorted().filter(x=>x.kg!=null)
   if(Math.abs(perWeek)<.05||Math.sign(perWeek)!==Math.sign(diff))return{perWeek,wrong:true,diff};
   const days=diff/slope,date=new Date(fromKey(last.date).getTime()+days*864e5);return{perWeek,date,days}}
 function forecastLine(){const f=weightForecast();if(!f)return null;const pw=`${f.perWeek>0?"+":f.perWeek<0?"−":"±"}${nf1(Math.abs(f.perWeek))} kg per week`;
-  if(f.wait)return"📈 Weeg je over een paar dagen weer, dan voorspelt Loopa wanneer je je doel haalt.";
+  if(f.wait)return"📈 Weeg je over een paar dagen weer, dan voorspelt Rise wanneer je je doel haalt.";
   if(f.reached)return"🎉 Je zit op je streefgewicht. Knap gedaan!";
   if(!goalKg())return`📈 Je gaat nu ${pw}. Stel een streefgewicht in, dan zie je wanneer je het haalt.`;
   if(f.wrong)return`📈 Je gaat nu ${pw}, de andere kant op dan je doel. Houd vol en kijk naar je eten, het draait vaak binnen een paar weken.`;
@@ -2456,7 +2458,7 @@ function drawRouteSvg(div,segs){const pts=segs.flat();div.innerHTML="";div.class
   const P=p=>[15+(p[1]*k-x0)*sc+((W-30)-(x1-x0)*sc)/2,H-15-(p[0]-y0)*sc-((H-30)-(y1-y0)*sc)/2].map(v=>v.toFixed(1)).join(",");
   div.innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${segs.filter(s=>s.length>1).map(s=>`<polyline points="${s.map(P).join(" ")}" fill="none" stroke="#e3122b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`).join("")}<circle cx="${P(pts[0]).split(",")[0]}" cy="${P(pts[0]).split(",")[1]}" r="6" fill="#1faa55" stroke="#fff" stroke-width="2"/><circle cx="${P(pts[pts.length-1]).split(",")[0]}" cy="${P(pts[pts.length-1]).split(",")[1]}" r="6" fill="#ffa45c" stroke="#fff" stroke-width="2"/></svg>`}
 function gpsStart(type){
-  if(inArtifact()){msgSheet("GPS werkt in de web-app","In de Claude-app mag Loopa je locatie niet gebruiken. Open Loopa als web-app op je telefoon (thomasderks462-arch.github.io/loopa) om je route te volgen.");return}
+  if(inArtifact()){msgSheet("GPS werkt in de web-app","In de Claude-app mag Rise je locatie niet gebruiken. Open Rise als web-app op je telefoon (thomasderks462-arch.github.io/loopa) om je route te volgen.");return}
   if(!navigator.geolocation){msgSheet("Geen GPS","Deze browser kan je locatie niet doorgeven.");return}
   if(gps){gpsUI();return}
   if(state.active){msgSheet("Er loopt al een workout","Rond die eerst af.");return}
@@ -2465,7 +2467,7 @@ function gpsWatchOn(){gpsWatchOff();gpsWatch=navigator.geolocation.watchPosition
   try{navigator.wakeLock&&navigator.wakeLock.request("screen").then(l=>{gpsLock=l}).catch(()=>{})}catch(e){}}
 function gpsWatchOff(){if(gpsWatch!=null)navigator.geolocation.clearWatch(gpsWatch);gpsWatch=null;try{gpsLock&&gpsLock.release()}catch(e){}gpsLock=null}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&gps&&gps.run){try{navigator.wakeLock&&navigator.wakeLock.request("screen").then(l=>{gpsLock=l}).catch(()=>{})}catch(e){}}});
-function gpsErr(e){gpsFix={err:e.code===1?"Geef Loopa toestemming voor je locatie (in de instellingen van je browser).":"Geen GPS-signaal. Ga naar buiten of wacht even."};gpsPaint()}
+function gpsErr(e){gpsFix={err:e.code===1?"Geef Rise toestemming voor je locatie (in de instellingen van je browser).":"Geen GPS-signaal. Ga naar buiten of wacht even."};gpsPaint()}
 function gpsPos(p){const c=p.coords;gpsFix={acc:Math.round(c.accuracy)};if(!gps||!gps.run){gpsPaint();return}
   if(c.accuracy>40){gpsPaint();return}
   const pt=[+c.latitude.toFixed(6),+c.longitude.toFixed(6),Date.now()],seg=gps.segs[gps.segs.length-1],last=seg[seg.length-1];
@@ -2482,7 +2484,7 @@ function gpsUI(){document.querySelector(".gpsv")?.remove();const t=GTYPES[gps.ty
       <div class="gbig num"><b class="g-km">0,00</b><span>km</span></div>
       <div class="gstats"><div><b class="num g-time">0:00</b><small>tijd</small></div><div><b class="num g-pace">–:–</b><small>${gps.type==="fietsen"?"km/u":"tempo /km"}</small></div><div><b class="num g-kcal">0</b><small>kcal</small></div></div>
       <div class="gbtns"><button class="btn g-pause" type="button">Pauze</button><button class="btn sec g-stop" type="button">Stop</button></div>
-      <span class="muted small gnote">Houd Loopa open met het scherm aan, dan blijft je route goed meelopen.</span></div></div>`);
+      <span class="muted small gnote">Houd Rise open met het scherm aan, dan blijft je route goed meelopen.</span></div></div>`);
   document.body.appendChild(ov);document.body.style.overflow="hidden";gpsMap=null;gpsDot=null;
   makeMap(ov.querySelector(".gmap"),gps.segs,true).then(r=>{gpsMap=r});
   ov.querySelector(".g-pause").onclick=()=>{if(gps.run){gps.acc=gpsSec(gps);gps.run=false;gps.since=null;gpsWatchOff()}else{gps.run=true;gps.since=Date.now();gps.segs.push([]);gpsWatchOn()}gpsSave(true);gpsPaint()};
@@ -2513,7 +2515,7 @@ function gpsDetail(x){const t=GTYPES[x.type]||["Training","✨"],g=x.gps;
     const del=el(`<button class="btn danger" type="button">Verwijder</button>`);del.onclick=()=>{if(!del.dataset.c){del.dataset.c=1;del.textContent="Zeker?";return}const d=ensure(cur);d.sport=(d.sport||[]).filter(y=>y.id!==x.id);saveDay(cur);closeSheet();render()};s.appendChild(del);
     setTimeout(()=>makeMap(mp,g.segs,false),350)})}
 function renderGpsBest(){const box=$("gpsbest");if(!box)return;let n=0,km=0,best={};Object.values(state.days).forEach(d=>(d.sport||[]).forEach(x=>{if(!x.gps)return;n++;km+=x.gps.dist;if(!best[x.type]||x.gps.dist>best[x.type])best[x.type]=x.gps.dist}));
-  box.textContent=n?`${n} keer gedaan · totaal ${fmtKm(km)} km`+(best.hardlopen?` · langste loop ${fmtKm(best.hardlopen)} km`:""):"Tik op een sport en ga naar buiten. Loopa volgt je route, afstand en tempo."}
+  box.textContent=n?`${n} keer gedaan · totaal ${fmtKm(km)} km`+(best.hardlopen?` · langste loop ${fmtKm(best.hardlopen)} km`:""):"Tik op een sport en ga naar buiten. Rise volgt je route, afstand en tempo."}
 document.querySelectorAll("[data-gps]").forEach(b=>b.onclick=()=>gpsStart(b.dataset.gps));
 setTimeout(()=>{try{const sv=JSON.parse(localStorage.getItem(GPSK)||"null");if(sv&&sv.segs&&!inArtifact()){gps=sv;gpsUI();if(gps.run)gpsWatchOn()}}catch(e){}},300);
 
@@ -2588,7 +2590,7 @@ function foodPicker(meal){meal=meal||guessMeal();let q="",offT=null;const gtin=p
   const linkG=x=>{if(!gtin)return;state.products=state.products||{};state.products[gtin]={name:x.name,amount:x.amount,kcal:x.kcal,p:x.p,c:x.c,f:x.f};saveProducts()};
   openSheet(s=>{s.classList.add("picker");
     s.appendChild(el(`<h2>Eten toevoegen</h2>`));
-    if(gtin)s.appendChild(el(`<div class="notebox">Kies wat je net gescand hebt. Loopa onthoudt dan deze barcode, zodat het de volgende keer meteen goed gaat.</div>`));
+    if(gtin)s.appendChild(el(`<div class="notebox">Kies wat je net gescand hebt. Rise onthoudt dan deze barcode, zodat het de volgende keer meteen goed gaat.</div>`));
     s.appendChild(segment(MEALS.map(([v,l])=>[v,SHORTMEAL(l)]),meal,v=>{meal=v;if(!q)draw()}));
     const sw=el(`<label class="fsearch"><span aria-hidden="true">🔍</span><input type="search" placeholder="Zoek eten, bv. yoghurt" aria-label="Zoek eten" autocomplete="off" enterkeyhint="search"></label>`),inp=sw.querySelector("input");s.appendChild(sw);
     const acts=el(`<div class="factions"></div>`);
@@ -2761,7 +2763,7 @@ function chalPicker(){openSheet(s=>{s.appendChild(el(`<h2>Kies een uitdaging</h2
   s.appendChild(el(`<span class="muted small">Haal je het aantal dagen op rij, dan krijg je een badge. Mis je een dag, dan begin je gewoon opnieuw.</span>`));
   CHALLENGES.forEach(d=>{const active=(state.challenges||[]).some(c=>c.cid===d.id),done=(state.badges||[]).filter(b=>b.cid===d.id).length;
     const b=el(`<button class="item" type="button" style="background:var(--surface-2)"><span class="em" aria-hidden="true"></span><span class="it"><b></b><small></small></span><span class="kc"></span></button>`);
-    b.querySelector(".em").textContent=d.em;b.querySelector("b").textContent=d.name;b.querySelector("small").textContent=(d.test?"Loopa houdt het zelf bij":"Elke dag zelf afvinken")+(done?` · ${done}× gehaald`:"");b.querySelector(".kc").textContent=active?"bezig":"";
+    b.querySelector(".em").textContent=d.em;b.querySelector("b").textContent=d.name;b.querySelector("small").textContent=(d.test?"Rise houdt het zelf bij":"Elke dag zelf afvinken")+(done?` · ${done}× gehaald`:"");b.querySelector(".kc").textContent=active?"bezig":"";
     b.onclick=()=>{if(active){toast("Daar ben je al mee bezig");return}state.challenges=state.challenges||[];state.challenges.push({id:uid(),cid:d.id,start:keyOf(new Date()),done:[]});saveChal();closeSheet();render();toast(`${d.em} Uitdaging gestart. Succes!`)};s.appendChild(b)})})}
 
 /* ---- maandoverzicht ---- */
@@ -2810,7 +2812,7 @@ function startSound(type,min){stopSound();const AC=window.AudioContext||window.w
   src.start();const until=Date.now()+min*60000;snd={ctx,gain,until,type,timer:setTimeout(()=>{gain.gain.linearRampToValueAtTime(0,ctx.currentTime+20);setTimeout(stopSound,21000)},Math.max(0,min*60000-20000))}}
 function stopSound(){if(!snd)return;clearTimeout(snd.timer);try{snd.ctx.close()}catch(e){}snd=null;if(view==="slaap")renderRestCard()}
 function soundSheet(){let type="bruin",min=30;openSheet(s=>{s.appendChild(el(`<h2>Slaapgeluid</h2>`));
-  s.appendChild(el(`<span class="muted small">Een rustig geluid helpt veel mensen sneller in slaap te vallen. Het geluid wordt aan het eind vanzelf zachter en stopt dan. Houd Loopa open.</span>`));
+  s.appendChild(el(`<span class="muted small">Een rustig geluid helpt veel mensen sneller in slaap te vallen. Het geluid wordt aan het eind vanzelf zachter en stopt dan. Houd Rise open.</span>`));
   s.appendChild(el(`<span class="label">Geluid</span>`));s.appendChild(segment([["bruin","Zacht ruis"],["regen","Regen"],["zee","Zee"]],type,v=>type=v,"seg3"));
   s.appendChild(el(`<span class="label">Stopt na</span>`));s.appendChild(segment([[15,"15 min"],[30,"30 min"],[60,"60 min"]],min,v=>min=v,"seg3"));
   const ok=el(`<button class="btn" type="button">Afspelen</button>`);ok.onclick=()=>{startSound(type,min);closeSheet();renderRestCard();toast("Slaap lekker 🌙")};s.appendChild(ok)})}
@@ -2833,7 +2835,7 @@ function lockApp(){/* vergrendeling (pincode/Face ID) is verwijderd; oude instel
 let hiddenAt=0;document.addEventListener("visibilitychange",()=>{if(document.hidden)hiddenAt=Date.now();else if(hiddenAt&&Date.now()-hiddenAt>120000)lockApp()});
 function pinSettings(){const has=!!getPin();
   if(!has){pinPad("Kies een pincode","4 cijfers",async p=>{setTimeout(()=>pinPad("Nog een keer","Vul dezelfde pincode in",async q=>{if(q!==p)return false;try{localStorage.setItem(LSPIN,await pinHash(p))}catch(e){}renderPinUI();toast("🔒 Pincode staat aan");return true},()=>{}),50);return true},()=>{});return}
-  msgSheet("Pincode","Je pincode staat aan. Na 2 minuten weg vraagt Loopa er weer om.",[["Pincode wijzigen",()=>{closeSheet();pinPad("Huidige pincode","Vul je pincode in",async p=>{if((await pinHash(p))!==getPin())return false;try{localStorage.removeItem(LSPIN)}catch(e){}setTimeout(pinSettings,50);return true},()=>{})}],
+  msgSheet("Pincode","Je pincode staat aan. Na 2 minuten weg vraagt Rise er weer om.",[["Pincode wijzigen",()=>{closeSheet();pinPad("Huidige pincode","Vul je pincode in",async p=>{if((await pinHash(p))!==getPin())return false;try{localStorage.removeItem(LSPIN)}catch(e){}setTimeout(pinSettings,50);return true},()=>{})}],
     ["Pincode uitzetten",()=>{closeSheet();pinPad("Pincode uitzetten","Vul je pincode in",async p=>{if((await pinHash(p))!==getPin())return false;try{localStorage.removeItem(LSPIN)}catch(e){}renderPinUI();toast("Pincode staat uit");return true},()=>{})}],["Sluiten",closeSheet]])}
 function renderPinUI(){if(!getPin())bioOff();renderBioUI();$("pinbtn").textContent=getPin()?"Pincode wijzigen of uitzetten":"Pincode instellen";$("logoutbtn").hidden=inArtifact()||!$("backup")}
 $("pinbtn").onclick=pinSettings;
@@ -2934,7 +2936,7 @@ function nutritionText(n,p){if(!n)return"";let t=`Je lichaam verbruikt ongeveer 
   return t}
 function bodyProfileSheet(){const p={...(state.profile||{})};if(!p.weight){const lw=lastWith("kg");if(lw)p.weight=lw.kg}
   openSheet(s=>{s.appendChild(el(`<h2>Lichaam en eetdoel</h2>`));
-    s.appendChild(el(`<span class="muted small">Hiermee berekent Loopa hoeveel calorieën en eiwit je per dag nodig hebt, verdeeld over je maaltijden.</span>`));
+    s.appendChild(el(`<span class="muted small">Hiermee berekent Rise hoeveel calorieën en eiwit je per dag nodig hebt, verdeeld over je maaltijden.</span>`));
     s.appendChild(el(`<span class="label">Geslacht</span>`));s.appendChild(segment([["man","Man"],["vrouw","Vrouw"],["x","Anders"]],p.sex,v=>{p.sex=v;upd()},"seg3"));
     const r=el(`<div class="grid3"></div>`);r.append(field("Leeftijd",`<input type="number" id="bp-age" inputmode="numeric" min="14" max="99">`),
       field("Lengte (cm)",`<input type="number" id="bp-h" inputmode="numeric" min="120" max="230">`),field("Gewicht (kg)",`<input type="number" id="bp-w" inputmode="decimal" step="0.1" min="30" max="300">`));s.appendChild(r);
@@ -2948,7 +2950,7 @@ function bodyProfileSheet(){const p={...(state.profile||{})};if(!p.weight){const
     function read(){p.age=num("bp-age");p.height=num("bp-h");p.weight=num("bp-w");p.goalKg=num("bp-g")}
     function upd(){read();gk.hidden=!(p.eat==="af"||p.eat==="aan");const n=nutrition(p);
       out.innerHTML="";if(n){out.appendChild(el(`<b class="num">${n.kcal} kcal en ${n.protein} g eiwit per dag</b>`));out.appendChild(document.createTextNode(" "+nutritionText(n,p)))}
-      else out.textContent="Vul je leeftijd, lengte en gewicht in, dan rekent Loopa je doel uit.";ok.disabled=!n;ok.style.opacity=n?1:.4}
+      else out.textContent="Vul je leeftijd, lengte en gewicht in, dan rekent Rise je doel uit.";ok.disabled=!n;ok.style.opacity=n?1:.4}
     s.querySelectorAll("input").forEach(i=>i.oninput=upd);upd();
     ok.onclick=()=>{read();if(!nutrition(p))return;applyNutrition(p);closeSheet();render();toast("Je eetdoel is bijgewerkt")}})}
 
@@ -4175,7 +4177,7 @@ function renderFeel(){const today=keyOf(new Date()),d14=Array.from({length:14},(
   if(!any)s+=`<text x="${(W+L)/2}" y="${H/2}" text-anchor="middle">Nog niets ingevuld</text>`;
   $("feelchart").innerHTML=s;
   const ins=insights(),box=$("insights");box.innerHTML="";
-  if(!ins.list.length){box.appendChild(el(`<div class="notebox"></div>`)).textContent=ins.n<7?`Vul op Vandaag elke dag je stemming en energie in (nu ${ins.n} ${ins.n===1?"dag":"dagen"}). Na een week of twee zie je hier wat jou helpt: slaap, sport, water, je gewoontes of eten.`:"Nog geen duidelijk verband gevonden. Hoe meer dagen je invult, hoe beter Loopa het ziet.";return}
+  if(!ins.list.length){box.appendChild(el(`<div class="notebox"></div>`)).textContent=ins.n<7?`Vul op Vandaag elke dag je stemming en energie in (nu ${ins.n} ${ins.n===1?"dag":"dagen"}). Na een week of twee zie je hier wat jou helpt: slaap, sport, water, je gewoontes of eten.`:"Nog geen duidelijk verband gevonden. Hoe meer dagen je invult, hoe beter Rise het ziet.";return}
   ins.list.slice(0,4).forEach(i=>{const d=el(`<div class="insight"><span>${i.em}</span><span></span></div>`);d.lastChild.textContent=i.text;box.appendChild(d)})}
 
 /* ---- Weekrapport ---- */
@@ -4237,10 +4239,10 @@ const canNotify=()=>"Notification" in window&&!inArtifact();
 function renderRemUI(){const r=rem();$("rem-water").checked=r.water;$("rem-habits").checked=r.habits;$("rem-bed").checked=r.bed;
   if(document.activeElement!==$("rem-habits-at"))$("rem-habits-at").value=r.habitsAt;if(document.activeElement!==$("rem-bed-at"))$("rem-bed-at").value=r.bedAt;
   const perm=canNotify()?Notification.permission:"none";$("rem-notif").hidden=!canNotify()||perm!=="default";$("rem-ics").hidden=inArtifact();$("rembtns").hidden=$("rem-notif").hidden&&$("rem-ics").hidden;
-  $("remnote").textContent=!canNotify()?(inArtifact()?"Als het tijd is, zie je de herinnering bovenaan Vandaag.":"Als het tijd is, zie je de herinnering bovenaan Vandaag. Wil je ook een seintje als Loopa dicht is, zet ze dan in je agenda.")
-    :perm==="granted"?"Je krijgt een melding als Loopa open staat en je ziet ze bovenaan Vandaag. Wil je ook een seintje als de app dicht is, zet ze dan in je agenda."
+  $("remnote").textContent=!canNotify()?(inArtifact()?"Als het tijd is, zie je de herinnering bovenaan Vandaag.":"Als het tijd is, zie je de herinnering bovenaan Vandaag. Wil je ook een seintje als Rise dicht is, zet ze dan in je agenda.")
+    :perm==="granted"?"Je krijgt een melding als Rise open staat en je ziet ze bovenaan Vandaag. Wil je ook een seintje als de app dicht is, zet ze dan in je agenda."
     :perm==="denied"?"Meldingen staan uit in de instellingen van je telefoon. Je ziet de herinneringen wel bovenaan Vandaag, en je kunt ze in je agenda zetten."
-    :"Zet meldingen aan voor een seintje terwijl Loopa open staat. Wil je ook een seintje als de app dicht is, zet ze dan in je agenda."}
+    :"Zet meldingen aan voor een seintje terwijl Rise open staat. Wil je ook een seintje als de app dicht is, zet ze dan in je agenda."}
 ["water","habits","bed"].forEach(k=>$("rem-"+k).onchange=e=>{setRem(k,e.target.checked);if(e.target.checked&&canNotify()&&Notification.permission==="default")Notification.requestPermission().then(renderRemUI).catch(()=>{})});
 $("rem-habits-at").onchange=e=>setRem("habitsAt",e.target.value||"20:30");
 $("rem-bed-at").onchange=e=>setRem("bedAt",e.target.value||"22:30");
@@ -4272,14 +4274,14 @@ function startRem(){clearInterval(remT);remT=setInterval(checkRem,60000);checkRe
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkRem()});
 function downloadIcs(){const r=rem(),now=new Date(),st=keyOf(now).replace(/-/g,""),ev=[],stamp=now.toISOString().replace(/[-:]/g,"").slice(0,15)+"Z";
   const add=(id,time,title,desc)=>{const[h,m]=time.split(":");ev.push(["BEGIN:VEVENT",`UID:loopa-${id}@loopa`,`DTSTAMP:${stamp}`,`DTSTART:${st}T${h}${m}00`,"DURATION:PT5M","RRULE:FREQ=DAILY",`SUMMARY:${title}`,`DESCRIPTION:${desc}`,"TRANSP:TRANSPARENT","BEGIN:VALARM","ACTION:DISPLAY",`DESCRIPTION:${title}`,"TRIGGER:PT0M","END:VALARM","END:VEVENT"].join("\r\n"))};
-  if(r.water)["10:00","13:00","16:00","19:00"].forEach((t,i)=>add("water"+i,t,"💧 Drink een glas water","Houd je glazen bij in Loopa."));
-  if(r.habits)add("habits",r.habitsAt,"✅ Gewoontes afvinken in Loopa","Kijk welke gewoontes je vandaag nog kunt doen.");
+  if(r.water)["10:00","13:00","16:00","19:00"].forEach((t,i)=>add("water"+i,t,"💧 Drink een glas water","Houd je glazen bij in Rise."));
+  if(r.habits)add("habits",r.habitsAt,"✅ Gewoontes afvinken in Rise","Kijk welke gewoontes je vandaag nog kunt doen.");
   if(r.bed)add("bed",r.bedAt,"🌙 Bedtijd","Leg je telefoon weg. Je slaapdoel is "+goalSleep()+" uur.");
   if(!ev.length){msgSheet("Nog niets aangezet","Zet eerst minstens één herinnering aan, dan kun je ze in je agenda zetten.");return}
-  const txt=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Loopa//NL","CALSCALE:GREGORIAN","X-WR-CALNAME:Loopa"].concat(ev,["END:VCALENDAR"]).join("\r\n")+"\r\n";
+  const txt=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Rise//NL","CALSCALE:GREGORIAN","X-WR-CALNAME:Rise"].concat(ev,["END:VCALENDAR"]).join("\r\n")+"\r\n";
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:"text/calendar"}));a.download="loopa-herinneringen.ics";document.body.appendChild(a);a.click();
   setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
-  msgSheet("Agendabestand gemaakt","Open het bestand en kies Alles toevoegen. Je agenda geeft je dan elke dag een seintje, ook als Loopa dicht is. Pas je later de tijden aan, verwijder dan de oude afspraken en zet ze opnieuw in je agenda.")}
+  msgSheet("Agendabestand gemaakt","Open het bestand en kies Alles toevoegen. Je agenda geeft je dan elke dag een seintje, ook als Rise dicht is. Pas je later de tijden aan, verwijder dan de oude afspraken en zet ze opnieuw in je agenda.")}
 
 /* tabs */
 const VIEWS=["dag","eten","sport","slaap","overzicht","instellingen"],DAYVIEWS=["dag","eten","sport","slaap"];
@@ -4358,7 +4360,7 @@ function renderOnbInner(){
     if(st.lead){const p=document.createElement("p");p.className="lead";p.textContent=st.lead;box.appendChild(p)}}
   next.textContent="Verder";
   if(st.id==="welcome"){box.className="onb-in welcome";
-    box.innerHTML=`<svg class="logo-big" role="img" aria-label="Loopa logo"><use href="#logo"/></svg><h1>Loopa</h1><p class="lead" style="margin:0;max-width:30ch">Bouw gewoontes die blijven hangen. Beter slapen, gezonder eten en elke dag een beetje sterker.</p><p class="muted small">Een paar vragen, minder dan een minuut.</p>`;
+    box.innerHTML=`<svg class="logo-big" role="img" aria-label="Rise logo"><use href="#logo"/></svg><h1>Rise</h1><p class="lead" style="margin:0;max-width:30ch">Bouw gewoontes die blijven hangen. Beter slapen, gezonder eten en elke dag een beetje sterker.</p><p class="muted small">Een paar vragen, minder dan een minuut.</p>`;
     next.textContent="Beginnen";
     if($("restore")){const r=el(`<button class="linkbtn" type="button" style="padding:8px">Ik heb al een back-up (inloggen)</button>`);r.onclick=()=>$("restore").click();box.appendChild(r)}return}
   box.className="onb-in";
