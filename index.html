@@ -844,6 +844,14 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
 @keyframes spslogan{to{opacity:1;filter:none;transform:none}}
 @keyframes spbar{to{width:180px}}
 @media (prefers-reduced-motion: reduce){#splash *{animation-duration:.01s!important;animation-delay:0s!important}}
+
+/* Sport: twee pagina's */
+.sporttabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:5px}
+.sporttabs button{border:0;background:transparent;border-radius:12px;padding:11px 6px;font-weight:800;font-size:.95rem;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:7px}
+.sporttabs button[aria-selected="true"]{background:linear-gradient(135deg,var(--red),#f23a1d);color:#fff;box-shadow:0 4px 12px rgba(227,18,43,.25)}
+#view-sport[data-pg="gym"] .sp-cardio,#view-sport[data-pg="cardio"] .sp-gym{display:none!important}
+#view-sport[data-pg="gym"] .morerow:not([data-k="rec"]),#view-sport[data-pg="cardio"] .morerow[data-k="rec"]{display:none}
+#view-sport[data-pg="gym"] .morerow[data-k="rec"]{border-top:0}
 </style>
 </head>
 <body>
@@ -968,8 +976,12 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
   </div>
 
   <!-- SPORT -->
-  <div id="view-sport" class="wrap" hidden>
-    <section class="card hero" aria-label="Sport deze week">
+  <div id="view-sport" class="wrap" hidden data-pg="gym">
+    <div class="sporttabs" role="tablist" aria-label="Soort sport">
+      <button type="button" role="tab" data-pg="gym" aria-selected="true"><span aria-hidden="true">🏋️</span>Gym</button>
+      <button type="button" role="tab" data-pg="cardio" aria-selected="false"><span aria-hidden="true">🏃</span>Cardio en buiten</button>
+    </div>
+    <section class="card hero sp-cardio" aria-label="Sport deze week">
       <div class="bigring">
         <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface-2)" stroke-width="11"/>
           <circle id="sportarc" cx="50" cy="50" r="42" fill="none" stroke="var(--good)" stroke-width="11" stroke-linecap="round" stroke-dasharray="0 264" style="transition:stroke-dasharray .4s"/></svg>
@@ -981,7 +993,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
         <button class="linkbtn" id="sportgoal" type="button" style="text-align:left">Doel aanpassen</button>
       </div>
     </section>
-    <section class="card" aria-labelledby="h-out">
+    <section class="card sp-cardio" aria-labelledby="h-out">
       <div class="card-head"><h2 id="h-out">Buiten sporten</h2><span class="muted small">met GPS</span></div>
       <div class="gpsbtns"><button class="gpsbtn" type="button" data-gps="hardlopen"><span aria-hidden="true">🏃</span><b>Hardlopen</b></button><button class="gpsbtn" type="button" data-gps="fietsen"><span aria-hidden="true">🚴</span><b>Fietsen</b></button><button class="gpsbtn" type="button" data-gps="wandelen"><span aria-hidden="true">🚶</span><b>Wandelen</b></button></div>
       <span class="muted small" id="gpsbest"></span>
@@ -994,7 +1006,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
       <div class="btnrow" id="stepsact"></div>
       <input type="number" id="steps" inputmode="numeric" min="0" max="100000" placeholder="Of typ je stappen zelf" aria-label="Aantal stappen">
     </section>
-    <section class="card" aria-labelledby="h-gym">
+    <section class="card sp-gym" aria-labelledby="h-gym">
       <div class="card-head"><h2 id="h-gym">Gym</h2><span class="muted small">sets, kg en herhalingen</span></div>
       <div id="gymcard" class="wrap" style="gap:10px"></div>
     </section>
@@ -1002,7 +1014,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
       <div class="card-head"><h2 id="h-pr">Records</h2><span class="muted small">je beste sets</span></div>
       <div id="prlist" class="wrap" style="gap:8px"></div>
     </section>
-    <button class="btn sec" id="addsport" type="button">Andere training toevoegen</button>
+    <button class="btn sec sp-cardio" id="addsport" type="button">Andere training toevoegen</button>
     <div class="wrap" style="gap:8px">
       <div class="group-title"><span class="label" id="sporttoday">Trainingen</span></div>
       <div id="sportlist" class="wrap" style="gap:8px"></div>
@@ -1043,7 +1055,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
       <div class="stat"><span class="label">Gem. slaap</span><span class="v num" id="s-sleep">–</span></div>
       <div class="stat"><span class="label">Gewoontes</span><span class="v num" id="s-habit">–</span></div>
       <div class="stat"><span class="label">Water/dag</span><span class="v num" id="s-water">–</span></div>
-      <div class="stat"><span class="label">Gem. kcal</span><span class="v num" id="s-kcal">–</span></div>
+      <div class="stat" hidden><span class="label">Gem. kcal</span><span class="v num" id="s-kcal">–</span></div>
       <div class="stat"><span class="label">Sport</span><span class="v num" id="s-sport">–</span></div>
       <div class="stat"><span class="label">Stappen</span><span class="v num" id="s-steps">–</span></div>
     </div>
@@ -1177,7 +1189,6 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
 
 <nav class="tabs" role="tablist">
   <button role="tab" data-view="dag" aria-selected="true"><svg><use href="#i-today"/></svg>Doelen</button>
-  <button role="tab" data-view="eten" aria-selected="false"><svg><use href="#i-food"/></svg>Eten</button>
   <button role="tab" data-view="sport" aria-selected="false"><svg><use href="#i-run"/></svg>Sport</button>
   <button role="tab" data-view="slaap" aria-selected="false"><svg><use href="#i-moon"/></svg>Slaap</button>
   <button role="tab" data-view="overzicht" aria-selected="false"><svg><use href="#i-stats"/></svg>Overzicht</button>
@@ -1278,8 +1289,8 @@ function renderDag(){
   $("herotitle").textContent=!n?"Nog geen gewoontes":f>=1?"Alles gedaan!":done?"Goed bezig":"Aan de slag";
   $("herosub").textContent=n?`${done} van ${n} gewoontes gedaan`:"Voeg ze toe via de knop rechtsboven";
   const t=sumFood(cur),sh=sleepHours(dd),sm=sportMin(cur);
-  $("tiles").innerHTML=[["eten","i-food","Eten",Math.round(t.kcal),"kcal",t.kcal/goalKcal(),"var(--flame)"],
-    ["eten","i-drop","Water",dd.water||0,"glazen",(dd.water||0)/goalWater(),"var(--night)"],
+  $("tiles").innerHTML=[
+    ["dag","i-drop","Water",dd.water||0,"glazen",(dd.water||0)/goalWater(),"var(--night)"],
     ["sport","i-run","Sport",sm,"min",sm/30,"var(--good)"],
     ["slaap","i-moon","Slaap",sh==null?"–":fmtH(sh),"",sh?sh/goalSleep():0,"var(--night)"]]
     .map(([v,ic,l,val,u,fr,c])=>`<button class="tile" data-go="${v}"><span class="th">${icon(ic)}<span class="label">${l}</span></span><span class="tv num">${val} <small>${u}</small></span><div class="bar"><i style="width:${Math.min(100,fr*100)}%;background:${c}"></i></div></button>`).join("");
@@ -2080,7 +2091,7 @@ const _render24=render;render=function(){_render24();try{renderSupp()}catch(e){}
 
 /* ===== v23: rustiger, extra's naar aparte pagina's onder "Meer" ===== */
 const MORE={
-  dag:[{k:"tiles",em:"📊",t:"Je dag in cijfers",el:()=>$("tiles"),s:()=>"Eten, water, sport en slaap van vandaag"},
+  dag:[{k:"tiles",em:"📊",t:"Je dag in cijfers",el:()=>$("tiles"),s:()=>"Water, sport en slaap van vandaag"},
        {k:"gevoel",em:"📝",t:"Stemming en notities",el:()=>$("mood").closest("section"),s:()=>{const d=day(cur);return d.notes?"Notitie: "+d.notes.slice(0,40):d.mood?"Stemming ingevuld":"Hoe voel je je vandaag?"}}],
   eten:[{k:"vast",em:"⭐",t:"Vaste maaltijden en boodschappen",el:()=>$("mealtpl"),s:()=>{const n=(state.meals||[]).length;return n?`${n} ${n===1?"maaltijd":"maaltijden"} bewaard`:"Eet je vaak hetzelfde? Bewaar het hier"}},
         {k:"eweek",em:"📈",t:"Deze week",el:()=>$("eatweek").closest("section"),s:()=>"Calorieën en eiwit per dag"}],
@@ -4274,7 +4285,7 @@ function downloadIcs(){const r=rem(),now=new Date(),st=keyOf(now).replace(/-/g,"
 const VIEWS=["dag","eten","sport","slaap","overzicht","instellingen"],DAYVIEWS=["dag","eten","sport","slaap"];
 document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>show(b.dataset.view));
 $("gear").onclick=()=>show("instellingen");
-function show(v){view=v;document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.view===v));
+function show(v){if(v==="eten")v="dag";view=v;document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.view===v));
   VIEWS.forEach(n=>$("view-"+n).hidden=n!==v);render();window.scrollTo(0,0);document.body.dataset.view=v;animateView(v)}
 
 /* doelen uit de vragenlijst */
@@ -4309,8 +4320,8 @@ const STEPS=[
   {id:"height",title:"Hoe lang ben je?",lead:"Draai aan het wiel.",num:"height",min:120,max:230,step:1,unit:"centimeter",def:a=>a.sex==="vrouw"?168:a.sex==="man"?182:175},
   {id:"weight",title:"Wat weeg je nu?",lead:"Je kunt je gewicht later bijhouden bij Overzicht.",num:"weight",min:30,max:300,step:0.5,unit:"kilo",def:a=>a.sex==="vrouw"?68:a.sex==="man"?82:75},
   {id:"act",title:"Hoe actief ben je op een gewone dag?",lead:"Reken je sport mee.",single:"act",opts:ACTS.map(x=>[x[0],x[1],x[2],x[3]])},
-  {id:"eat",title:"Wat is je doel met eten?",lead:"Hierop stemmen we je calorieën en eiwit af.",single:"eat",opts:EATS},
-  {id:"goalKg",title:"Wat is je streefgewicht?",lead:"Een realistisch doel houd je makkelijker vol.",num:"goalKg",min:30,max:300,step:0.5,unit:"kilo",def:a=>Math.round((a.weight||75)*(a.eat==="af"?.92:1.06)),when:a=>a.eat==="af"||a.eat==="aan"},
+  {id:"eat",title:"Wat is je doel met eten?",lead:"Hierop stemmen we je calorieën en eiwit af.",single:"eat",opts:EATS,when:()=>false},
+  {id:"goalKg",title:"Wat is je streefgewicht?",lead:"Een realistisch doel houd je makkelijker vol.",num:"goalKg",min:30,max:300,step:0.5,unit:"kilo",def:a=>Math.round((a.weight||75)*(a.eat==="af"?.92:1.06)),when:()=>false},
   {id:"sleepNow",title:"Hoeveel slaap je meestal?",lead:"Een gewone doordeweekse nacht.",single:"sleepNow",opts:[
     ["<6","Minder dan 6 uur","🥱"],["6-7","6 tot 7 uur","😐"],["7-8","7 tot 8 uur","🙂"],[">8","Meer dan 8 uur","😌"]]},
   {id:"sleepGoal",title:"Wat is je slaapdoel?",lead:"Volwassenen hebben meestal 7 tot 9 uur nodig.",stepper:"sleepGoal",min:5,max:11,unit:"uur per nacht"},
@@ -4407,6 +4418,11 @@ $("bodyprof").onclick=bodyProfileSheet;
 $("rem-cheer").onchange=e=>{setProfile("cheer",e.target.checked);if(e.target.checked)cheer("Aanmoedigingen staan aan 🙌")};
 
 (function(){const sp=document.getElementById("splash");if(!sp)return;const t=matchMedia("(prefers-reduced-motion: reduce)").matches?300:3300;setTimeout(()=>{sp.classList.add("done");setTimeout(()=>sp.remove(),600)},t);sp.onclick=()=>sp.classList.add("done")})();
+
+/* Sport: Gym / Cardio en buiten */
+(function(){const v=$("view-sport");if(!v)return;let pg="gym";try{pg=localStorage.getItem("loopa-sportpg")||"gym"}catch(e){}
+  const set=p=>{v.dataset.pg=p;v.querySelectorAll(".sporttabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.pg===p));try{localStorage.setItem("loopa-sportpg",p)}catch(e){}};
+  v.querySelectorAll(".sporttabs button").forEach(b=>b.onclick=()=>{set(b.dataset.pg);window.scrollTo(0,0)});set(pg)})();
 loadLocal();render();setSync("Opgeslagen op dit apparaat.");startRem();lockApp();document.body.dataset.view=view;
 if(!state.profile)openOnb();
 
