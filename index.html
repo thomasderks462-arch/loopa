@@ -1111,7 +1111,16 @@ function saveLocal(){try{const{photos,...rest}=state;localStorage.setItem(LS,JSO
   const pk=(photos||[]).map(p=>p.id).join();if(pk!==photoKey){localStorage.setItem(LSP,JSON.stringify(photos||[]));photoKey=pk}}catch(e){}}
 function loadLocal(){try{const s=JSON.parse(localStorage.getItem(LS)||"null");if(s&&s.days){state=s;state.products=state.products||{}}}catch(e){}
   try{const p=JSON.parse(localStorage.getItem(LSP)||"null");if(Array.isArray(p)&&p.length){state.photos=p;photoKey=p.map(x=>x.id).join()}}catch(e){}migrate()}
-function migrate(){state.shop=state.shop||[];state.challenges=state.challenges||[];state.badges=state.badges||[];state.body=state.body||[];state.meals=state.meals||[];state.photos=state.photos||[];state.products=state.products||{};Object.values(state.days).forEach(d=>{if(d.meals&&typeof d.meals==="object"){d.food=d.food||[];Object.entries(d.meals).forEach(([m,t])=>{if(typeof t==="string"&&t.trim())d.food.push({id:uid(),name:t.trim(),meal:m,src:"hand",kcal:null})});delete d.meals}})}
+/* Upper day: schema met gewichten uit de screenshot van 15-11-2026 */
+const UPPER_DAY=[["lat-pulldown",[[39,8],[66,8],[66,8]]],["incline-dumbbell-press",[[18,5],[24,6],[24,4]]],["machine-row",[[41,6],[68,6],[68,4]]],
+  ["overhead-cable-extension",[[36,8],[36,8]]],["dumbbell-shoulder-press",[[27,8],[54,6],[54,5]]],["reverse-wrist-curl",[[27,6],[27,5]]],
+  ["cable-crossover",[[27,5],[27,4],[23,6]]],["dumbbell-curl",[[14,6],[14,5]]],["decline-crunch",[]],["wrist-curl",[[27,8],[27,8],[27,8]]]];
+function seedRoutines(){state.seeds=state.seeds||[];if(state.seeds.includes("upper-day"))return;
+  const mine=(state.routines||[]).some(r=>/push|pull|sharms|chest back/i.test(r.name))||Object.values(state.days||{}).some(d=>(d.sport||[]).some(x=>x.src==="hevy"));
+  if(!mine)return;state.seeds.push("upper-day");state.routines=state.routines||[];if(state.routines.some(r=>/^upper day$/i.test(r.name)))return;
+  state.routines.push({id:uid(),name:"Upper day",ex:UPPER_DAY.map(([ex,p])=>p.length?{ex,sets:p.length,plan:p.map(([kg,reps])=>({kg,reps})),planAt:"2026-11-15"}:{ex,sets:3})});
+  setTimeout(()=>{try{saveGym();render()}catch(e){}},0)}
+function migrate(){seedRoutines();state.shop=state.shop||[];state.challenges=state.challenges||[];state.badges=state.badges||[];state.body=state.body||[];state.meals=state.meals||[];state.photos=state.photos||[];state.products=state.products||{};Object.values(state.days).forEach(d=>{if(d.meals&&typeof d.meals==="object"){d.food=d.food||[];Object.entries(d.meals).forEach(([m,t])=>{if(typeof t==="string"&&t.trim())d.food.push({id:uid(),name:t.trim(),meal:m,src:"hand",kcal:null})});delete d.meals}})}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 const timers={};
 function persist(docId,data){saveLocal();if(!col)return;clearTimeout(timers[docId]);setSync("Opslaan…");
@@ -1509,8 +1518,8 @@ const COLS={w:["kg","Reps"],t:["kg","Sec"],c:["km","Min"]};
 function saveGym(){persist("gym",{routines:state.routines||[],customEx:state.customEx||[]})}
 function saveActive(){persist("active",{w:state.active||null})}
 function fmtClock(s){s=Math.max(0,Math.floor(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0")}
-function lastSets(exId,skipId){const keys=Object.keys(state.days).sort().reverse();
-  for(const k of keys){const ws=(state.days[k].sport||[]).filter(s=>s.workout&&s.id!==skipId).reverse();
+function lastSets(exId,skipId,minKey){const keys=Object.keys(state.days).sort().reverse();
+  for(const k of keys){if(minKey&&k<minKey)break;const ws=(state.days[k].sport||[]).filter(s=>s.workout&&s.id!==skipId).reverse();
     for(const w of ws){const e=w.workout.ex.find(x=>x.ex===exId);if(e&&e.sets.some(s=>s.done))return e.sets.filter(s=>s.done)}}return null}
 function volume(w){let v=0,n=0;w.ex.forEach(e=>{const t=exById(e.ex).t;e.sets.forEach(s=>{if(s.done){n++;if(t==="w")v+=(+s.kg||0)*(+s.reps||0)}})});return{v:Math.round(v),n}}
 
@@ -1534,7 +1543,7 @@ function renderGymCard(){const box=$("gymcard");box.innerHTML="";
 /* workout starten en bijhouden */
 function startWorkout(r){
   state.active={id:uid(),name:r?r.name:"Workout",start:Date.now(),day:keyOf(new Date()),routine:r?r.id:null,
-    ex:r?r.ex.map(e=>({ex:e.ex,sets:Array.from({length:e.sets||3},()=>({kg:"",reps:"",done:false}))})):[]};
+    ex:r?r.ex.map(e=>({ex:e.ex,...(e.plan?{plan:e.plan,planAt:e.planAt}:{}),sets:Array.from({length:e.sets||3},()=>({kg:"",reps:"",done:false}))})):[]};
   saveActive();openWorkout();if(!r)setTimeout(()=>exercisePicker(ids=>{ids.forEach(id=>state.active.ex.push({ex:id,sets:[{kg:"",reps:"",done:false},{kg:"",reps:"",done:false},{kg:"",reps:"",done:false}]}));saveActive();drawWorkout()}),350)}
 let wkTick=null,rest={end:0,len:90,timer:null};
 function openWorkout(){$("wk").hidden=false;document.body.style.overflow="hidden";drawWorkout();clearInterval(wkTick);wkTick=setInterval(tickWorkout,1000);tickWorkout()}
@@ -1547,7 +1556,7 @@ function drawWorkout(){const a=state.active;if(!a)return;
   $("wk-name").value=a.name;const vs=volume(a);$("wk-vol").textContent=vs.v.toLocaleString("nl-NL")+" kg";$("wk-sets").textContent=vs.n;
   const box=$("wk-list");box.innerHTML="";
   if(!a.ex.length)box.appendChild(el(`<div class="emptyline" style="text-align:center;padding:24px">Voeg je eerste oefening toe</div>`));
-  a.ex.forEach((e,ei)=>{const x=exById(e.ex),cols=COLS[x.t],prev=lastSets(e.ex);
+  a.ex.forEach((e,ei)=>{const x=exById(e.ex),cols=COLS[x.t],prev=e.plan?(lastSets(e.ex,null,e.planAt)||e.plan):lastSets(e.ex);
     const card=el(`<section class="excard"><div class="exhead"><button class="exthbtn" type="button" aria-label="Plaatje bekijken">${exThumb(e.ex,"lg")}</button><div class="it"><b></b><small></small></div><button class="mini" type="button" aria-label="Oefening verwijderen">×</button></div>
       <div class="setgrid sethdr"><span>Set</span><span>Vorige</span><span>${cols[0]}</span><span>${cols[1]}</span><span>✓</span></div></section>`);
     card.querySelector("b").textContent=x.name;card.querySelector("small").textContent=mLabel(x.m)+" · "+EQUIP[x.e];fixImgs(card);card.querySelector(".exthbtn").onclick=()=>exInfo(e.ex);
