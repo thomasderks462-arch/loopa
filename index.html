@@ -877,6 +877,19 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
 .dbdet th:first-child,.dbdet td:first-child{text-align:left}
 .dbdet thead th{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
 .dbdet tr.k td{font-weight:800;color:var(--red)}
+
+.dbsearch .dbcam{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--red),#f23a1d);color:#fff;display:grid;place-items:center}
+.dbsearch .dbcam svg{width:22px;height:22px;color:#fff}
+.dbphoto{gap:10px}
+.dbph-top{display:flex;align-items:center;gap:12px}
+.dbph-top img{width:64px;height:64px;border-radius:14px;object-fit:cover;flex:none;background:var(--surface-2)}
+.dbph-top>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.dbphx{border:0;background:var(--surface-2);width:30px;height:30px;border-radius:50%;color:var(--muted);flex:none}
+.dbchips{display:flex;flex-wrap:wrap;gap:8px}
+.dbchips button{border:1px solid var(--line);background:var(--tint);color:var(--red);font-weight:800;border-radius:999px;padding:8px 14px}
+.dbchips button small{color:var(--muted);font-weight:600;margin-left:4px}
+.dbchips button.on{background:var(--red);color:#fff;border-color:var(--red)}
+.dbchips button.on small{color:rgba(255,255,255,.85)}
 </style>
 </head>
 <body>
@@ -1124,7 +1137,9 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
 
   <!-- GEWOONTES -->
   <div id="view-voeding" class="wrap" hidden>
-    <label class="dbsearch"><svg aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="dbq" placeholder="Zoek eten, bv. kwark of pindakaas" autocomplete="off" enterkeyhint="search" aria-label="Zoek eten"><button type="button" id="dbclear" aria-label="Wissen" hidden>✕</button></label>
+    <label class="dbsearch"><svg aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="dbq" placeholder="Zoek eten, bv. kwark of pindakaas" autocomplete="off" enterkeyhint="search" aria-label="Zoek eten"><button type="button" id="dbclear" aria-label="Wissen" hidden>✕</button><button type="button" id="dbcam" class="dbcam" aria-label="Maak een foto van je eten"><svg aria-hidden="true"><use href="#i-camera"/></svg></button></label>
+    <input type="file" id="dbfile" accept="image/*" capture="environment" hidden>
+    <section class="card dbphoto" id="dbphoto" hidden><div class="dbph-top"><img id="dbphimg" alt=""><div><b id="dbphtitle">Foto bekijken…</b><span class="muted small" id="dbphsub"></span></div><button type="button" class="dbphx" id="dbphx" aria-label="Sluiten">✕</button></div><div class="dbchips" id="dbchips"></div></section>
     <div class="dbinfo muted small" id="dbinfo"></div>
     <div class="group-title" id="dblocalh"><span class="label" id="dblocalt">Alle producten</span></div>
     <div id="dblist" class="dblist"></div>
@@ -4498,6 +4513,34 @@ async function dbOnline(q){const my=++dbSeq;if(q.trim().length<3)return;
   inp.addEventListener("keydown",e=>{if(e.key==="Enter"){inp.blur();clearTimeout(dbTimer);dbOnline(dbQ)}});
   $("dbclear").onclick=()=>{inp.value="";dbQ="";dbSeq++;dbShown=60;renderVoeding();inp.focus()};
   $("dbmore").onclick=()=>{dbShown+=120;renderVoeding()}})();
+
+/* ===== Foto van eten herkennen, gratis op het toestel (MobileNet, geen sleutel nodig) ===== */
+const ML_FOOD={924:"avocado",925:"soep",926:"stoofpot",927:"toetje",928:"ijs",929:"waterijsje",930:"stokbrood",931:"bagel",932:"pretzel",933:"hamburger",
+  934:"hotdog",935:"aardappelpuree",936:"kool",937:"broccoli",938:"bloemkool",939:"courgette",940:"pompoen",941:"pompoen",942:"pompoen",943:"komkommer",944:"artisjok",
+  945:"paprika",947:"champignons",948:"appel",949:"aardbeien",950:"sinaasappel",951:"citroen",952:"vijg",953:"ananas",954:"banaan",955:"jackfruit",957:"granaatappel",
+  959:"pasta carbonara",960:"chocolade",961:"brood",962:"gehakt",963:"pizza",964:"pastei",965:"wrap",966:"wijn",967:"koffie",969:"advocaat",987:"mais",
+  809:"soep",504:"koffie",440:"bier",441:"bier",737:"cola",907:"wijn",898:"water"};
+let mlModel=null,mlBusy=false;
+function mlScript(){return window.tf?Promise.resolve():new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="ml/tf.min.js";sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)})}
+async function mlLoad(){if(mlModel)return mlModel;await mlScript();mlModel=await tf.loadGraphModel("ml/mobilenet/model.json");return mlModel}
+async function mlClassify(img){const m=await mlLoad(),cv=document.createElement("canvas"),S=224,w=img.naturalWidth||img.width,h=img.naturalHeight||img.height,z=Math.min(w,h);
+  cv.width=cv.height=S;cv.getContext("2d").drawImage(img,(w-z)/2,(h-z)/2,z,z,0,0,S,S);
+  const p=tf.tidy(()=>{const x=tf.browser.fromPixels(cv).toFloat().div(127.5).sub(1).expandDims(0);return tf.softmax(tf.slice(m.predict(x),[0,1],[-1,1000])).dataSync()});
+  const best={};Array.from(p).forEach((v,i)=>{const n=ML_FOOD[i];if(n)best[n]=(best[n]||0)+v});
+  return Object.entries(best).sort((a,b)=>b[1]-a[1]).filter(([,v])=>v>=.04).slice(0,4)}
+function dbPick(q){const inp=$("dbq");inp.value=q;dbQ=q;dbShown=60;renderVoeding();clearTimeout(dbTimer);dbOnline(q)}
+async function dbPhoto(file){if(!file||mlBusy)return;mlBusy=true;const box=$("dbphoto"),url=URL.createObjectURL(file),img=$("dbphimg"),chips=$("dbchips");
+  box.hidden=false;chips.innerHTML="";img.src=url;$("dbphtitle").textContent="Foto bekijken…";
+  $("dbphsub").textContent=mlModel?"Even geduld":"De eerste keer laadt Rise de herkenning (ongeveer 15 MB). Daarna werkt het ook zonder internet.";
+  try{await img.decode();const res=await mlClassify(img);
+    if(!res.length){$("dbphtitle").textContent="Geen eten herkend";$("dbphsub").textContent="Probeer een foto van dichtbij, met alleen het eten in beeld. Of typ wat het is."}
+    else{$("dbphtitle").textContent="Is het dit?";$("dbphsub").textContent="Tik op wat klopt, dan zie je de voedingswaarden.";
+      res.forEach(([n,v],k)=>{const b=el(`<button type="button"></button>`);b.textContent=n.charAt(0).toUpperCase()+n.slice(1);b.append(el(`<small>${Math.round(v*100)}%</small>`));
+        b.onclick=()=>{chips.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));dbPick(n)};chips.appendChild(b);if(k===0)b.click()})}}
+  catch(e){$("dbphtitle").textContent="Herkennen lukte niet";$("dbphsub").textContent=navigator.onLine?"Probeer het nog een keer.":"De eerste keer is internet nodig om de herkenning te laden."}
+  finally{mlBusy=false}}
+(function(){const cam=$("dbcam"),f=$("dbfile");if(!cam||!f)return;cam.onclick=e=>{e.preventDefault();f.value="";f.click()};
+  f.onchange=()=>dbPhoto(f.files&&f.files[0]);$("dbphx").onclick=()=>{$("dbphoto").hidden=true}})();
 loadLocal();render();setSync("Opgeslagen op dit apparaat.");startRem();lockApp();document.body.dataset.view=view;
 if(!state.profile)openOnb();
 
