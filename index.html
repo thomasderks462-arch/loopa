@@ -854,6 +854,29 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
 #view-sport[data-pg="gym"] .morerow[data-k="rec"]{border-top:0}
 #splash .sp-name span.sp-pt{color:#ffd166}
 .brand b .pt{color:var(--flame)}
+
+/* Voeding: database doorzoeken */
+.dbsearch{position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:4;display:flex;align-items:center;gap:10px;background:var(--surface);border:2px solid var(--red);border-radius:16px;padding:4px 8px 4px 14px;box-shadow:0 6px 18px rgba(60,10,15,.08)}
+.dbsearch svg{width:20px;height:20px;color:var(--red);flex:none}
+.dbsearch input{flex:1;min-width:0;border:0!important;background:transparent!important;padding:11px 0!important;font-size:1rem;outline:none}
+.dbsearch input::-webkit-search-cancel-button{display:none}
+.dbsearch button{border:0;background:var(--surface-2);width:30px;height:30px;border-radius:50%;color:var(--muted);flex:none}
+.dbinfo{padding:0 4px}
+.dblist{display:flex;flex-direction:column;gap:8px}
+.dbrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px 12px 8px 8px;color:var(--ink);cursor:pointer}
+.dbrow .it{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.dbrow .it b{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dbrow .it small{color:var(--muted);font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dbrow .kc{text-align:right;flex:none;font-weight:800;color:var(--red);font-variant-numeric:tabular-nums}
+.dbrow .kc small{display:block;font-weight:600;color:var(--muted);font-size:.72rem}
+.dbtag{display:inline-block;font-size:.66rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--orange);margin-right:4px}
+.dbdet{display:flex;flex-direction:column;gap:12px}
+.dbdet .top{display:flex;align-items:center;gap:14px}
+.dbdet table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.dbdet th,.dbdet td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:right}
+.dbdet th:first-child,.dbdet td:first-child{text-align:left}
+.dbdet thead th{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.dbdet tr.k td{font-weight:800;color:var(--red)}
 </style>
 </head>
 <body>
@@ -880,6 +903,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
   <symbol id="i-camera" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 8h3l1.5-2.5h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></g></symbol>
   <symbol id="i-pen" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></g></symbol>
   <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></g></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></g></symbol>
   <symbol id="i-list" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/></g></symbol>
 </svg>
 
@@ -1099,6 +1123,16 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
   </div>
 
   <!-- GEWOONTES -->
+  <div id="view-voeding" class="wrap" hidden>
+    <label class="dbsearch"><svg aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="dbq" placeholder="Zoek eten, bv. kwark of pindakaas" autocomplete="off" enterkeyhint="search" aria-label="Zoek eten"><button type="button" id="dbclear" aria-label="Wissen" hidden>✕</button></label>
+    <div class="dbinfo muted small" id="dbinfo"></div>
+    <div class="group-title" id="dblocalh"><span class="label" id="dblocalt">Alle producten</span></div>
+    <div id="dblist" class="dblist"></div>
+    <button class="btn sec" type="button" id="dbmore" hidden>Meer tonen</button>
+    <div class="group-title" id="dbonh" hidden><span class="label">Online · Open Food Facts</span></div>
+    <div id="dbon" class="dblist"></div>
+    <p class="muted small" id="dbonnote" hidden></p>
+  </div>
   <div id="view-instellingen" class="wrap" hidden>
     <section class="card">
       <h2>Nieuwe gewoonte</h2>
@@ -1192,6 +1226,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
 <nav class="tabs" role="tablist">
   <button role="tab" data-view="dag" aria-selected="true"><svg><use href="#i-today"/></svg>Doelen</button>
   <button role="tab" data-view="sport" aria-selected="false"><svg><use href="#i-run"/></svg>Sport</button>
+  <button role="tab" data-view="voeding" aria-selected="false"><svg><use href="#i-search"/></svg>Voeding</button>
   <button role="tab" data-view="slaap" aria-selected="false"><svg><use href="#i-moon"/></svg>Slaap</button>
   <button role="tab" data-view="overzicht" aria-selected="false"><svg><use href="#i-stats"/></svg>Overzicht</button>
 </nav>
@@ -1261,12 +1296,12 @@ function renderHeader(){
   const dateTxt=d.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"});
   $("streaknum").textContent=dayStreak();checkStreak();
   $("week").hidden=!DAYVIEWS.includes(view);
-  const T={eten:"Eten & drinken",sport:"Sport",slaap:"Slaap",overzicht:"Overzicht",instellingen:"Gewoontes & doelen"};
+  const T={eten:"Eten & drinken",sport:"Sport",slaap:"Slaap",overzicht:"Overzicht",instellingen:"Gewoontes & doelen",voeding:"Voeding"};
   if(view==="dag"){$("title").textContent=dayName;$("datelabel").textContent=dateTxt;
     if(diff===0){const hr=new Date().getHours(),g=hr<6?"Goedenacht":hr<12?"Goedemorgen":hr<18?"Goedemiddag":"Goedenavond";
       const nm=state.profile&&state.profile.name;$("datelabel").textContent=g+(nm?", "+nm:"")+" · "+d.toLocaleDateString("nl-NL",{day:"numeric",month:"long"})}}
   else if(DAYVIEWS.includes(view)){$("title").textContent=T[view];$("datelabel").textContent=diff===0?"Vandaag, "+d.toLocaleDateString("nl-NL",{day:"numeric",month:"long"}):dateTxt}
-  else{$("title").textContent=T[view];$("datelabel").textContent=view==="overzicht"?"Hoe gaat het de laatste tijd":"Wat wil je elke dag doen"}
+  else{$("title").textContent=T[view];$("datelabel").textContent=view==="overzicht"?"Hoe gaat het de laatste tijd":view==="voeding"?"Alles opzoeken":"Wat wil je elke dag doen"}
 }
 function renderWeek(){
   const today=keyOf(new Date()),c=fromKey(cur),dow=(c.getDay()+6)%7,mon=addDays(cur,-dow);
@@ -1279,7 +1314,7 @@ function renderWeek(){
     b.onclick=()=>{cur=k;render()};w.appendChild(b)}
 }
 function render(){renderHeader();if(DAYVIEWS.includes(view))renderWeek();
-  ({dag:renderDag,eten:renderEten,sport:renderSport,slaap:renderSlaap,overzicht:renderOverview,instellingen:renderSettings})[view]()}
+  ({dag:renderDag,eten:renderEten,sport:renderSport,slaap:renderSlaap,overzicht:renderOverview,instellingen:renderSettings,voeding:renderVoeding})[view]()}
 function renderDay(){render()}
 function setRing(id,f,color){const el=$(id);el.setAttribute("stroke-dasharray",(264*Math.min(1,f))+" 264");el.style.opacity=f>0?1:0;if(color)el.setAttribute("stroke",color)}
 
@@ -4284,7 +4319,7 @@ function downloadIcs(){const r=rem(),now=new Date(),st=keyOf(now).replace(/-/g,"
   msgSheet("Agendabestand gemaakt","Open het bestand en kies Alles toevoegen. Je agenda geeft je dan elke dag een seintje, ook als Rise dicht is. Pas je later de tijden aan, verwijder dan de oude afspraken en zet ze opnieuw in je agenda.")}
 
 /* tabs */
-const VIEWS=["dag","eten","sport","slaap","overzicht","instellingen"],DAYVIEWS=["dag","eten","sport","slaap"];
+const VIEWS=["dag","eten","sport","voeding","slaap","overzicht","instellingen"],DAYVIEWS=["dag","eten","sport","slaap"];
 document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>show(b.dataset.view));
 $("gear").onclick=()=>show("instellingen");
 function show(v){if(v==="eten")v="dag";view=v;document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.view===v));
@@ -4425,6 +4460,44 @@ $("rem-cheer").onchange=e=>{setProfile("cheer",e.target.checked);if(e.target.che
 (function(){const v=$("view-sport");if(!v)return;let pg="gym";try{pg=localStorage.getItem("loopa-sportpg")||"gym"}catch(e){}
   const set=p=>{v.dataset.pg=p;v.querySelectorAll(".sporttabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.pg===p));try{localStorage.setItem("loopa-sportpg",p)}catch(e){}};
   v.querySelectorAll(".sporttabs button").forEach(b=>b.onclick=()=>{set(b.dataset.pg);window.scrollTo(0,0)});set(pg)})();
+
+/* ===== Voeding: alle producten doorzoeken ===== */
+let dbShown=60,dbQ="",dbTimer=null,dbSeq=0;
+const fmtN=v=>v==null||v===""||isNaN(+v)?"–":String(Math.round(+v*10)/10).replace(".",",");
+function per100(x){const g=+x.g||0;if(!g)return null;const m=100/g,r=v=>v==null?null:Math.round(+v*m*10)/10;return{kcal:x.kcal==null?null:Math.round(x.kcal*m),p:r(x.p),c:r(x.c),f:r(x.f),unit:x.unit||"g"}}
+function dbRow(x){const b=el(`<button type="button" class="dbrow">${foodThumb(x)}<span class="it"><b></b><small></small></span><span class="kc"></span></button>`);
+  b.querySelector("b").textContent=x.name;
+  b.querySelector("small").innerHTML=(x.tag==="Online"?'<span class="dbtag">online</span>':"");
+  b.querySelector("small").append(`${x.amount} · E ${fmtN(x.p)} · K ${fmtN(x.c)} · V ${fmtN(x.f)} g`);
+  b.querySelector(".kc").innerHTML=`${x.kcal==null?"–":x.kcal}<small>kcal</small>`;b.onclick=()=>dbDetail(x);return b}
+function dbDetail(x){openSheet(s=>{const d=el(`<div class="dbdet"><div class="top">${foodThumb(x,true)}<div><h2></h2><span class="muted small dbamt"></span></div></div>
+  <table><thead><tr><th></th><th>Per portie</th><th>Per 100 ${x.unit==="ml"?"ml":"g"}</th></tr></thead><tbody></tbody></table>
+  <span class="muted small">${x.tag==="Online"?"Bron: Open Food Facts. Waarden zoals ingevuld door de community.":"Gemiddelde waarden uit de Rise-lijst."}</span>
+  <button class="btn" type="button">Sluiten</button></div>`);
+  d.querySelector("h2").textContent=x.name;d.querySelector(".dbamt").textContent=x.amount;
+  const h=per100(x)||{},tb=d.querySelector("tbody");
+  [["Energie",x.kcal,h.kcal,"kcal","k"],["Eiwit",x.p,h.p,"g"],["Koolhydraten",x.c,h.c,"g"],["Vet",x.f,h.f,"g"]].forEach(([n,a,b,u,cl])=>{const tr=el(`<tr${cl?' class="k"':""}><td></td><td></td><td></td></tr>`);
+    tr.children[0].textContent=n;tr.children[1].textContent=fmtN(a)+" "+u;tr.children[2].textContent=fmtN(b)+" "+u;tb.appendChild(tr)});
+  d.querySelector(".btn").onclick=closeSheet;s.appendChild(d);fixFoodImgs(d)})}
+function dbLocal(q){const nq=norm(q);if(!nq)return FOODS.slice().sort((a,b)=>a.name.localeCompare(b.name,"nl"));
+  return FOODS.map(x=>[matchScore(norm(x.name),nq),x]).filter(a=>a[0]>0).sort((a,b)=>b[0]-a[0]||a[1].name.localeCompare(b[1].name,"nl")).map(a=>a[1])}
+function renderVoeding(){const q=dbQ,list=dbLocal(q),box=$("dblist");box.innerHTML="";
+  list.slice(0,dbShown).forEach(x=>box.appendChild(dbRow(x)));fixFoodImgs(box);
+  $("dbmore").hidden=list.length<=dbShown;$("dbmore").textContent=`Meer tonen (${(list.length-dbShown).toLocaleString("nl-NL")} over)`;
+  $("dblocalt").textContent=q?`In Rise · ${list.length} ${list.length===1?"resultaat":"resultaten"}`:`Alle producten · ${FOODS.length.toLocaleString("nl-NL")}`;
+  $("dbinfo").textContent=q?"":`Rise kent ${FOODS.length.toLocaleString("nl-NL")} producten en gerechten. Typ om te zoeken; dan zoeken we ook online in Open Food Facts, met miljoenen producten uit de winkel.`;
+  $("dbclear").hidden=!q;if(!q){$("dbonh").hidden=true;$("dbon").innerHTML="";$("dbonnote").hidden=true}}
+async function dbOnline(q){const my=++dbSeq;if(q.trim().length<3)return;
+  $("dbonh").hidden=false;$("dbon").innerHTML="";$("dbonnote").hidden=false;$("dbonnote").textContent="Online zoeken…";
+  if(!navigator.onLine){$("dbonnote").textContent="Geen internet: online zoeken lukt nu niet.";return}
+  let res=[];try{res=await offSearch(q)}catch(e){}if(my!==dbSeq)return;
+  res.forEach(x=>$("dbon").appendChild(dbRow(x)));fixFoodImgs($("dbon"));
+  $("dbonnote").textContent=res.length?"":"Online niets gevonden. Probeer een ander woord of een merk.";$("dbonnote").hidden=!!res.length}
+(function(){const inp=$("dbq");if(!inp)return;
+  inp.addEventListener("input",()=>{dbQ=inp.value;dbShown=60;renderVoeding();clearTimeout(dbTimer);dbTimer=setTimeout(()=>dbOnline(dbQ),600)});
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter"){inp.blur();clearTimeout(dbTimer);dbOnline(dbQ)}});
+  $("dbclear").onclick=()=>{inp.value="";dbQ="";dbSeq++;dbShown=60;renderVoeding();inp.focus()};
+  $("dbmore").onclick=()=>{dbShown+=120;renderVoeding()}})();
 loadLocal();render();setSync("Opgeslagen op dit apparaat.");startRem();lockApp();document.body.dataset.view=view;
 if(!state.profile)openOnb();
 
