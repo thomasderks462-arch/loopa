@@ -890,6 +890,46 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
 .dbchips button small{color:var(--muted);font-weight:600;margin-left:4px}
 .dbchips button.on{background:var(--red);color:#fff;border-color:var(--red)}
 .dbchips button.on small{color:rgba(255,255,255,.85)}
+
+/* dagbehoefte + vragenlijst */
+.needcard{gap:12px}
+.needcard .nh{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.needcard .goalpill{display:inline-flex;align-items:center;gap:6px;background:var(--tint);color:var(--red);font-weight:800;font-size:.82rem;border-radius:999px;padding:5px 11px}
+.needcard .big{font-family:var(--display);font-size:2.2rem;font-weight:900;letter-spacing:-.02em;line-height:1}
+.needcard .big small{font-size:.9rem;color:var(--muted);font-weight:700;margin-left:4px;letter-spacing:0}
+.needgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.needgrid div{background:var(--surface-2);border-radius:14px;padding:10px 8px;display:flex;flex-direction:column;gap:2px;text-align:center}
+.needgrid b{font-size:1.05rem;font-variant-numeric:tabular-nums}
+.needgrid span{font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.needcard .tip{background:linear-gradient(135deg,#fff4ef,#fdeceb);border-radius:14px;padding:12px 14px;font-size:.88rem;line-height:1.45}
+.needempty{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.dbsort{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -2px;padding:2px}
+.dbsort::-webkit-scrollbar{display:none}
+.dbsort button{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:700;font-size:.86rem;border-radius:999px;padding:8px 13px}
+.dbsort button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.dbrow .pct{display:block;font-size:.68rem;color:var(--orange);font-weight:800}
+.dbbadge{display:inline-block;font-size:.66rem;font-weight:800;border-radius:6px;padding:1px 6px;margin-right:5px;background:#e8f6ec;color:#15803d;letter-spacing:.02em}
+.mbar{display:flex;flex-direction:column;gap:9px}
+.mbar .r{display:grid;grid-template-columns:96px 1fr 52px;align-items:center;gap:10px;font-size:.88rem}
+.mbar .t{height:10px;border-radius:6px;background:var(--surface-2);overflow:hidden}
+.mbar .t i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--red),var(--orange))}
+.mbar .r b{text-align:right;font-variant-numeric:tabular-nums}
+/* vragenlijst */
+.qz{display:flex;flex-direction:column;gap:14px;min-height:420px}
+.qz .qbar{height:6px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.qz .qbar i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--orange));transition:width .3s}
+.qz h2{font-size:1.45rem;font-weight:900}
+.qz .opts{display:flex;flex-direction:column;gap:8px}
+.qz .op{display:flex;align-items:center;gap:12px;border:2px solid var(--line);background:var(--surface);border-radius:16px;padding:13px 14px;text-align:left;color:var(--ink)}
+.qz .op .e{font-size:1.5rem;width:32px;text-align:center}
+.qz .op b{display:block}.qz .op small{color:var(--muted)}
+.qz .op[aria-pressed="true"]{border-color:var(--red);background:var(--tint)}
+.qz .numin{display:flex;align-items:center;justify-content:center;gap:14px;padding:18px 0}
+.qz .numin input{width:130px;text-align:center;font-size:2.4rem;font-weight:900;font-family:var(--display);border:0!important;border-bottom:3px solid var(--red)!important;border-radius:0!important;background:transparent!important}
+.qz .numin span{font-weight:800;color:var(--muted);font-size:1.1rem}
+.qz .nav{display:flex;gap:10px;margin-top:auto}
+.qz .nav .btn{flex:1}
+.qz .res{display:flex;flex-direction:column;gap:12px}
 </style>
 </head>
 <body>
@@ -1140,6 +1180,8 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
     <label class="dbsearch"><svg aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="dbq" placeholder="Zoek eten, bv. kwark of pindakaas" autocomplete="off" enterkeyhint="search" aria-label="Zoek eten"><button type="button" id="dbclear" aria-label="Wissen" hidden>✕</button><button type="button" id="dbcam" class="dbcam" aria-label="Maak een foto van je eten"><svg aria-hidden="true"><use href="#i-camera"/></svg></button></label>
     <input type="file" id="dbfile" accept="image/*" capture="environment" hidden>
     <section class="card dbphoto" id="dbphoto" hidden><div class="dbph-top"><img id="dbphimg" alt=""><div><b id="dbphtitle">Foto bekijken…</b><span class="muted small" id="dbphsub"></span></div><button type="button" class="dbphx" id="dbphx" aria-label="Sluiten">✕</button></div><div class="dbchips" id="dbchips"></div></section>
+    <section class="card needcard" id="needcard"></section>
+    <div class="dbsort" id="dbsort" role="group" aria-label="Sorteren"></div>
     <div class="dbinfo muted small" id="dbinfo"></div>
     <div class="group-title" id="dblocalh"><span class="label" id="dblocalt">Alle producten</span></div>
     <div id="dblist" class="dblist"></div>
@@ -4476,6 +4518,78 @@ $("rem-cheer").onchange=e=>{setProfile("cheer",e.target.checked);if(e.target.che
   const set=p=>{v.dataset.pg=p;v.querySelectorAll(".sporttabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.pg===p));try{localStorage.setItem("loopa-sportpg",p)}catch(e){}};
   v.querySelectorAll(".sporttabs button").forEach(b=>b.onclick=()=>{set(b.dataset.pg);window.scrollTo(0,0)});set(pg)})();
 
+
+/* ===== Dagbehoefte, vragenlijst en slim sorteren (Voeding) ===== */
+const GOALTXT={af:["🔥","Cutten (afvallen)"],gezond:["⚖️","Op gewicht blijven"],spier:["💪","Lean bulk"],aan:["📈","Bulken"]};
+let dbSort="az";
+function needKnown(){const p=state.profile||{};return !!(p.kcal&&p.weight&&p.age)}
+function goalTip(p){const mg=macroGoals(),k=goalKcal(),pp=Math.round(mg.p);
+  return {af:`Eet ongeveer ${k} kcal per dag. Houd je eiwit hoog (${pp} g), dan blijven je spieren behouden terwijl je vet verliest. Kies eten met veel eiwit per kcal: sorteer op "Eiwitrijk".`,
+    gezond:`Met ongeveer ${k} kcal per dag blijf je op gewicht. Verdeel je ${pp} g eiwit over 3 à 4 momenten van ongeveer ${Math.round(pp/4)} g.`,
+    spier:`Lean bulk: ongeveer 250 kcal boven je verbruik (${k} kcal). Train zwaar en eet ${pp} g eiwit, dan groei je vooral in spier en weinig in vet. Weeg jezelf 1× per week: +0,25 kg per week is mooi.`,
+    aan:`Bulken: ongeveer ${k} kcal per dag. Lukt het niet om genoeg te eten? Kies eten met veel kcal per portie (sorteer op "Meeste kcal") zoals noten, pindakaas, havermout en volle zuivel. Doel: +0,25 tot 0,5 kg per week.`}[p.eat||"gezond"]}
+function renderNeed(){const c=$("needcard");if(!c)return;const p=state.profile||{};c.innerHTML="";
+  if(!needKnown()){c.appendChild(el(`<div class="needempty"><h2>Jouw dagelijkse behoefte</h2><span class="muted small">Beantwoord een paar vragen (doel, leeftijd, gewicht, hoe vaak je traint) en Rise rekent uit hoeveel kcal, eiwit, koolhydraten en vet jij per dag nodig hebt. Bij elk product zie je dan hoeveel procent van je dag het is.</span><button class="btn" type="button">Start de vragenlijst</button></div>`));
+    c.querySelector(".btn").onclick=needQuiz;return}
+  const mg=macroGoals(),g=GOALTXT[p.eat||"gezond"],r=v=>Math.round(v);
+  c.appendChild(el(`<div class="nh"><h2>Jouw dagbehoefte</h2><span class="goalpill">${g[0]} ${g[1]}</span></div>`));
+  c.appendChild(el(`<div><div class="big num">${goalKcal().toLocaleString("nl-NL")}<small>kcal per dag</small></div><span class="muted small">Je verbruik is ongeveer ${(p.tdee||goalKcal()).toLocaleString("nl-NL")} kcal${p.weight?` · ${String(p.weight).replace(".",",")} kg`:""}${p.goalKg&&(p.eat==="af"||p.eat==="aan")?` · doel ${String(p.goalKg).replace(".",",")} kg`:""}</span></div>`));
+  c.appendChild(el(`<div class="needgrid"><div><b>${r(mg.p)} g</b><span>Eiwit</span></div><div><b>${r(mg.c)} g</b><span>Koolh.</span></div><div><b>${r(mg.f)} g</b><span>Vet</span></div><div><b>${(goalWater()*0.25).toLocaleString("nl-NL")} L</b><span>Water</span></div></div>`));
+  const tip=el(`<div class="tip"></div>`);tip.textContent="💡 "+goalTip(p);c.appendChild(tip);
+  const b=el(`<button class="btn sec" type="button">Vragenlijst opnieuw invullen</button>`);b.onclick=needQuiz;c.appendChild(b)}
+const SORTS=[["az","A tot Z"],["doel","Past bij je doel"],["eiwit","Meeste eiwit"],["rijk","Eiwitrijk (per kcal)"],["laag","Minste kcal"],["hoog","Meeste kcal"]];
+function renderSortBar(){const b=$("dbsort");if(!b||b.childElementCount)return;
+  SORTS.forEach(([k,t])=>{const x=el(`<button type="button"></button>`);x.textContent=t;x.dataset.k=k;x.onclick=()=>{dbSort=k;dbShown=60;renderVoeding()};b.appendChild(x)})}
+function sortFoods(list){const p=state.profile||{},pk=x=>x.kcal?(x.p||0)/x.kcal:0,by={az:null,
+  eiwit:(a,b)=>(b.p||0)-(a.p||0),rijk:(a,b)=>pk(b)-pk(a),laag:(a,b)=>(a.kcal??1e9)-(b.kcal??1e9),hoog:(a,b)=>(b.kcal||0)-(a.kcal||0),
+  doel:(a,b)=>goalScore(b,p.eat)-goalScore(a,p.eat)}[dbSort];
+  return by?list.slice().sort(by):list}
+function goalScore(x,eat){const k=x.kcal||0;if(!k)return -1e9;const ps=(x.p||0)*4/k,fs=(x.f||0)*9/k,pen=fs>.45?-1e6:0;
+  if(eat==="af")return pen+ps*100-k*.02;if(eat==="aan"||eat==="spier")return pen+(fs>.4||k>750?-1e6:0)+(ps>=.15?0:-5e5)+ps*60+(x.p||0)*1.2+k*(eat==="aan"?.04:.01);return pen+ps*100+(x.p||0)*.5}
+function pctDay(x){return x.kcal==null?null:Math.round(x.kcal/goalKcal()*100)}
+/* vragenlijst */
+function needQuiz(){const p={...(state.profile||{})};if(!p.weight){const lw=lastWith("kg");if(lw)p.weight=lw.kg}
+  p.train=p.train??({zit:0,licht:2,actief:4,heel:6}[p.act]??3);
+  const Q=[
+    {k:"eat",t:"Wat is je doel?",opts:[["aan","📈","Bulken","Zwaarder worden en kracht opbouwen"],["spier","💪","Lean bulk","Spieren erbij, zo weinig mogelijk vet"],["gezond","⚖️","Op gewicht blijven","Fit blijven en goed eten"],["af","🔥","Cutten / afvallen","Vet kwijt, spieren houden"]]},
+    {k:"sex",t:"Wat is je geslacht?",opts:[["man","👨","Man"],["vrouw","👩","Vrouw"],["x","🙂","Anders / zeg ik liever niet"]]},
+    {k:"age",t:"Hoe oud ben je?",num:[14,99,1,"jaar"]},
+    {k:"height",t:"Hoe lang ben je?",num:[120,230,1,"cm"]},
+    {k:"weight",t:"Hoeveel weeg je nu?",num:[30,300,.1,"kg"]},
+    {k:"goalKg",t:"Wat is je streefgewicht?",num:[30,300,.5,"kg"],when:()=>p.eat==="af"||p.eat==="aan"},
+    {k:"train",t:"Hoe vaak train of sport je per week?",opts:[[0,"🛋️","Bijna nooit"],[2,"🚶","1 à 2 keer"],[4,"🏋️","3 à 4 keer"],[6,"🔥","5 keer of meer, of zwaar werk"]]},
+    {k:"water",t:"Hoeveel water wil je per dag drinken?",opts:[[6,"💧","1,5 liter"],[8,"💧","2 liter"],[10,"💧","2,5 liter"],[12,"💧","3 liter"]]}];
+  let i=0;const steps=()=>Q.filter(q=>!q.when||q.when());
+  openSheet(s=>{const box=el(`<div class="qz"></div>`);s.appendChild(box);
+    function draw(){const L=steps();box.innerHTML="";
+      if(i>=L.length)return result();
+      const q=L[i];box.appendChild(el(`<div class="qbar"><i style="width:${Math.round(i/L.length*100)}%"></i></div>`));
+      box.appendChild(el(`<span class="label">Vraag ${i+1} van ${L.length}</span>`));const h=el(`<h2></h2>`);h.textContent=q.t;box.appendChild(h);
+      const next=el(`<button class="btn" type="button">Volgende</button>`),back=el(`<button class="btn sec" type="button">Terug</button>`);
+      if(q.opts){const o=el(`<div class="opts"></div>`);q.opts.forEach(([v,e,t,sub])=>{const b=el(`<button type="button" class="op"><span class="e"></span><span><b></b>${sub?"<small></small>":""}</span></button>`);
+          b.querySelector(".e").textContent=e;b.querySelector("b").textContent=t;if(sub)b.querySelector("small").textContent=sub;b.setAttribute("aria-pressed",p[q.k]===v);
+          b.onclick=()=>{p[q.k]=v;o.querySelectorAll(".op").forEach(x=>x.setAttribute("aria-pressed",x===b));setTimeout(()=>{i++;draw()},180)};o.appendChild(b)});box.appendChild(o);next.disabled=p[q.k]==null}
+      else{const[mn,mx,st,u]=q.num,w=el(`<div class="numin"><input type="number" inputmode="decimal" min="${mn}" max="${mx}" step="${st}"><span>${u}</span></div>`),inp=w.querySelector("input");
+        inp.value=p[q.k]??"";box.appendChild(w);const ok=()=>{const v=parseFloat(String(inp.value).replace(",","."));return!isNaN(v)&&v>=mn&&v<=mx?v:null};
+        const chk=()=>{next.disabled=ok()==null;next.style.opacity=next.disabled?.4:1};inp.oninput=chk;chk();setTimeout(()=>inp.focus(),250);
+        next.onclick=()=>{const v=ok();if(v==null)return;p[q.k]=v;i++;draw()};inp.onkeydown=e=>{if(e.key==="Enter")next.click()}}
+      if(q.opts)next.onclick=()=>{if(p[q.k]!=null){i++;draw()}};
+      back.onclick=()=>{if(i>0){i--;draw()}else closeSheet()};back.textContent=i>0?"Terug":"Sluiten";
+      const nv=el(`<div class="nav"></div>`);nv.append(back,next);box.appendChild(nv)}
+    function result(){p.act=p.train>=6?"heel":p.train>=3?"actief":p.train>=1?"licht":"zit";if(!(p.eat==="af"||p.eat==="aan"))p.goalKg=null;
+      const n=nutrition(p);box.innerHTML="";box.appendChild(el(`<div class="qbar"><i style="width:100%"></i></div>`));
+      if(!n){box.appendChild(el(`<h2>Er mist nog iets</h2>`));const b=el(`<button class="btn" type="button">Opnieuw</button>`);b.onclick=()=>{i=0;draw()};box.appendChild(b);return}
+      const prot=Math.round(n.protein),f=Math.round(n.kcal*.3/9),c=Math.max(0,Math.round((n.kcal-prot*4-f*9)/4)),g=GOALTXT[p.eat];
+      const r=el(`<div class="res"><span class="goalpill" style="align-self:flex-start;background:var(--tint);color:var(--red);font-weight:800;border-radius:999px;padding:5px 11px">${g[0]} ${g[1]}</span>
+        <h2>Jij hebt ongeveer ${n.kcal.toLocaleString("nl-NL")} kcal per dag nodig</h2>
+        <div class="needgrid"><div><b>${prot} g</b><span>Eiwit</span></div><div><b>${c} g</b><span>Koolh.</span></div><div><b>${f} g</b><span>Vet</span></div><div><b>${(p.water*.25).toLocaleString("nl-NL")} L</b><span>Water</span></div></div>
+        <div class="notebox"></div><span class="muted small">Je BMI is ${n.bmi.toFixed(1).replace(".",",")}. Dit is een schatting (Mifflin-St Jeor). Kijk na 2 à 3 weken naar je gewicht en stel bij als het te snel of te langzaam gaat.</span></div>`);
+      r.querySelector(".notebox").textContent=nutritionText(n,p)+` Je ruststofwisseling is ${n.bmr} kcal.`;box.appendChild(r);
+      const save=el(`<button class="btn" type="button">Opslaan als mijn doel</button>`);save.onclick=()=>{state.profile=state.profile||{};state.profile.water=p.water;state.profile.train=p.train;
+        applyNutrition(p);closeSheet();render();toast("Je dagbehoefte is opgeslagen")};
+      const again=el(`<button class="btn sec" type="button">Antwoorden aanpassen</button>`);again.onclick=()=>{i=0;draw()};
+      const nv=el(`<div class="nav"></div>`);nv.append(again,save);box.appendChild(nv)}
+    draw()})}
 /* ===== Voeding: alle producten doorzoeken ===== */
 let dbShown=60,dbQ="",dbTimer=null,dbSeq=0;
 const fmtN=v=>v==null||v===""||isNaN(+v)?"–":String(Math.round(+v*10)/10).replace(".",",");
@@ -4484,7 +4598,9 @@ function dbRow(x){const b=el(`<button type="button" class="dbrow">${foodThumb(x)
   b.querySelector("b").textContent=x.name;
   b.querySelector("small").innerHTML=(x.tag==="Online"?'<span class="dbtag">online</span>':"");
   b.querySelector("small").append(`${x.amount} · E ${fmtN(x.p)} · K ${fmtN(x.c)} · V ${fmtN(x.f)} g`);
-  b.querySelector(".kc").innerHTML=`${x.kcal==null?"–":x.kcal}<small>kcal</small>`;b.onclick=()=>dbDetail(x);return b}
+  const pc=needKnown()?pctDay(x):null;b.querySelector(".kc").innerHTML=`${x.kcal==null?"–":x.kcal}<small>kcal</small>${pc!=null?`<span class="pct">${pc}% dag</span>`:""}`;
+  if(x.kcal&&x.p&&x.p/x.kcal>=.08){const sm=b.querySelector("small");sm.prepend(el(`<span class="dbbadge">eiwitrijk</span>`))}
+  b.onclick=()=>dbDetail(x);return b}
 function dbDetail(x){openSheet(s=>{const d=el(`<div class="dbdet"><div class="top">${foodThumb(x,true)}<div><h2></h2><span class="muted small dbamt"></span></div></div>
   <table><thead><tr><th></th><th>Per portie</th><th>Per 100 ${x.unit==="ml"?"ml":"g"}</th></tr></thead><tbody></tbody></table>
   <span class="muted small">${x.tag==="Online"?"Bron: Open Food Facts. Waarden zoals ingevuld door de community.":"Gemiddelde waarden uit de Rise-lijst."}</span>
@@ -4493,13 +4609,20 @@ function dbDetail(x){openSheet(s=>{const d=el(`<div class="dbdet"><div class="to
   const h=per100(x)||{},tb=d.querySelector("tbody");
   [["Energie",x.kcal,h.kcal,"kcal","k"],["Eiwit",x.p,h.p,"g"],["Koolhydraten",x.c,h.c,"g"],["Vet",x.f,h.f,"g"]].forEach(([n,a,b,u,cl])=>{const tr=el(`<tr${cl?' class="k"':""}><td></td><td></td><td></td></tr>`);
     tr.children[0].textContent=n;tr.children[1].textContent=fmtN(a)+" "+u;tr.children[2].textContent=fmtN(b)+" "+u;tb.appendChild(tr)});
+  if(needKnown()){const mg=macroGoals(),bars=el(`<div class="mbar"><span class="label">Deze portie van jouw dagbehoefte</span></div>`);
+    [["Calorieën",x.kcal,goalKcal()],["Eiwit",x.p,mg.p],["Koolhydraten",x.c,mg.c],["Vet",x.f,mg.f]].forEach(([n,v,g])=>{if(v==null||!g)return;const pc=Math.round(v/g*100);
+      const r=el(`<div class="r"><span></span><span class="t"><i style="width:${Math.min(100,pc)}%"></i></span><b>${pc}%</b></div>`);r.children[0].textContent=n;bars.appendChild(r)});
+    d.insertBefore(bars,d.querySelector(".btn"));
+    if(x.p>0){const nd=Math.ceil(mg.p/x.p),t=el(`<span class="muted small"></span>`);t.textContent=nd<=12?`Je zou ${nd} van deze porties nodig hebben voor je hele eiwitdoel van ${Math.round(mg.p)} g.`:`Weinig eiwit: zoek bij "Eiwitrijk" voor betere keuzes voor je doel.`;d.insertBefore(t,d.querySelector(".btn"))}}
   d.querySelector(".btn").onclick=closeSheet;s.appendChild(d);fixFoodImgs(d)})}
 function dbLocal(q){const nq=norm(q);if(!nq)return FOODS.slice().sort((a,b)=>a.name.localeCompare(b.name,"nl"));
   return FOODS.map(x=>[matchScore(norm(x.name),nq),x]).filter(a=>a[0]>0).sort((a,b)=>b[0]-a[0]||a[1].name.localeCompare(b[1].name,"nl")).map(a=>a[1])}
-function renderVoeding(){const q=dbQ,list=dbLocal(q),box=$("dblist");box.innerHTML="";
+function renderVoeding(){renderNeed();renderSortBar();$("needcard").hidden=!!dbQ;
+  $("dbsort").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.k===dbSort));
+  const q=dbQ,list=dbSort==="az"&&q?dbLocal(q):sortFoods(dbLocal(q)),box=$("dblist");box.innerHTML="";
   list.slice(0,dbShown).forEach(x=>box.appendChild(dbRow(x)));fixFoodImgs(box);
   $("dbmore").hidden=list.length<=dbShown;$("dbmore").textContent=`Meer tonen (${(list.length-dbShown).toLocaleString("nl-NL")} over)`;
-  $("dblocalt").textContent=q?`In Rise · ${list.length} ${list.length===1?"resultaat":"resultaten"}`:`Alle producten · ${FOODS.length.toLocaleString("nl-NL")}`;
+  $("dblocalt").textContent=q?`In Rise · ${list.length} ${list.length===1?"resultaat":"resultaten"}`:`${(SORTS.find(x=>x[0]===dbSort)||SORTS[0])[1]} · ${FOODS.length.toLocaleString("nl-NL")} producten`;
   $("dbinfo").textContent=q?"":`Rise kent ${FOODS.length.toLocaleString("nl-NL")} producten en gerechten. Typ om te zoeken; dan zoeken we ook online in Open Food Facts, met miljoenen producten uit de winkel.`;
   $("dbclear").hidden=!q;if(!q){$("dbonh").hidden=true;$("dbon").innerHTML="";$("dbonnote").hidden=true}}
 async function dbOnline(q){const my=++dbSeq;if(q.trim().length<3)return;
