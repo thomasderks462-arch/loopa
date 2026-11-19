@@ -1177,7 +1177,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
 
   <!-- GEWOONTES -->
   <div id="view-voeding" class="wrap" hidden>
-    <label class="dbsearch"><svg aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="dbq" placeholder="Zoek eten, bv. kwark of pindakaas" autocomplete="off" enterkeyhint="search" aria-label="Zoek eten"><button type="button" id="dbclear" aria-label="Wissen" hidden>✕</button><button type="button" id="dbcam" class="dbcam" aria-label="Maak een foto van je eten"><svg aria-hidden="true"><use href="#i-camera"/></svg></button></label>
+    <label class="dbsearch"><svg aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="dbq" placeholder="Zoek eten, bv. kwark of pindakaas" autocomplete="off" enterkeyhint="search" aria-label="Zoek eten"><button type="button" id="dbclear" aria-label="Wissen" hidden>✕</button><button type="button" id="dbscan" class="dbcam" aria-label="Scan een barcode of QR-code"><svg aria-hidden="true"><use href="#i-barcode"/></svg></button><button type="button" id="dbcam" class="dbcam" aria-label="Maak een foto van je eten"><svg aria-hidden="true"><use href="#i-camera"/></svg></button></label>
     <input type="file" id="dbfile" accept="image/*" capture="environment" hidden>
     <section class="card dbphoto" id="dbphoto" hidden><div class="dbph-top"><img id="dbphimg" alt=""><div><b id="dbphtitle">Foto bekijken…</b><span class="muted small" id="dbphsub"></span></div><button type="button" class="dbphx" id="dbphx" aria-label="Sluiten">✕</button></div><div class="dbchips" id="dbchips"></div></section>
     <section class="card needcard" id="needcard"></section>
@@ -1592,7 +1592,7 @@ async function decodeImage(file,mode){
   const r=document.createElement("canvas");r.width=canvas.height;r.height=canvas.width;const cx=r.getContext("2d");cx.translate(r.width/2,r.height/2);cx.rotate(Math.PI/2);cx.drawImage(canvas,-canvas.width/2,-canvas.height/2);
   return tryCanvas(r)}
 function normGtin(g){g=g.replace(/\D/g,"");if(g.length===14&&g[0]==="0")g=g.slice(1);if(g.length===13&&g[0]==="0"&&false)g=g.slice(1);return g}
-function handleCode(txt,mode){
+function handleCode(txt,mode){if(scanForDb){scanForDb=false;return dbScanCode(txt)}
   txt=String(txt).trim();let gtin=null;const m=txt.match(/(?:^|\/)01\/(\d{8,14})/);
   if(m)gtin=normGtin(m[1]);else if(/^\d{8,14}$/.test(txt))gtin=normGtin(txt);
   if(gtin){const p=state.products[gtin];
@@ -1923,7 +1923,7 @@ function gotCode(txt){if(camDone)return;const m=camMode;stopCam();try{navigator.
 $("cam-x").onclick=stopCam;
 $("cam-type").onclick=()=>{const m=camMode;stopCam();typeCode(m)};
 $("cam-photo").onclick=()=>{const m=camMode;stopCam();pickFileRaw(m)};
-$("cam-name").onclick=()=>{stopCam();setTimeout(()=>foodPicker(guessMeal()),60)};
+$("cam-name").onclick=()=>{if(scanForDb){scanForDb=false;stopCam();setTimeout(()=>$("dbq").focus(),60);return}stopCam();setTimeout(()=>foodPicker(guessMeal()),60)};
 document.addEventListener("visibilitychange",()=>{if(document.hidden&&!$("cam").hidden)stopCam()});
 
 /* ---- voedingswaarden opzoeken in Open Food Facts ---- */
@@ -4590,6 +4590,28 @@ function needQuiz(){const p={...(state.profile||{})};if(!p.weight){const lw=last
       const again=el(`<button class="btn sec" type="button">Antwoorden aanpassen</button>`);again.onclick=()=>{i=0;draw()};
       const nv=el(`<div class="nav"></div>`);nv.append(again,save);box.appendChild(nv)}
     draw()})}
+
+/* ===== Voeding: barcode of QR-code scannen ===== */
+let scanForDb=false;
+async function dbScanCode(txt){txt=String(txt).trim();let gtin=null;const m=txt.match(/(?:^|\/)01\/(\d{8,14})/);
+  if(m)gtin=normGtin(m[1]);else if(/^\d{8,14}$/.test(txt))gtin=normGtin(txt);
+  if(!gtin){let o=null;try{o=JSON.parse(txt)}catch(e){}
+    if(o&&typeof o==="object"&&(o.name||o.naam)){const g=+(o.g||o.gram)||null;dbDetail({name:o.name||o.naam,amount:o.amount||o.portie||"1 portie",g,unit:"g",kcal:o.kcal??null,p:o.p??o.eiwit??null,c:o.c??o.koolhydraten??null,f:o.f??o.vet??null,tag:"QR"});return}
+    if(/^https?:\/\//i.test(txt)){msgSheet("QR-code met een link","Deze code bevat een link en geen productnummer: "+txt.slice(0,120),[["Openen",()=>{closeSheet();window.open(txt,"_blank","noopener")}],["Sluiten",closeSheet]]);return}
+    msgSheet("Geen product in deze code","In de code staat: "+txt.slice(0,140)+". Zoek het product op naam.",[["Zoeken op naam",()=>{closeSheet();$("dbq").focus()}]]);return}
+  const own=state.products&&state.products[gtin];
+  if(own&&own.per100){const g=own.serving||100,r=v=>v==null?null:Math.round(v*g/10)/10;dbDetail({name:own.name,amount:g+" g",g,unit:"g",kcal:own.per100.kcal==null?null:Math.round(own.per100.kcal*g/100),p:r(own.per100.p),c:r(own.per100.c),f:r(own.per100.f),img:own.img,tag:"Online"});return}
+  if(/^2\d{12}$/.test(gtin)||/^02\d{10}$/.test(gtin)||/^2\d{7}$/.test(gtin)){msgSheet("Winkelcode van een los product","Dit is een code van gewogen of los fruit, groente, vlees of kaas uit de winkel. Die staan niet in de productlijst. Zoek het op naam, bijvoorbeeld druiven of kipfilet.",[["Zoeken op naam",()=>{closeSheet();$("dbq").focus()}]]);return}
+  busySheet("Product opzoeken…");
+  try{let j;try{j=await offGet(gtin,10000)}catch(e1){j=await offGet(gtin,15000)}
+    if(!(j&&j.status===1&&j.product)){msgSheet("Product niet gevonden",`Barcode ${gtin} staat (nog) niet in Open Food Facts. Zoek het op naam.`,[["Zoeken op naam",()=>{closeSheet();$("dbq").focus()}]]);return}
+    const P=j.product,n=P.nutriments||{},num=v=>v==null||v===""||isNaN(+v)?null:+v;let kcal=num(n["energy-kcal_100g"]);if(kcal==null&&num(n["energy_100g"])!=null)kcal=num(n["energy_100g"])/4.184;
+    const nm=(P.product_name_nl||P.product_name||"").trim(),br=(P.brands||"").split(",")[0].trim(),name=[nm,br&&!nm.toLowerCase().includes(br.toLowerCase())?br:""].filter(Boolean).join(" · ")||"Product "+gtin;
+    if(kcal==null){msgSheet(name,"Dit product staat in Open Food Facts, maar zonder voedingswaarden.",[["Sluiten",closeSheet]]);return}
+    const sv=num(P.serving_quantity),g=sv&&sv>0&&sv<2000?sv:100,r=v=>v==null?null:Math.round(v*g/10)/10;
+    closeSheet();setTimeout(()=>dbDetail({name,amount:g===100?"100 g":`${P.serving_size||g+" g"}`,g,unit:"g",kcal:Math.round(kcal*g/100),p:r(num(n.proteins_100g)),c:r(num(n.carbohydrates_100g)),f:r(num(n.fat_100g)),img:P.image_front_small_url||undefined,tag:"Online"}),320)}
+  catch(e){msgSheet("Opzoeken lukte niet",navigator.onLine?"Open Food Facts reageert niet. Probeer het zo nog eens.":"Je hebt geen internet. Voor barcodes is internet nodig.",[["Sluiten",closeSheet]])}}
+(function(){const b=$("dbscan");if(!b)return;b.onclick=e=>{e.preventDefault();scanForDb=true;scanLive("barcode")}})();
 /* ===== Voeding: alle producten doorzoeken ===== */
 let dbShown=60,dbQ="",dbTimer=null,dbSeq=0;
 const fmtN=v=>v==null||v===""||isNaN(+v)?"–":String(Math.round(+v*10)/10).replace(".",",");
@@ -4603,7 +4625,7 @@ function dbRow(x){const b=el(`<button type="button" class="dbrow">${foodThumb(x)
   b.onclick=()=>dbDetail(x);return b}
 function dbDetail(x){openSheet(s=>{const d=el(`<div class="dbdet"><div class="top">${foodThumb(x,true)}<div><h2></h2><span class="muted small dbamt"></span></div></div>
   <table><thead><tr><th></th><th>Per portie</th><th>Per 100 ${x.unit==="ml"?"ml":"g"}</th></tr></thead><tbody></tbody></table>
-  <span class="muted small">${x.tag==="Online"?"Bron: Open Food Facts. Waarden zoals ingevuld door de community.":"Gemiddelde waarden uit de Rise-lijst."}</span>
+  <span class="muted small">${x.tag==="Online"?"Bron: Open Food Facts. Waarden zoals ingevuld door de community.":x.tag==="QR"?"Waarden uit de QR-code.":"Gemiddelde waarden uit de Rise-lijst."}</span>
   <button class="btn" type="button">Sluiten</button></div>`);
   d.querySelector("h2").textContent=x.name;d.querySelector(".dbamt").textContent=x.amount;
   const h=per100(x)||{},tb=d.querySelector("tbody");
