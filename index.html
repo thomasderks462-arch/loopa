@@ -930,6 +930,16 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
 .qz .nav{display:flex;gap:10px;margin-top:auto}
 .qz .nav .btn{flex:1}
 .qz .res{display:flex;flex-direction:column;gap:12px}
+
+.eatsw button[aria-selected="true"]{background:linear-gradient(135deg,var(--red),#f23a1d);color:#fff;box-shadow:0 4px 12px rgba(227,18,43,.25)}
+.fab{line-height:1}
+body[data-view="voeding"] .fab{transform:none;opacity:1;pointer-events:auto}
+.addmenu{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.addmenu button{border:1px solid var(--line);background:var(--surface);border-radius:18px;padding:16px 12px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;color:var(--ink)}
+.addmenu button .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--tint);color:var(--red)}
+.addmenu button .ic svg{width:22px;height:22px}
+.addmenu button b{font-size:1rem}.addmenu button small{color:var(--muted);font-size:.78rem}
+.addmenu button.wide{grid-column:1/-1;flex-direction:row;align-items:center;gap:12px}
 </style>
 </head>
 <body>
@@ -1020,6 +1030,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
 
   <!-- ETEN -->
   <div id="view-eten" class="wrap" hidden>
+    <div class="sporttabs eatsw" role="tablist" aria-label="Eten"><button type="button" role="tab" data-ev="eten"><span aria-hidden="true">🍽️</span>Mijn dag</button><button type="button" role="tab" data-ev="voeding"><span aria-hidden="true">🔍</span>Opzoeken</button></div>
     <div id="eatnudge" hidden></div>
     <section class="card eathero" aria-label="Calorieën vandaag">
       <div class="eh-top"><div class="eh-l"><span class="label">Vandaag</span><div class="eh-big num"><b id="kcalleft">0</b><span id="kcallbl">kcal over</span></div></div><button class="linkbtn" id="kcalgoal" type="button">Doel aanpassen</button></div>
@@ -1134,7 +1145,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
       <div class="stat"><span class="label">Gem. slaap</span><span class="v num" id="s-sleep">–</span></div>
       <div class="stat"><span class="label">Gewoontes</span><span class="v num" id="s-habit">–</span></div>
       <div class="stat"><span class="label">Water/dag</span><span class="v num" id="s-water">–</span></div>
-      <div class="stat" hidden><span class="label">Gem. kcal</span><span class="v num" id="s-kcal">–</span></div>
+      <div class="stat"><span class="label">Gem. kcal</span><span class="v num" id="s-kcal">–</span></div>
       <div class="stat"><span class="label">Sport</span><span class="v num" id="s-sport">–</span></div>
       <div class="stat"><span class="label">Stappen</span><span class="v num" id="s-steps">–</span></div>
     </div>
@@ -1177,6 +1188,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
 
   <!-- GEWOONTES -->
   <div id="view-voeding" class="wrap" hidden>
+    <div class="sporttabs eatsw" role="tablist" aria-label="Eten"><button type="button" role="tab" data-ev="eten"><span aria-hidden="true">🍽️</span>Mijn dag</button><button type="button" role="tab" data-ev="voeding"><span aria-hidden="true">🔍</span>Opzoeken</button></div>
     <label class="dbsearch"><svg aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="dbq" placeholder="Zoek eten, bv. kwark of pindakaas" autocomplete="off" enterkeyhint="search" aria-label="Zoek eten"><button type="button" id="dbclear" aria-label="Wissen" hidden>✕</button><button type="button" id="dbscan" class="dbcam" aria-label="Scan een barcode of QR-code"><svg aria-hidden="true"><use href="#i-barcode"/></svg></button><button type="button" id="dbcam" class="dbcam" aria-label="Maak een foto van je eten"><svg aria-hidden="true"><use href="#i-camera"/></svg></button></label>
     <input type="file" id="dbfile" accept="image/*" capture="environment" hidden>
     <section class="card dbphoto" id="dbphoto" hidden><div class="dbph-top"><img id="dbphimg" alt=""><div><b id="dbphtitle">Foto bekijken…</b><span class="muted small" id="dbphsub"></span></div><button type="button" class="dbphx" id="dbphx" aria-label="Sluiten">✕</button></div><div class="dbchips" id="dbchips"></div></section>
@@ -1280,10 +1292,11 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;top:-1
 <input type="file" id="fileBody" accept="image/*" hidden>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<button class="fab" id="fab" type="button" aria-label="Eten toevoegen">+</button>
 <nav class="tabs" role="tablist">
   <button role="tab" data-view="dag" aria-selected="true"><svg><use href="#i-today"/></svg>Doelen</button>
+  <button role="tab" data-view="eten" aria-selected="false"><svg><use href="#i-food"/></svg>Eten</button>
   <button role="tab" data-view="sport" aria-selected="false"><svg><use href="#i-run"/></svg>Sport</button>
-  <button role="tab" data-view="voeding" aria-selected="false"><svg><use href="#i-search"/></svg>Voeding</button>
   <button role="tab" data-view="slaap" aria-selected="false"><svg><use href="#i-moon"/></svg>Slaap</button>
   <button role="tab" data-view="overzicht" aria-selected="false"><svg><use href="#i-stats"/></svg>Overzicht</button>
 </nav>
@@ -1353,7 +1366,7 @@ function renderHeader(){
   const dateTxt=d.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"});
   $("streaknum").textContent=dayStreak();checkStreak();
   $("week").hidden=!DAYVIEWS.includes(view);
-  const T={eten:"Eten & drinken",sport:"Sport",slaap:"Slaap",overzicht:"Overzicht",instellingen:"Gewoontes & doelen",voeding:"Voeding"};
+  const T={eten:"Eten & drinken",sport:"Sport",slaap:"Slaap",overzicht:"Overzicht",instellingen:"Gewoontes & doelen",voeding:"Eten opzoeken"};
   if(view==="dag"){$("title").textContent=dayName;$("datelabel").textContent=dateTxt;
     if(diff===0){const hr=new Date().getHours(),g=hr<6?"Goedenacht":hr<12?"Goedemorgen":hr<18?"Goedemiddag":"Goedenavond";
       const nm=state.profile&&state.profile.name;$("datelabel").textContent=g+(nm?", "+nm:"")+" · "+d.toLocaleDateString("nl-NL",{day:"numeric",month:"long"})}}
@@ -1370,7 +1383,7 @@ function renderWeek(){
     b.innerHTML=`<span class="dn">${dt.toLocaleDateString("nl-NL",{weekday:"short"}).slice(0,2)}</span><span class="ring">${ringSvg(k>today?0:Math.min(1,f),34)}<b class="num">${dt.getDate()}</b></span>`;
     b.onclick=()=>{cur=k;render()};w.appendChild(b)}
 }
-function render(){renderHeader();if(DAYVIEWS.includes(view))renderWeek();
+function render(){renderHeader();if(typeof syncEatSw==="function")syncEatSw();if(DAYVIEWS.includes(view))renderWeek();
   ({dag:renderDag,eten:renderEten,sport:renderSport,slaap:renderSlaap,overzicht:renderOverview,instellingen:renderSettings,voeding:renderVoeding})[view]()}
 function renderDay(){render()}
 function setRing(id,f,color){const el=$(id);el.setAttribute("stroke-dasharray",(264*Math.min(1,f))+" 264");el.style.opacity=f>0?1:0;if(color)el.setAttribute("stroke",color)}
@@ -1383,8 +1396,8 @@ function renderDag(){
   $("herotitle").textContent=!n?"Nog geen gewoontes":f>=1?"Alles gedaan!":done?"Goed bezig":"Aan de slag";
   $("herosub").textContent=n?`${done} van ${n} gewoontes gedaan`:"Voeg ze toe via de knop rechtsboven";
   const t=sumFood(cur),sh=sleepHours(dd),sm=sportMin(cur);
-  $("tiles").innerHTML=[
-    ["dag","i-drop","Water",dd.water||0,"glazen",(dd.water||0)/goalWater(),"var(--night)"],
+  $("tiles").innerHTML=[["eten","i-food","Eten",Math.round(t.kcal),"kcal",t.kcal/goalKcal(),"var(--flame)"],
+    ["eten","i-drop","Water",dd.water||0,"glazen",(dd.water||0)/goalWater(),"var(--night)"],
     ["sport","i-run","Sport",sm,"min",sm/30,"var(--good)"],
     ["slaap","i-moon","Slaap",sh==null?"–":fmtH(sh),"",sh?sh/goalSleep():0,"var(--night)"]]
     .map(([v,ic,l,val,u,fr,c])=>`<button class="tile" data-go="${v}"><span class="th">${icon(ic)}<span class="label">${l}</span></span><span class="tv num">${val} <small>${u}</small></span><div class="bar"><i style="width:${Math.min(100,fr*100)}%;background:${c}"></i></div></button>`).join("");
@@ -1568,6 +1581,7 @@ let pendingForm=null,scanMode=null;
 
 /* ---- scannen ---- */
 function pickFile(mode){if(mode==="scan"||mode==="qr"){scanLive(mode);return}
+  if(mode==="foto"&&!getKey()&&!(window.claude&&claude.use)){freePhotoPick();return}
   if((mode==="foto"||mode==="label")&&!getKey()&&!(window.claude&&claude.use)){msgSheet("Stel eerst foto-herkenning in","Om foto's te laten herkennen heeft Rise een Claude API-sleutel nodig. Je stelt hem één keer in onder Gewoontes & doelen.",[["Naar instellingen",()=>{closeSheet();show("instellingen")}],["Handmatig invullen",()=>foodForm({meal:guessMeal(),src:"hand"},{isNew:true})]]);return}
   pickFileRaw(mode)}
 function pickFileRaw(mode){scanMode=mode;const i=(mode==="foto"||mode==="label")?$("filePhoto"):$("fileScan");i.value="";i.click()}
@@ -2185,7 +2199,7 @@ const _render24=render;render=function(){_render24();try{renderSupp()}catch(e){}
 
 /* ===== v23: rustiger, extra's naar aparte pagina's onder "Meer" ===== */
 const MORE={
-  dag:[{k:"tiles",em:"📊",t:"Je dag in cijfers",el:()=>$("tiles"),s:()=>"Water, sport en slaap van vandaag"},
+  dag:[{k:"tiles",em:"📊",t:"Je dag in cijfers",el:()=>$("tiles"),s:()=>"Eten, water, sport en slaap van vandaag"},
        {k:"gevoel",em:"📝",t:"Stemming en notities",el:()=>$("mood").closest("section"),s:()=>{const d=day(cur);return d.notes?"Notitie: "+d.notes.slice(0,40):d.mood?"Stemming ingevuld":"Hoe voel je je vandaag?"}}],
   eten:[{k:"vast",em:"⭐",t:"Vaste maaltijden en boodschappen",el:()=>$("mealtpl"),s:()=>{const n=(state.meals||[]).length;return n?`${n} ${n===1?"maaltijd":"maaltijden"} bewaard`:"Eet je vaak hetzelfde? Bewaar het hier"}},
         {k:"eweek",em:"📈",t:"Deze week",el:()=>$("eatweek").closest("section"),s:()=>"Calorieën en eiwit per dag"}],
@@ -2678,7 +2692,8 @@ function isFav(n){const k=norm(n);return favs().some(x=>norm(x.name)===k)}
 function toggleFav(x){const k=norm(x.name),l=favs().slice(),i=l.findIndex(y=>norm(y.name)===k);
   if(i>=0)l.splice(i,1);else{const b=x.base||x;l.unshift({name:x.name,amount:b.amount||"",g:x.g,unit:x.unit,kcal:b.kcal,p:b.p,c:b.c,f:b.f,...(x.img?{img:x.img}:{})})}
   setProfile("favs",l);return i<0}
-function foodPicker(meal){meal=meal||guessMeal();let q="",offT=null;const gtin=pickGtin;pickGtin=null;
+let pickQuery=null;
+function foodPicker(meal){meal=meal||guessMeal();let q="",offT=null;const gtin=pickGtin;pickGtin=null;const preQ=pickQuery;pickQuery=null;
   const linkG=x=>{if(!gtin)return;state.products=state.products||{};state.products[gtin]={name:x.name,amount:x.amount,kcal:x.kcal,p:x.p,c:x.c,f:x.f};saveProducts()};
   openSheet(s=>{s.classList.add("picker");
     s.appendChild(el(`<h2>Eten toevoegen</h2>`));
@@ -2715,7 +2730,7 @@ function foodPicker(meal){meal=meal||guessMeal();let q="",offT=null;const gtin=p
       const own=el(`<button class="btn sec" type="button"></button>`);own.textContent=`"${q}" zelf invullen`;own.onclick=()=>{forceMeal=meal;foodForm({name:q,meal,src:"hand"},{isNew:true})};list.appendChild(own)};
     inp.addEventListener("input",()=>{q=inp.value.trim();const on=typeof offSearch==="function"&&q.length>=3&&navigator.onLine!==false;draw(on?null:undefined);clearTimeout(offT);
       if(on)offT=setTimeout(async()=>{const qq=q;let r=[];try{r=await offSearch(qq)}catch(e){}if(qq===q)draw(r)},600)});
-    draw()})}
+    draw();if(preQ){inp.value=preQ;inp.dispatchEvent(new Event("input"))}})}
 
 function gramsOf(x){if(x.g&&x.unit)return{g:+x.g,u:x.unit};const a=String((x.base&&x.base.amount)||x.amount||"");
   let m=a.match(/\((\d+(?:[.,]\d+)?)\s*(g|ml)\)/i)||a.match(/^(\d+(?:[.,]\d+)?)\s*(g|ml)$/i)||a.match(/(\d+(?:[.,]\d+)?)\s*(g|ml)\b/i);return m?{g:+m[1].replace(",","."),u:m[2].toLowerCase()}:null}
@@ -4379,7 +4394,7 @@ function downloadIcs(){const r=rem(),now=new Date(),st=keyOf(now).replace(/-/g,"
 const VIEWS=["dag","eten","sport","voeding","slaap","overzicht","instellingen"],DAYVIEWS=["dag","eten","sport","slaap"];
 document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>show(b.dataset.view));
 $("gear").onclick=()=>show("instellingen");
-function show(v){if(v==="eten")v="dag";view=v;document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.view===v));
+function show(v){view=v;document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.view===(v==="voeding"?"eten":v)));
   VIEWS.forEach(n=>$("view-"+n).hidden=n!==v);render();window.scrollTo(0,0);document.body.dataset.view=v;animateView(v)}
 
 /* doelen uit de vragenlijst */
@@ -4591,6 +4606,28 @@ function needQuiz(){const p={...(state.profile||{})};if(!p.weight){const lw=last
       const nv=el(`<div class="nav"></div>`);nv.append(again,save);box.appendChild(nv)}
     draw()})}
 
+
+/* ===== Eten: plusknop, keuzemenu en gratis foto ===== */
+document.querySelectorAll(".eatsw").forEach(sw=>sw.querySelectorAll("button").forEach(b=>{b.onclick=()=>show(b.dataset.ev)}));
+function syncEatSw(){document.querySelectorAll(".eatsw button").forEach(b=>b.setAttribute("aria-selected",b.dataset.ev===view))}
+function addMenu(){const meal=guessMeal();openSheet(s=>{s.appendChild(el(`<h2>Eten toevoegen</h2>`));
+  s.appendChild(el(`<span class="muted small">Het komt bij ${SHORTMEAL(MEALS.find(m=>m[0]===meal)[1]).toLowerCase()}. Dat kun je daarna nog aanpassen.</span>`));
+  const g=el(`<div class="addmenu"></div>`);
+  [["zoek","i-search","Zoeken","Uit 1.000+ producten en de winkel",true],["scan","i-barcode","Barcode","Scan de verpakking"],["foto","i-camera","Foto","Gratis herkennen"],["qr","i-qr","QR-code","Scan een QR-code"],["hand","i-pen","Handmatig","Zelf kcal en macro's invullen"]].forEach(([m,ic,t,sub,wide])=>{
+    const b=el(`<button type="button"${wide?' class="wide"':""}><span class="ic">${icon(ic)}</span><span><b></b><br><small></small></span></button>`);b.querySelector("b").textContent=t;b.querySelector("small").textContent=sub;
+    b.onclick=()=>{forceMeal=meal;if(m==="zoek"){closeSheet();setTimeout(()=>foodPicker(meal),300)}else if(m==="hand")foodForm({meal,src:"hand"},{isNew:true});else{closeSheet();setTimeout(()=>pickFile(m),300)}};g.appendChild(b)});
+  s.appendChild(g)})}
+$("fab").onclick=addMenu;
+function freePhotoPick(){const f=$("dbfile");f.value="";f.dataset.forAdd="1";f.click()}
+async function freePhotoAdd(file){const url=URL.createObjectURL(file);busySheet("Foto bekijken…");
+  try{const img=new Image();img.src=url;await img.decode();const res=await mlClassify(img);
+    if(!res.length){msgSheet("Geen eten herkend","Probeer een foto van dichtbij met alleen het eten in beeld, of zoek het op naam.",[["Zoeken op naam",()=>{closeSheet();setTimeout(()=>foodPicker(forceMeal||guessMeal()),300)}],["Handmatig",()=>foodForm({meal:forceMeal||guessMeal(),src:"hand"},{isNew:true})]]);return}
+    openSheet(s=>{s.appendChild(el(`<div class="dbph-top"><img alt="" style="width:72px;height:72px;border-radius:16px;object-fit:cover"><div><h2>Is het dit?</h2><span class="muted small">Tik op wat klopt, dan kies je de portie.</span></div></div>`));
+      s.querySelector("img").src=url;const ch=el(`<div class="dbchips"></div>`);
+      res.forEach(([n,v])=>{const b=el(`<button type="button"></button>`);b.textContent=n.charAt(0).toUpperCase()+n.slice(1);b.append(el(`<small>${Math.round(v*100)}%</small>`));
+        b.onclick=()=>{closeSheet();pickQuery=n;setTimeout(()=>foodPicker(forceMeal||guessMeal()),300)};ch.appendChild(b)});s.appendChild(ch);
+      const o=el(`<button class="btn sec" type="button">Iets anders: zoek op naam</button>`);o.onclick=()=>{closeSheet();setTimeout(()=>foodPicker(forceMeal||guessMeal()),300)};s.appendChild(o)})}
+  catch(e){msgSheet("Herkennen lukte niet",navigator.onLine?"Probeer het nog een keer.":"De eerste keer is internet nodig om de herkenning te laden.",[["Sluiten",closeSheet]])}}
 /* ===== Voeding: barcode of QR-code scannen ===== */
 let scanForDb=false;
 async function dbScanCode(txt){txt=String(txt).trim();let gtin=null;const m=txt.match(/(?:^|\/)01\/(\d{8,14})/);
@@ -4685,7 +4722,7 @@ async function dbPhoto(file){if(!file||mlBusy)return;mlBusy=true;const box=$("db
   catch(e){$("dbphtitle").textContent="Herkennen lukte niet";$("dbphsub").textContent=navigator.onLine?"Probeer het nog een keer.":"De eerste keer is internet nodig om de herkenning te laden."}
   finally{mlBusy=false}}
 (function(){const cam=$("dbcam"),f=$("dbfile");if(!cam||!f)return;cam.onclick=e=>{e.preventDefault();f.value="";f.click()};
-  f.onchange=()=>dbPhoto(f.files&&f.files[0]);$("dbphx").onclick=()=>{$("dbphoto").hidden=true}})();
+  f.onchange=()=>{const fl=f.files&&f.files[0];if(f.dataset.forAdd){delete f.dataset.forAdd;if(fl)freePhotoAdd(fl);return}dbPhoto(fl)};$("dbphx").onclick=()=>{$("dbphoto").hidden=true}})();
 loadLocal();render();setSync("Opgeslagen op dit apparaat.");startRem();lockApp();document.body.dataset.view=view;
 if(!state.profile)openOnb();
 
