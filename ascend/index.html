@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#00a395">
-<meta name="description" content="Ascend: gewoontes, coach, training, voeding, doelen en dagboek.">
+<meta name="description" content="Ascend: gewoontes, coach, doelen en dagboek.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -370,8 +370,6 @@ header.top h1{text-shadow:0 3px 0 rgba(255,255,255,.6)}
   <nav class="tabs" role="tablist">
     <button role="tab" id="tab-today" aria-selected="true" data-view="today">Vandaag</button>
     <button role="tab" id="tab-coach" aria-selected="false" data-view="coach">Coach</button>
-    <button role="tab" id="tab-training" aria-selected="false" data-view="training">Training</button>
-    <button role="tab" id="tab-food" aria-selected="false" data-view="food">Voeding</button>
     <button role="tab" id="tab-goals" aria-selected="false" data-view="goals">Doelen</button>
     <button role="tab" id="tab-journal" aria-selected="false" data-view="journal">Dagboek</button>
   </nav>
@@ -392,8 +390,8 @@ header.top h1{text-shadow:0 3px 0 rgba(255,255,255,.6)}
         </div>
       </div>
       <div class="stats">
-        <div class="stat"><b id="stKcal">0</b><span id="stKcalL">kcal vandaag</span></div>
-        <div class="stat"><b id="stTrain">0</b><span>trainingen deze week</span></div>
+        <div class="stat"><b id="stBest">0</b><span>beste reeks ooit</span></div>
+        <div class="stat"><b id="stWeek">0%</b><span>deze week gehaald</span></div>
         <div class="stat"><b id="stFocus">0</b><span>focusminuten vandaag</span></div>
       </div>
       <div class="level">
@@ -473,7 +471,7 @@ header.top h1{text-shadow:0 3px 0 rgba(255,255,255,.6)}
     <div class="panel">
       <div class="panel-head">
         <h2>Eerlijke dagbeoordeling</h2>
-        <span class="muted small">Op basis van je gewoontes, training, voeding, focus en dagboek</span>
+        <span class="muted small">Op basis van je gewoontes, doelen, focus en dagboek</span>
       </div>
       <div id="review"></div>
       <div class="btns">
@@ -499,31 +497,10 @@ header.top h1{text-shadow:0 3px 0 rgba(255,255,255,.6)}
       </form>
     </div>
 
-    <div class="panel" id="postureCard">
-      <div class="panel-head">
-        <h2>Houding- en fysiekcheck</h2>
-        <span class="muted small">Upload een foto, de coach geeft concrete feedback</span>
-      </div>
-      <div class="grid2">
-        <div class="field"><label for="postureKind">Wat wil je laten beoordelen?</label>
-          <select id="postureKind">
-            <option value="houding">Houding (staand of zittend)</option>
-            <option value="fysiek">Fysieke vooruitgang</option>
-            <option value="kleding">Kledingstijl en uitstraling</option>
-          </select>
-        </div>
-        <div class="field"><label for="postureFile">Foto</label><input type="file" id="postureFile" accept="image/jpeg,image/png,image/webp"></div>
-      </div>
-      <img id="posturePreview" class="photo-preview" alt="Gekozen foto" hidden>
-      <div class="btns"><button class="btn coach" id="postureBtn" disabled>Beoordeel foto</button></div>
-      <div class="ai-out" id="postureOut" hidden></div>
-      <div class="muted small">Foto's worden alleen naar Claude gestuurd voor deze beoordeling en niet in Ascend bewaard.</div>
-    </div>
-
     <div class="panel" id="settingsCard" hidden>
       <h2>Instellingen</h2>
       <div class="field">
-        <label for="apiKey">Anthropic API-sleutel (voor de coach en foto's)</label>
+        <label for="apiKey">Anthropic API-sleutel (voor de AI-coach)</label>
         <div class="add-row"><input type="password" id="apiKey" autocomplete="off" placeholder="sk-ant-..." style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;flex:1;min-width:0"><button class="btn" id="saveKey" type="button">Bewaar</button></div>
         <span class="muted small" id="keyNote">Maak een sleutel aan op console.anthropic.com. Hij blijft alleen op dit apparaat. Je betaalt per vraag een klein bedrag aan Anthropic.</span>
       </div>
@@ -533,97 +510,6 @@ header.top h1{text-shadow:0 3px 0 rgba(255,255,255,.6)}
         <div class="btns"><button class="btn ghost" id="exportBtn" type="button">Back-up downloaden</button><label class="btn ghost" for="importFile" style="cursor:pointer">Back-up terugzetten</label><input type="file" id="importFile" accept="application/json,.json" hidden></div>
         <span class="muted small" id="backupNote"></span>
       </div>
-    </div>
-  </section>
-
-  <!-- TRAINING -->
-  <section class="view" id="view-training" hidden>
-    <div class="panel">
-      <div class="panel-head"><h2>Deze week</h2><span class="muted small" id="weekRange"></span></div>
-      <div class="stats">
-        <div class="stat"><b id="twCount">0</b><span>trainingen</span></div>
-        <div class="stat"><b id="twMin">0</b><span>minuten</span></div>
-        <div class="stat"><b id="twWeeks">0</b><span>weken op rij actief</span></div>
-      </div>
-      <div><div class="lbl" style="margin-bottom:6px">Persoonlijke records</div><div class="pr-list" id="prs"></div></div>
-    </div>
-
-    <div class="panel">
-      <h2>Training loggen</h2>
-      <form id="workoutForm" style="display:flex;flex-direction:column;gap:10px">
-        <div class="grid2">
-          <div class="field"><label for="wType">Soort</label>
-            <select id="wType">
-              <option>Kracht</option><option>Hardlopen</option><option>Fietsen</option><option>Wandelen</option>
-              <option>Zwemmen</option><option>Sport</option><option>Yoga / mobiliteit</option><option>Anders</option>
-            </select>
-          </div>
-          <div class="field"><label for="wDate">Datum</label><input type="date" id="wDate"></div>
-          <div class="field"><label for="wMin">Minuten</label><input type="number" id="wMin" min="1" max="600" inputmode="numeric" placeholder="45"></div>
-          <div class="field"><label for="wFeel">Hoe voelde het?</label>
-            <select id="wFeel"><option value="">Kies</option><option>Zwaar</option><option>Goed</option><option>Sterk</option></select>
-          </div>
-        </div>
-        <div class="field">
-          <span class="lbl">Oefeningen (optioneel)</span>
-          <div class="ex-row ex-head"><span>Oefening</span><span>Sets</span><span>Reps</span><span>kg</span><span></span></div>
-          <div class="ex-rows" id="exRows"></div>
-          <div><button type="button" class="btn ghost" id="addEx">+ Oefening</button></div>
-        </div>
-        <div class="field"><label for="wNotes">Notities</label><input type="text" id="wNotes" maxlength="200" placeholder="Bijv. 5 km in 28 min, knie voelde goed"></div>
-        <div><button class="btn" type="submit">Training opslaan</button></div>
-      </form>
-    </div>
-
-    <div class="panel">
-      <h2>Geschiedenis</h2>
-      <ul class="log" id="workoutLog"></ul>
-    </div>
-  </section>
-
-  <!-- FOOD -->
-  <section class="view" id="view-food" hidden>
-    <div class="panel">
-      <div class="panel-head"><h2>Vandaag gegeten</h2><button class="icon-btn" id="editTargets">Doelen aanpassen</button></div>
-      <div id="targetsForm" hidden>
-        <div class="grid2">
-          <div class="field"><label for="tKcal">Calorieën per dag</label><input type="number" id="tKcal" min="800" max="6000"></div>
-          <div class="field"><label for="tProt">Eiwit per dag (g)</label><input type="number" id="tProt" min="0" max="400"></div>
-        </div>
-        <div class="btns" style="margin-top:8px"><button class="btn" id="saveTargets">Opslaan</button></div>
-      </div>
-      <div class="macro">
-        <div class="row"><span>Calorieën</span><span class="num" id="mKcal"></span></div>
-        <div class="bar-track"><div class="bar-fill" id="bKcal"></div></div>
-      </div>
-      <div class="macro">
-        <div class="row"><span>Eiwit</span><span class="num" id="mProt"></span></div>
-        <div class="bar-track"><div class="bar-fill" id="bProt"></div></div>
-      </div>
-      <div class="muted small num" id="mOther"></div>
-      <ul class="log" id="mealLog"></ul>
-    </div>
-
-    <div class="panel">
-      <h2>Maaltijd toevoegen</h2>
-      <form id="mealForm" style="display:flex;flex-direction:column;gap:10px">
-        <div class="field"><label for="fName">Wat heb je gegeten?</label><input type="text" id="fName" maxlength="140" placeholder="Bijv. 2 boterhammen met kaas en een appel"></div>
-        <div class="field" id="fPhotoField"><label for="fPhoto">Of een foto van je bord</label><input type="file" id="fPhoto" accept="image/jpeg,image/png,image/webp"></div>
-        <div class="btns"><button type="button" class="btn coach" id="estimate">Schat met AI</button></div>
-        <div class="muted small" id="estNote"></div>
-        <div class="grid4">
-          <div class="field"><label for="fKcal">kcal</label><input type="number" id="fKcal" min="0" max="5000"></div>
-          <div class="field"><label for="fProt">Eiwit g</label><input type="number" id="fProt" min="0" max="400"></div>
-          <div class="field"><label for="fCarb">Koolh. g</label><input type="number" id="fCarb" min="0" max="800"></div>
-          <div class="field"><label for="fFat">Vet g</label><input type="number" id="fFat" min="0" max="400"></div>
-        </div>
-        <div><button class="btn" type="submit">Maaltijd opslaan</button></div>
-      </form>
-    </div>
-
-    <div class="panel">
-      <div class="panel-head"><h2>Laatste 7 dagen</h2><span class="muted small" id="avgKcal"></span></div>
-      <div class="mini-bars" id="kcalBars"></div>
     </div>
   </section>
 
@@ -932,7 +818,7 @@ header.top h1{text-shadow:0 3px 0 rgba(255,255,255,.6)}
     const challengesDone = core.habits.filter(h => h.challenge && Object.keys(core.done).filter(k => k >= h.challenge.start && core.done[k].includes(h.id)).length >= h.challenge.len).length;
     let perfect = 0;
     for (const [k, a] of Object.entries(core.done)) { const d = fromKey(k), sh = core.habits.filter(h => sched(h, d)); if (sh.length && sh.every(h => a.includes(h.id))) perfect++; }
-    const xp = checkins*10 + wl*25 + focusTotal + jl*15 + steps*20 + reviews*5 + mealDays*5 + challengesDone*200;
+    const xp = checkins*10 + focusTotal + jl*15 + steps*20 + reviews*5 + challengesDone*200;
     return { checkins, wl, focusTotal, jl, steps, goalsDone, reviews, mealDays, bestStreak, challengesDone, perfect, xp };
   }
   const BADGES = [
@@ -942,11 +828,11 @@ header.top h1{text-shadow:0 3px 0 rgba(255,255,255,.6)}
     ["Honderdtal", "100 check-ins", s => s.checkins >= 100],
     ["Perfecte dag", "Alle gewoontes op één dag", s => s.perfect >= 1],
     ["Tien perfect", "10 perfecte dagen", s => s.perfect >= 10],
-    ["In beweging", "Eerste training gelogd", s => s.wl >= 1],
-    ["Sportief", "25 trainingen", s => s.wl >= 25],
+    ["Twee maanden", "60 dagen reeks", s => s.bestStreak >= 60],
+    ["Duizendpoot", "500 check-ins", s => s.checkins >= 500],
     ["Diep werk", "5 uur focus totaal", s => s.focusTotal >= 300],
     ["Schrijver", "7 reflecties", s => s.jl >= 7],
-    ["Bewust eten", "7 dagen voeding gelogd", s => s.mealDays >= 7],
+    ["Vijftig perfect", "50 perfecte dagen", s => s.perfect >= 50],
     ["Doel bereikt", "Eerste eigen doel af", s => s.goalsDone >= 1],
     ["Eerlijk gesprek", "Eerste coachbeoordeling", s => s.reviews >= 1],
     ["Uitdaging voltooid", "30-dagen-uitdaging af", s => s.challengesDone >= 1]
@@ -1031,11 +917,10 @@ header.top h1{text-shadow:0 3px 0 rgba(255,255,255,.6)}
     const longest = all.reduce((m, h) => Math.max(m, streakOf(h)), 0);
     $("#sumSmall").textContent = all.length ? `${doneToday} van ${habits.length} gewoontes gedaan · langste reeks nu ${plural(longest, "dag", "dagen")}` : "";
 
-    const kcal = mealsOn(tk).reduce((s, m) => s + nOr(m.kcal), 0);
-    $("#stKcal").textContent = kcal;
-    $("#stKcalL").textContent = `van ${core.settings.kcal} kcal`;
-    const ws = keyOf(weekStart(new Date()));
-    $("#stTrain").textContent = workoutsBetween(ws, tk).length;
+    $("#stBest").textContent = all.reduce((m, h) => Math.max(m, bestOf(h)), 0);
+    let due = 0, hit = 0;
+    for (let d = weekStart(new Date()); d <= now; d = addDays(d, 1)) for (const h of all) if (sched(h, d)) { due++; if (isDone(h.id, keyOf(d))) hit++; }
+    $("#stWeek").textContent = (due ? Math.round(hit / due * 100) : 0) + "%";
     $("#stFocus").textContent = core.focus[tk] || 0;
 
     const list = $("#habitList");
@@ -1113,136 +998,6 @@ header.top h1{text-shadow:0 3px 0 rgba(255,255,255,.6)}
     }, 500);
   });
   $("#focusStop").addEventListener("click", () => stopFocus(true));
-
-  /* ---------- training ---------- */
-  function exRow(ex = {}) {
-    const d = document.createElement("div"); d.className = "ex-row";
-    d.innerHTML = `<input type="text" placeholder="Bijv. Squat" maxlength="60" aria-label="Oefening" value="${esc(ex.name||"")}">
-      <input type="number" min="0" max="50" aria-label="Sets" value="${esc(ex.sets||"")}">
-      <input type="number" min="0" max="500" aria-label="Herhalingen" value="${esc(ex.reps||"")}">
-      <input type="number" min="0" max="1000" step="0.5" aria-label="Kilo" value="${esc(ex.kg||"")}">
-      <button type="button" class="icon-btn" aria-label="Oefening weghalen">✕</button>`;
-    d.querySelector("button").addEventListener("click", () => d.remove());
-    $("#exRows").appendChild(d);
-  }
-  $("#addEx").addEventListener("click", () => { exRow(); $("#exRows").lastElementChild.querySelector("input").focus(); });
-  $("#workoutForm").addEventListener("submit", e => {
-    e.preventDefault();
-    const exercises = [...document.querySelectorAll("#exRows .ex-row")].map(r => {
-      const [n, s, rp, kg] = r.querySelectorAll("input");
-      return { name: n.value.trim(), sets: nOr(s.value), reps: nOr(rp.value), kg: Number(kg.value) || 0 };
-    }).filter(x => x.name);
-    const min = nOr($("#wMin").value);
-    if (!min && !exercises.length) { $("#wMin").focus(); return; }
-    const id = uid();
-    workouts.put(id, { date: $("#wDate").value || todayKey(), type: $("#wType").value, minutes: min, feel: $("#wFeel").value, notes: $("#wNotes").value.trim(), exercises, updated: Date.now() });
-    $("#wMin").value = $("#wNotes").value = ""; $("#wFeel").value = ""; $("#exRows").innerHTML = ""; exRow();
-    renderTraining(); renderToday();
-  });
-  function weeksActive() {
-    let n = 0, ws = weekStart(new Date());
-    const has = (a, b) => workoutsBetween(keyOf(a), keyOf(b)).length > 0;
-    if (!has(ws, addDays(ws, 6))) ws = addDays(ws, -7); // this week still open
-    while (has(ws, addDays(ws, 6))) { n++; ws = addDays(ws, -7); }
-    return n;
-  }
-  function renderTraining() {
-    const ws = weekStart(new Date()), we = addDays(ws, 6);
-    const thisWeek = workoutsBetween(keyOf(ws), keyOf(we));
-    $("#weekRange").textContent = `${fmtDay(ws,{day:"numeric",month:"short"})} t/m ${fmtDay(we,{day:"numeric",month:"short"})}`;
-    $("#twCount").textContent = thisWeek.length;
-    $("#twMin").textContent = thisWeek.reduce((s, w) => s + nOr(w.minutes), 0);
-    $("#twWeeks").textContent = weeksActive();
-    const pr = {};
-    for (const w of workouts.list()) for (const x of (w.exercises || [])) {
-      const k = x.name.toLowerCase();
-      if (x.kg && (!pr[k] || x.kg > pr[k].kg)) pr[k] = { name: x.name, kg: x.kg, reps: x.reps };
-    }
-    const prs = Object.values(pr).sort((a, b) => b.kg - a.kg).slice(0, 12);
-    $("#prs").innerHTML = prs.length ? prs.map(p => `<span class="pill">${esc(p.name)} <span class="num">${p.kg} kg${p.reps?` × ${p.reps}`:""}</span></span>`).join("") : '<span class="muted small">Log krachtoefeningen met gewicht om je records te zien.</span>';
-    const all = workouts.list().sort((a, b) => (b.date + (b.updated||0)).localeCompare(a.date + (a.updated||0))).slice(0, 30);
-    $("#workoutLog").innerHTML = all.length ? all.map(w => {
-      const confirming = pendingConfirm?.kind === "workout" && pendingConfirm.id === w.id;
-      return `<li><div class="l-main">
-          <span class="l-title">${esc(w.type)}${w.minutes?` · <span class="num">${w.minutes} min</span>`:""}${w.feel?` · ${esc(w.feel)}`:""}</span>
-          <span class="muted small">${fmtDay(fromKey(w.date),{weekday:"short",day:"numeric",month:"short"})}</span>
-          ${(w.exercises||[]).length ? `<span class="small">${w.exercises.map(x => `${esc(x.name)} ${x.sets?x.sets+"×":""}${x.reps||""}${x.kg?" @ "+x.kg+" kg":""}`).join(" · ")}</span>` : ""}
-          ${w.notes ? `<span class="muted small">${esc(w.notes)}</span>` : ""}
-          ${confirming ? `<div class="confirm">Training verwijderen? <button class="btn danger" data-act="del-w-yes" data-id="${w.id}">Verwijderen</button><button class="btn ghost" data-act="cancel">Houden</button></div>` : ""}
-        </div><div class="l-side"><button class="icon-btn danger" data-act="del-w" data-id="${w.id}">Wis</button></div></li>`;
-    }).join("") : '<li class="empty">Nog geen trainingen. Log je eerste hierboven.</li>';
-  }
-  $("#workoutLog").addEventListener("click", e => {
-    const b = e.target.closest("[data-act]"); if (!b) return;
-    if (b.dataset.act === "del-w") pendingConfirm = { kind: "workout", id: b.dataset.id };
-    else if (b.dataset.act === "cancel") pendingConfirm = null;
-    else if (b.dataset.act === "del-w-yes") { workouts.remove(b.dataset.id); pendingConfirm = null; renderToday(); }
-    renderTraining();
-  });
-
-  /* ---------- food ---------- */
-  function renderFood() {
-    const tk = todayKey(), list = mealsOn(tk).sort((a, b) => (a.updated||0) - (b.updated||0));
-    const sum = f => list.reduce((s, m) => s + nOr(m[f]), 0);
-    const kcal = sum("kcal"), prot = sum("protein");
-    const T = core.settings;
-    $("#mKcal").textContent = `${kcal} / ${T.kcal} kcal`;
-    $("#mProt").textContent = `${prot} / ${T.protein} g`;
-    $("#bKcal").style.width = Math.min(100, kcal / T.kcal * 100) + "%";
-    $("#bKcal").classList.toggle("over", kcal > T.kcal);
-    $("#bProt").style.width = Math.min(100, T.protein ? prot / T.protein * 100 : 0) + "%";
-    $("#mOther").textContent = `Koolhydraten ${sum("carbs")} g · vet ${sum("fat")} g · ${kcal > T.kcal ? `${kcal - T.kcal} kcal boven je doel` : `nog ${T.kcal - kcal} kcal over`}`;
-    $("#mealLog").innerHTML = list.length ? list.map(m => `<li><div class="l-main"><span class="l-title">${esc(m.name || "Maaltijd")}</span>
-        <span class="muted small num">${nOr(m.protein)} g eiwit · ${nOr(m.carbs)} g koolh. · ${nOr(m.fat)} g vet</span></div>
-        <div class="l-side"><span class="num">${nOr(m.kcal)} kcal</span><button class="icon-btn danger" data-act="del-meal" data-id="${m.id}">Wis</button></div></li>`).join("")
-      : '<li class="empty">Nog niets gelogd vandaag.</li>';
-    let bars = "", total = 0, days = 0, max = T.kcal * 1.3;
-    const vals = [];
-    for (let i = 6; i >= 0; i--) { const d = addDays(new Date(), -i); const v = mealsOn(keyOf(d)).reduce((s, m) => s + nOr(m.kcal), 0); vals.push([d, v]); if (v) { total += v; days++; } max = Math.max(max, v); }
-    for (const [d, v] of vals) bars += `<div title="${fmtDay(d)}: ${v} kcal"><i class="${v > T.kcal ? "over" : ""}" style="height:${(v / max * 100).toFixed(0)}%"></i><span>${DOW[d.getDay()]}</span></div>`;
-    $("#kcalBars").innerHTML = bars;
-    $("#avgKcal").textContent = days ? `gemiddeld ${Math.round(total / days)} kcal op ${plural(days, "gelogde dag", "gelogde dagen")}` : "nog geen data";
-  }
-  $("#mealLog").addEventListener("click", e => {
-    const b = e.target.closest("[data-act=del-meal]"); if (!b) return;
-    meals.remove(b.dataset.id); renderFood(); renderToday();
-  });
-  $("#mealForm").addEventListener("submit", e => {
-    e.preventDefault();
-    const name = $("#fName").value.trim(), kcal = nOr($("#fKcal").value);
-    if (!name && !kcal) { $("#fName").focus(); return; }
-    meals.put(uid(), { date: todayKey(), name: name || "Maaltijd", kcal, protein: nOr($("#fProt").value), carbs: nOr($("#fCarb").value), fat: nOr($("#fFat").value), updated: Date.now() });
-    for (const id of ["#fName","#fKcal","#fProt","#fCarb","#fFat","#fPhoto"]) $(id).value = "";
-    $("#estNote").textContent = "";
-    renderFood(); renderToday();
-  });
-  $("#editTargets").addEventListener("click", () => {
-    const f = $("#targetsForm"); f.hidden = !f.hidden;
-    $("#tKcal").value = core.settings.kcal; $("#tProt").value = core.settings.protein;
-  });
-  $("#saveTargets").addEventListener("click", () => {
-    core.settings.kcal = Math.max(800, nOr($("#tKcal").value) || 2400);
-    core.settings.protein = Math.max(0, nOr($("#tProt").value));
-    $("#targetsForm").hidden = true; saveCore(); renderFood(); renderToday();
-  });
-  $("#estimate").addEventListener("click", async () => {
-    if (!sampleFn) { $("#estNote").textContent = STANDALONE ? "Vul eerst je API-sleutel in onder Coach, Instellingen." : "AI-inschatting werkt alleen op claude.ai met toestemming voor Claude."; return; }
-    const name = $("#fName").value.trim(), file = $("#fPhoto").files[0];
-    if (!name && !file) { $("#estNote").textContent = "Beschrijf je maaltijd of kies een foto."; return; }
-    const btn = $("#estimate"); btn.disabled = true; $("#estNote").textContent = "Bezig met inschatten…";
-    try {
-      const prompt = `Je bent een voedingsdeskundige. Schat de voedingswaarde van deze maaltijd zo realistisch mogelijk in voor één persoon.
-${name ? `Omschrijving: "${name}"` : ""}${file ? "\nEr is een foto van het bord bijgevoegd." : ""}
-Antwoord alleen met JSON: {"naam": korte Nederlandse naam van de maaltijd, "kcal": getal, "eiwit": gram, "koolhydraten": gram, "vet": gram, "toelichting": één korte zin in het Nederlands met je aannames en een eerlijke tip}`;
-      const r = await sampleFn.json(prompt, file && canImages ? { images: [file], modelTier: "quick" } : { modelTier: "quick" });
-      if (!name && r.naam) $("#fName").value = r.naam;
-      $("#fKcal").value = nOr(r.kcal); $("#fProt").value = nOr(r.eiwit); $("#fCarb").value = nOr(r.koolhydraten); $("#fFat").value = nOr(r.vet);
-      $("#estNote").textContent = (r.toelichting || "") + " Pas de getallen aan als het niet klopt en sla op.";
-    } catch (err) {
-      $("#estNote").textContent = errMsg(err, "Inschatten lukte niet. Probeer het opnieuw of vul het zelf in.");
-    }
-    btn.disabled = false;
-  });
 
   /* ---------- goals ---------- */
   function goalPill(g, pct) {
@@ -1382,10 +1137,6 @@ Antwoord alleen met JSON: {"naam": korte Nederlandse naam van de maaltijd, "kcal
       const d = g.steps.filter(s => s.done).length;
       lines.push(`- ${g.title}${g.example ? " (voorbeelddoel, niet zelf gekozen)" : ""}: ${d}/${g.steps.length} stappen${g.due ? `, streefdatum ${g.due}` : ""}${g.why ? `, waarom: ${g.why}` : ""}. Open stappen: ${g.steps.filter(s => !s.done).map(s => s.text).join("; ") || "geen"}`);
     }
-    const ms = mealsOn(tk);
-    lines.push(`VOEDING VANDAAG (doel ${core.settings.kcal} kcal, ${core.settings.protein} g eiwit): ${ms.length ? ms.map(m => `${m.name} ${nOr(m.kcal)} kcal/${nOr(m.protein)} g eiwit`).join("; ") : "niets gelogd"}. Totaal ${ms.reduce((s,m)=>s+nOr(m.kcal),0)} kcal, ${ms.reduce((s,m)=>s+nOr(m.protein),0)} g eiwit.`);
-    const wk = workoutsBetween(keyOf(addDays(new Date(), -13)), tk);
-    lines.push(`TRAINING LAATSTE 14 DAGEN: ${wk.length ? wk.map(w => `${w.date} ${w.type} ${w.minutes || "?"} min${(w.exercises||[]).length ? " (" + w.exercises.map(x => `${x.name} ${x.sets}x${x.reps}${x.kg ? "@" + x.kg + "kg" : ""}`).join(", ") + ")" : ""}`).join("; ") : "geen trainingen"}.`);
     let fw = 0; for (let i = 0; i < 7; i++) fw += core.focus[keyOf(addDays(new Date(), -i))] || 0;
     lines.push(`FOCUS: vandaag ${core.focus[tk] || 0} min, laatste 7 dagen ${fw} min.`);
     const jk = Object.keys(journal.items).sort().reverse().slice(0, 4);
@@ -1447,7 +1198,7 @@ Antwoord alleen met JSON in het Nederlands:
   function renderChat() {
     const el = $("#chat");
     el.innerHTML = "";
-    if (!chat.length) { el.innerHTML = '<div class="empty">Stel een vraag over je gewoontes, training, voeding of motivatie. De coach kent je gegevens uit Ascend.</div>'; return; }
+    if (!chat.length) { el.innerHTML = '<div class="empty">Stel een vraag over je gewoontes, doelen of motivatie. De coach kent je gegevens uit Ascend.</div>'; return; }
     for (const m of chat) { const d = document.createElement("div"); d.className = "msg " + m.role; d.textContent = m.content; el.appendChild(d); }
     el.scrollTop = el.scrollHeight;
   }
@@ -1477,41 +1228,14 @@ Antwoord alleen met JSON in het Nederlands:
     renderChat();
   });
 
-  $("#postureFile").addEventListener("change", () => {
-    const f = $("#postureFile").files[0], img = $("#posturePreview");
-    if (f) { img.src = URL.createObjectURL(f); img.hidden = false; } else img.hidden = true;
-    $("#postureBtn").disabled = !f || !sampleFn;
-  });
-  $("#postureBtn").addEventListener("click", async () => {
-    const f = $("#postureFile").files[0]; if (!f || !sampleFn) return;
-    const kind = $("#postureKind").value, out = $("#postureOut"), btn = $("#postureBtn");
-    btn.disabled = true; out.hidden = false; out.textContent = "Coach bekijkt je foto…";
-    const asks = {
-      houding: "Beoordeel de houding op deze foto (staand of zittend): hoofd, schouders, rug, bekken. Noem wat goed is, wat beter kan, en geef 3 concrete oefeningen of aanpassingen.",
-      fysiek: "Geef eerlijke, respectvolle feedback op de zichtbare fysieke conditie en lichaamshouding op deze foto, zonder te oordelen over het uiterlijk als persoon. Geef 3 concrete trainings- of voedingsadviezen die passen bij zijn doelen.",
-      kleding: "Geef eerlijke feedback op de kledingstijl en uitstraling op deze foto: pasvorm, kleuren, combinatie. Geef 3 concrete verbeterpunten."
-    };
-    try {
-      const r = await sampleFn(`Je bent de persoonlijke coach van Thomas. ${TONES[$("#reviewTone").value]} ${asks[kind]} Antwoord in het Nederlands, maximaal 180 woorden, zonder markdown-opmaak. Geef geen medische diagnoses. Als de foto niet geschikt is, zeg wat voor foto je nodig hebt.\n\nZijn doelen: ${core.goals.map(g => g.title).join("; ") || "geen"}`,
-        { images: [f], cache: false, onText: ({ text }) => { out.textContent = text; } });
-      out.textContent = r.text;
-    } catch (err) {
-      out.textContent = err?.code === "images_unavailable" ? "Foto's sturen kan niet in deze weergave." : errMsg(err, "Beoordelen lukte niet. Probeer een andere foto (JPG of PNG).");
-    }
-    btn.disabled = false;
-  });
-
   function applyCoachAvailability() {
     $("#coachOff").hidden = !!sampleFn;
     $("#reviewBtn").disabled = !sampleFn;
     $("#chatSend").disabled = !sampleFn;
-    $("#postureCard").hidden = !canImages;
-    $("#fPhotoField").hidden = !canImages;
-    $("#postureBtn").disabled = !$("#postureFile").files[0] || !sampleFn;
   }
 
   /* ---------- tabs ---------- */
-  const VIEWS = ["today","coach","training","food","goals","journal"];
+  const VIEWS = ["today","coach","goals","journal"];
   document.querySelector("nav.tabs").addEventListener("click", ev => {
     const b = ev.target.closest("button[data-view]"); if (b) showView(b.dataset.view);
   });
@@ -1552,7 +1276,7 @@ Antwoord alleen met JSON in het Nederlands:
     else if (act === "cancel-edit") { editing = null; renderToday(); }
   });
 
-  function renderAll() { renderHeader(); renderToday(); renderTraining(); renderFood(); renderGoals(); renderJournal(); renderReview(); renderChat(); applyCoachAvailability(); }
+  function renderAll() { renderHeader(); renderToday(); renderGoals(); renderJournal(); renderReview(); renderChat(); applyCoachAvailability(); }
 
   let lastKey = todayKey();
   setInterval(() => { if (todayKey() !== lastKey) { lastKey = todayKey(); renderAll(); } }, 60000);
@@ -1561,9 +1285,7 @@ Antwoord alleen met JSON in het Nederlands:
   let startTab = "today"; try { startTab = localStorage.getItem(LS_TAB) || "today"; } catch {}
   if (!VIEWS.includes(startTab)) startTab = "today";
   showView(startTab);
-  $("#wDate").value = todayKey();
   $("#newOpts").innerHTML = optsHTML("n");
-  exRow();
   renderAll();
   restingSave();
 
@@ -1618,7 +1340,7 @@ Antwoord alleen met JSON in het Nederlands:
   }
   function setupStandalone() {
     $("#settingsCard").hidden = false;
-    $("#coachOff").textContent = "Vul onder Instellingen je Anthropic API-sleutel in om de AI-coach, maaltijdinschatting en fotocheck te gebruiken. Al het andere werkt zonder.";
+    $("#coachOff").textContent = "Vul onder Instellingen je Anthropic API-sleutel in om de AI-coach te gebruiken. Al het andere werkt zonder.";
     if (getKey()) { $("#apiKey").placeholder = "Sleutel opgeslagen (vul in om te vervangen)"; }
     $("#saveKey").addEventListener("click", () => {
       const v = $("#apiKey").value.trim();
