@@ -1,5 +1,5 @@
 // Ascend service worker: bewaart de app zodat hij ook zonder internet opent.
-const CACHE = "ascend-v2";
+const CACHE = "ascend-v3";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
