@@ -1,12 +1,12 @@
-// Daybook service worker: bewaart de app zodat hij ook zonder internet opent.
-const CACHE = "daybook-v2";
+// Ascend service worker: bewaart de app zodat hij ook zonder internet opent.
+const CACHE = "ascend-v1";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith("daybook-") && k !== CACHE).map(k => caches.delete(k))))
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => (k.startsWith("daybook-") || k.startsWith("ascend-")) && k !== CACHE).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 self.addEventListener("fetch", e => {

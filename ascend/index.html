@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#00a395">
-<meta name="description" content="Daybook: gewoontes, coach, training, voeding, doelen en dagboek.">
+<meta name="description" content="Ascend: gewoontes, coach, training, voeding, doelen en dagboek.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Daybook">
+<meta name="apple-mobile-web-app-title" content="Ascend">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -16,7 +16,7 @@
 <script>window.DAYBOOK_STANDALONE = true;</script>
 </head>
 <body>
-<title>Daybook</title>
+<title>Ascend</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -305,8 +305,8 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent);outline:none}
 .flame{background:var(--surface);box-shadow:0 3px 0 var(--line)}
 .flame.hot{background:var(--sun);color:var(--on-color);box-shadow:0 3px 0 var(--sun-edge)}
 .flame svg{fill:var(--coral)}
-.ring{filter:drop-shadow(0 6px 0 var(--edge))}
-.ring .bar{stroke:url(#ringGrad)}
+.ring .track{filter:drop-shadow(0 4px 0 var(--edge))}
+.ring .bar{stroke:var(--coral)}
 .ring .track{stroke:var(--sunk)}
 .stats .stat{border-radius:18px;padding:12px;box-shadow:0 5px 0 var(--edge)}
 .stats .stat:nth-child(1){background:var(--sun);color:var(--on-color);box-shadow:0 5px 0 var(--sun-edge)}
@@ -351,14 +351,18 @@ header.top h1{text-shadow:0 3px 0 rgba(255,255,255,.6)}
 :root[data-theme="dark"] header.top h1{text-shadow:none}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) header.top h1{text-shadow:none}}
 @media (prefers-reduced-motion:reduce){.panel,#view-today > .panel:first-child{transform:none!important}}
+.brand{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:1.05rem;letter-spacing:.02em;margin-bottom:6px}
+.logo{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(145deg,var(--accent),#7ee06a);box-shadow:0 4px 0 var(--accent-edge);transform:rotate(-6deg)}
+.logo svg{width:20px;height:20px;fill:none;stroke:var(--sun);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 0 var(--coral-edge))}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
 <div class="wrap">
   <header class="top">
     <div>
+      <div class="brand"><span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 17l8-9 8 9"/><path d="M8 19l4-4.5 4 4.5"/></svg></span><span>Ascend</span></div>
       <div class="eyebrow" id="dateLine">Vandaag</div>
-      <h1 id="greeting">Daybook</h1>
+      <h1 id="greeting">Ascend</h1>
     </div>
     <div class="save-state" id="saveState" data-s="local"><i></i><span>Opgeslagen op dit apparaat</span></div>
   </header>
@@ -465,7 +469,7 @@ header.top h1{text-shadow:0 3px 0 rgba(255,255,255,.6)}
 
   <!-- COACH -->
   <section class="view" id="view-coach" hidden>
-    <div class="notice" id="coachOff" hidden>De AI-coach werkt alleen als je Daybook op claude.ai opent en Claude toestemming geeft. Al het andere werkt gewoon.</div>
+    <div class="notice" id="coachOff" hidden>De AI-coach werkt alleen als je Ascend op claude.ai opent en Claude toestemming geeft. Al het andere werkt gewoon.</div>
     <div class="panel">
       <div class="panel-head">
         <h2>Eerlijke dagbeoordeling</h2>
@@ -513,7 +517,7 @@ header.top h1{text-shadow:0 3px 0 rgba(255,255,255,.6)}
       <img id="posturePreview" class="photo-preview" alt="Gekozen foto" hidden>
       <div class="btns"><button class="btn coach" id="postureBtn" disabled>Beoordeel foto</button></div>
       <div class="ai-out" id="postureOut" hidden></div>
-      <div class="muted small">Foto's worden alleen naar Claude gestuurd voor deze beoordeling en niet in Daybook bewaard.</div>
+      <div class="muted small">Foto's worden alleen naar Claude gestuurd voor deze beoordeling en niet in Ascend bewaard.</div>
     </div>
 
     <div class="panel" id="settingsCard" hidden>
@@ -1089,7 +1093,7 @@ header.top h1{text-shadow:0 3px 0 rgba(255,255,255,.6)}
     focusEnd = focusStartAt = null;
     clockEl.textContent = fmtClock(focusMin * 60000);
     $("#focusStart").textContent = "Start"; $("#focusStop").disabled = true;
-    document.title = "Daybook";
+    document.title = "Ascend";
   }
   $("#focusLen").addEventListener("click", e => {
     const b = e.target.closest("[data-min]"); if (!b || focusTick) return;
@@ -1443,7 +1447,7 @@ Antwoord alleen met JSON in het Nederlands:
   function renderChat() {
     const el = $("#chat");
     el.innerHTML = "";
-    if (!chat.length) { el.innerHTML = '<div class="empty">Stel een vraag over je gewoontes, training, voeding of motivatie. De coach kent je gegevens uit Daybook.</div>'; return; }
+    if (!chat.length) { el.innerHTML = '<div class="empty">Stel een vraag over je gewoontes, training, voeding of motivatie. De coach kent je gegevens uit Ascend.</div>'; return; }
     for (const m of chat) { const d = document.createElement("div"); d.className = "msg " + m.role; d.textContent = m.content; el.appendChild(d); }
     el.scrollTop = el.scrollHeight;
   }
@@ -1457,7 +1461,7 @@ Antwoord alleen met JSON in het Nederlands:
     const bubble = document.createElement("div"); bubble.className = "msg assistant"; bubble.textContent = "…";
     $("#chat").appendChild(bubble); $("#chat").scrollTop = 1e6;
     $("#chatSend").disabled = true;
-    const intro = `Je bent de persoonlijke zelfverbeteringscoach van Thomas in de app Daybook. ${TONES[$("#reviewTone").value]} Antwoord in het Nederlands, kort en concreet (maximaal ongeveer 150 woorden), zonder markdown-opmaak. Geef geen medisch advies; verwijs bij gezondheidsklachten naar een arts.\n\nZijn actuele gegevens:\n${buildContext()}`;
+    const intro = `Je bent de persoonlijke zelfverbeteringscoach van Thomas in de app Ascend. ${TONES[$("#reviewTone").value]} Antwoord in het Nederlands, kort en concreet (maximaal ongeveer 150 woorden), zonder markdown-opmaak. Geef geen medisch advies; verwijs bij gezondheidsklachten naar een arts.\n\nZijn actuele gegevens:\n${buildContext()}`;
     const history = chat.slice(-12);
     const input = [{ role: "user", content: intro + "\n\nBevestig kort dat je klaar bent." }, { role: "assistant", content: "Klaar. Wat wil je weten?" }, ...history];
     try {
@@ -1628,7 +1632,7 @@ Antwoord alleen met JSON in het Nederlands:
       const data = { app: "daybook", version: 2, exported: new Date().toISOString(), core, journal: journal.items, meals: meals.items, workouts: workouts.items };
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], { type: "application/json" }));
-      a.download = `daybook-backup-${todayKey()}.json`; a.click();
+      a.download = `ascend-backup-${todayKey()}.json`; a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 5000);
       $("#backupNote").textContent = "Back-up gedownload.";
     });
@@ -1640,7 +1644,7 @@ Antwoord alleen met JSON in het Nederlands:
         core = migrate(d.core); lsSet(LS_CORE, core);
         for (const [s, k] of [[journal, "journal"], [meals, "meals"], [workouts, "workouts"]]) { s.items = d[k] || {}; s.persistLocal(); }
         renderAll(); $("#backupNote").textContent = "Back-up teruggezet.";
-      } catch { $("#backupNote").textContent = "Dit bestand is geen geldige Daybook-back-up."; }
+      } catch { $("#backupNote").textContent = "Dit bestand is geen geldige Ascend-back-up."; }
       e.target.value = "";
     });
     sampleFn = getKey() ? keySample() : null; canImages = !!sampleFn;
